@@ -13,7 +13,7 @@ function Login() {
     const usuarioIngresado = usuario.trim();
     const passwordIngresado = password;
 
-    // 1. VALIDACIONES
+    // validaciones de campos vacios y longitud
     if (!usuarioIngresado || !passwordIngresado) {
       setError("Complete todos los campos.");
       return;
@@ -29,7 +29,7 @@ function Login() {
       return;
     }
 
-    // 2. DATA QUEMADA TEMPORAL
+    // dara cruda 
     const usuariosPrueba = [
       {
         usuario: "12345678",
@@ -45,7 +45,7 @@ function Login() {
       },
     ];
 
-    // 3. BUSCAR USUARIO
+    // buscar usuario con con find
     const usuarioEncontrado = usuariosPrueba.find(
       (item) =>
         item.usuario === usuarioIngresado &&
@@ -57,7 +57,7 @@ function Login() {
       return;
     }
 
-    // 4. INGRESO CORRECTO
+    // atutenticacion correcta
     setError("");
 
     console.log("Usuario autenticado:", usuarioEncontrado);
@@ -68,7 +68,7 @@ function Login() {
   return (
     <div className="login-page">
 
-      {/* CONTENEDOR IZQUIERDO */}
+      {/* contenedor izquierdo */}
       <div className="login-left">
         <div className="left-overlay">
           <div className="left-content">
@@ -90,7 +90,7 @@ function Login() {
         </div>
       </div>
 
-      {/* CONTENEDOR DERECHO */}
+      {/* contenedor derecho */}
       <div className="login-right">
 
         <div className="login-box">
@@ -144,7 +144,7 @@ function Login() {
               }}
             />
 
-            {/* MENSAJE DE ERROR */}
+            {/* mensaje de alerta de rror para el login */}
             {error && (
               <p className="error-message">
                 {error}
