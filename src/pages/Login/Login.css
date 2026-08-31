@@ -33,7 +33,7 @@ body {
 
   background:
     linear-gradient(rgba(0, 10, 18, 0.75), rgba(5, 10, 18, 0.75)),
-    url("../assets/fondo-empresa.jpg");
+    url("../../assets/fondo-empresa.jpg");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
