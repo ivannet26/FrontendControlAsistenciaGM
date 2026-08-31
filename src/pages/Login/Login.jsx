@@ -1,11 +1,13 @@
 import { useState } from "react";
 import "./Login.css";
 import logoGM from "../../assets/logo-mg.png";
+import { useNavigate } from "react-router-dom";
 
 function Login() {
   const [usuario, setUsuario] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -32,15 +34,15 @@ function Login() {
     // dara cruda 
     const usuariosPrueba = [
       {
-        usuario: "12345678",
-        password: "Prueba123",
-        nombre: "Juan Perez",
+        usuario: "usuario1",
+        password: "usuario1",
+        nombre: "Frank Corilla Y.",
         rol: "PRACTICANTE",
       },
       {
-        usuario: "99999999",
-        password: "Admin123",
-        nombre: "Administrador",
+        usuario: "admin1234",
+        password: "admin1234",
+        nombre: "Ing. Juan Carlos Gregorio",
         rol: "ADMIN",
       },
     ];
@@ -61,8 +63,12 @@ function Login() {
     setError("");
 
     console.log("Usuario autenticado:", usuarioEncontrado);
+    sessionStorage.setItem(
+      "usuario",
+      JSON.stringify(usuarioEncontrado)
+    );
 
-    alert(`Bienvenido ${usuarioEncontrado.nombre}`);
+    navigate("/app");
   };
 
   return (
@@ -117,16 +123,14 @@ function Login() {
             <input
               id="usuario"
               type="text"
-              inputMode="numeric"
-              maxLength={12}
+              maxLength={20}
               placeholder="Ingrese su usuario"
               value={usuario}
               onChange={(e) => {
-                const soloNumeros = e.target.value.replace(/\D/g, "");
-
-                setUsuario(soloNumeros);
+                setUsuario(e.target.value);
                 setError("");
               }}
+              autoComplete="username"
             />
 
             <label htmlFor="password">
