@@ -76,6 +76,7 @@ function Sidebar({ usuario }) {
                     )}
                     <MenuItem
                         icon={<LayoutDashboard size={20} />}
+                        onClick={() => navigate("/app/panel")}
                     >
                         PANEL
                     </MenuItem>
