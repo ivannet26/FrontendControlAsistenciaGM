@@ -9,17 +9,35 @@ export async function login(usuario, password) {
     },
 
     body: JSON.stringify({
-      usuario: usuario,
-      password: password,
+      usuario,
+      password,
     }),
   });
 
   const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(
-      data.message || "Usuario o contrasena incorrectos."
-    );
+    throw new Error(data.message || "Usuario o contraseña incorrectos.");
+  }
+
+  return data;
+}
+
+export async function register(datosUsuario) {
+  const response = await fetch(`${API_URL}/auth/register`, {
+    method: "POST",
+
+    headers: {
+      "Content-Type": "application/json",
+    },
+
+    body: JSON.stringify(datosUsuario),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.message || "Error al registrar usuario.");
   }
 
   return data;
