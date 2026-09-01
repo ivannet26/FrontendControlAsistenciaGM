@@ -1,0 +1,297 @@
+.panel-page {
+
+    width:100%;
+
+    height:100%;
+
+    padding:20px;
+
+    background:#24343d;
+
+}
+
+
+
+
+/* CABECERA */
+
+.panel-header {
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    margin-bottom:20px;
+
+}
+
+
+
+.panel-header h1 {
+
+    color:white;
+
+    font-size:26px;
+
+    font-weight:400;
+
+    margin:0;
+
+}
+
+
+
+
+/* FILTROS */
+
+.panel-actions {
+
+    display:flex;
+
+}
+
+
+
+.panel-actions button {
+
+    height:40px;
+
+    padding:0 15px;
+
+    background:#1b2a36;
+
+    border:1px solid #344650;
+
+    color:#dbe4ee;
+
+    cursor:pointer;
+
+}
+
+
+
+
+/* CONTENIDO PRINCIPAL */
+
+.panel-main {
+
+    width:100%;
+
+}
+
+
+
+
+/* PARTE SUPERIOR */
+
+.panel-summary-area {
+
+    width:100%;
+
+    display:grid;
+
+    grid-template-columns:3fr 1fr;
+
+    gap:20px;
+
+    margin-bottom:20px;
+
+}
+
+
+
+
+/* TARJETAS */
+
+.summary-container {
+
+    display:grid;
+
+    grid-template-columns:repeat(3,1fr);
+
+    height:100px;
+
+    background:#111c22;
+
+}
+
+
+
+.summary-item {
+
+    display:flex;
+
+    flex-direction:column;
+
+    justify-content:center;
+
+    align-items:center;
+
+    border-right:1px solid #273943;
+
+}
+
+
+
+.summary-item span {
+
+    color:#9fb2c0;
+
+    font-size:14px;
+
+}
+
+
+
+.summary-item strong {
+
+    margin-top:8px;
+
+    color:white;
+
+    font-size:24px;
+
+}
+
+
+
+
+
+/* ACTIVIDADES */
+
+.activity-box {
+
+
+    height:55px;
+
+    background:#111c22;
+
+    border:1px solid #263943;
+
+    padding:0 20px;
+
+    color:#9fb2c0;
+
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+
+    font-size:13px;
+
+
+}
+
+
+
+.activity-box strong {
+
+    color:white;
+
+    font-size:13px;
+
+}
+
+
+
+
+
+/* GRAFICO */
+
+.chart-box {
+
+
+    width:74%;
+
+    height:450px;
+
+    background:#1b2a36;
+
+    border:1px solid #273943;
+
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+
+}
+
+
+
+.chart-empty {
+
+    text-align:center;
+
+    color:white;
+
+}
+
+
+
+.chart-icon {
+
+    font-size:45px;
+
+    opacity:0.5;
+
+}
+
+
+
+.chart-empty h3 {
+
+    font-size:18px;
+
+    margin:15px 0;
+
+}
+
+
+
+.chart-empty p {
+
+    color:#9fb2c0;
+
+}
+
+
+
+
+
+/* RESPONSIVE */
+
+@media(max-width:900px){
+
+
+    .panel-summary-area {
+
+        grid-template-columns:1fr;
+
+    }
+
+
+    .summary-container {
+
+        grid-template-columns:1fr;
+
+        height:auto;
+
+    }
+
+
+    .summary-item {
+
+        padding:20px;
+
+    }
+
+
+}

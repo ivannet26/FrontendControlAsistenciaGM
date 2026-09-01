@@ -14,7 +14,7 @@ import LayoutPrincipal from "./components/LayoutPrincipal/LayoutPrincipal.jsx";
 import Register from "./pages/Register/Register.jsx";
 
 import Rastreador from "./pages/Rastreador/Rastreador.jsx";
-
+import Panel from "./pages/Modulo-Panel/Panel.jsx";
 
 function App() {
 
@@ -53,6 +53,10 @@ function App() {
           <Route
             path="rastreador"
             element={<Rastreador />}
+          />
+          <Route
+            path="panel"
+            element={<Panel />}
           />
 
         </Route>
