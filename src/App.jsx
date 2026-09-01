@@ -2,6 +2,7 @@ import React from "react";
 import Login from "./pages/Login/Login.jsx";
 import { BrowserRouter, Navigate, Routes, Route } from "react-router-dom";
 import LayoutPrincipal from "./components/LayoutPrincipal/LayoutPrincipal.jsx";
+import Register from "./pages/Register/Register.jsx";
 
 function App() {
   return (
@@ -14,6 +15,10 @@ function App() {
         <Route
           path="/login"
           element={<Login />}
+        />
+        <Route
+          path="/registro"
+          element={<Register />}
         />
         <Route
           path="/app"
