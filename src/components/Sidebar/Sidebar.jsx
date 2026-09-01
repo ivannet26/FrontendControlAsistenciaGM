@@ -4,7 +4,7 @@ import {
     Menu,
     MenuItem,
 } from "react-pro-sidebar";
-
+import { useNavigate } from "react-router-dom";
 
 import {
     Clock3,
@@ -30,6 +30,7 @@ function Sidebar({ usuario }) {
     const [collapsed, setCollapsed] = useState(false);
     const [mostrarMas, setMostrarMas] = useState(false);
     const rol = usuario?.rol;
+    const navigate = useNavigate();
 
     return (
         <div className="sidebar-container">
@@ -62,7 +63,10 @@ function Sidebar({ usuario }) {
                 >
 
                     {/* MODULOS PARA TODOS */}
-                    <MenuItem icon={<Clock3 size={20} />}>
+                    <MenuItem
+                        icon={<Clock3 size={20} />}
+                        onClick={() => navigate("/app/rastreador")}
+                    >
                         RASTREADOR
                     </MenuItem>
                     {!collapsed && (
@@ -139,7 +143,7 @@ function Sidebar({ usuario }) {
                                     <MenuItem icon={<ChartNoAxesColumnIncreasing size={19} />}>
                                         ACTIVIDAD
                                     </MenuItem>
-                                    <MenuItem icon={<CalendarCheck  size={19} />}>
+                                    <MenuItem icon={<CalendarCheck size={19} />}>
                                         APROBACIONES
                                     </MenuItem>
                                     <MenuItem icon={<FileText size={19} />}>
