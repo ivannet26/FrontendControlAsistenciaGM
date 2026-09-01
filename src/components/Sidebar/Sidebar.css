@@ -119,3 +119,67 @@
     font-size: 14px !important;
     letter-spacing: -0.4px;
 }
+.informes-panel {
+
+    position: fixed;
+
+    left: 200px; /* ancho de tu sidebar */
+
+    top: 203px; /* altura donde está INFORMES */
+
+    width: 150px;
+
+    background:#111c22;
+
+    z-index:999;
+
+    padding:10px 0;
+
+    border-left:1px solid #263943;
+
+}
+
+
+
+.informes-item {
+
+    height:40px;
+
+    display:flex;
+
+    align-items:center;
+
+    padding-left:20px;
+
+    color:#a9bcc7;
+
+    font-size:14px;
+
+}
+
+
+.informes-title {
+
+    padding:12px 20px 8px;
+
+    color:#8ea0af;
+
+    font-size:12px;
+
+}
+
+.informes-item:hover {
+
+    background:#24343d;
+
+    color:white;
+
+}
+
+
+
+.informes-item.active {
+
+    background:#24343d;
+
+}

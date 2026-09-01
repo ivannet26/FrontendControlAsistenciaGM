@@ -10,11 +10,14 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@headlessui/react": "^2.2.10",
     "lucide-react": "^1.38.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "react-pro-sidebar": "^1.1.0",
-    "react-router-dom": "^7.18.3"
+    "react-router-dom": "^7.18.3",
+    "react-select": "^5.10.2",
+    "react-timer-hook": "^4.0.6"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

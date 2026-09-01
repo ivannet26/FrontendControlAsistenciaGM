@@ -1,37 +1,45 @@
 import "./Rastreador.css";
 
+import { useState } from "react";
+
+import TimerBar from "../../components/RastreadorComp/TimerBar/TimerBar";
+
+
 function Rastreador() {
+
+
+    const [actividad, setActividad] = useState("");
+
+    const [activo, setActivo] = useState(false);
+
+    const [proyecto, setProyecto] = useState(null);
+    const [segundos, setSegundos] = useState(0);
+
 
     return (
 
         <div className="tracker-page">
 
 
-            <div className="tracker-header">
+            <TimerBar
 
+                actividad={actividad}
 
-                <input
-                    type="text"
-                    placeholder="¿En qué estás trabajando?"
-                />
+                setActividad={setActividad}
 
+                activo={activo}
 
-                <button className="project-btn">
-                    + Proyecto
-                </button>
+                setActivo={setActivo}
 
+                segundos={segundos}
 
-                <div className="timer">
-                    00:00:00
-                </div>
+                setSegundos={setSegundos}
 
+                proyecto={proyecto}
 
-                <button className="start-btn">
-                    INICIO
-                </button>
+                setProyecto={setProyecto}
 
-
-            </div>
+            />
 
 
 
@@ -42,18 +50,25 @@ function Rastreador() {
 
 
                     <div className="clock-icon">
+
                         ⏱️
+
                     </div>
 
 
                     <h2>
+
                         ¡Empecemos a rastrear!
+
                     </h2>
 
 
                     <p>
+
                         Inicia tu jornada y registra
+
                         tu tiempo de asistencia.
+
                     </p>
 
 
