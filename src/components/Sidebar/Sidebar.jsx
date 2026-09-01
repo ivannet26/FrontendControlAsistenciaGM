@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
     Sidebar as ProSidebar,
     Menu,
+    SubMenu,
     MenuItem,
 } from "react-pro-sidebar";
 import { useNavigate } from "react-router-dom";
@@ -29,9 +30,43 @@ import "./Sidebar.css";
 function Sidebar({ usuario }) {
     const [collapsed, setCollapsed] = useState(false);
     const [mostrarMas, setMostrarMas] = useState(false);
+    const [informesOpen, setInformesOpen] = useState(false);
     const rol = usuario?.rol;
     const navigate = useNavigate();
+    const informesRef = useRef(null);
+    useEffect(() => {
 
+        const cerrarMenu = (e) => {
+
+            if (
+                informesRef.current &&
+                !informesRef.current.contains(e.target)
+            ) {
+
+                setInformesOpen(false);
+
+            }
+
+        };
+
+
+        document.addEventListener(
+            "mousedown",
+            cerrarMenu
+        );
+
+
+        return () => {
+
+            document.removeEventListener(
+                "mousedown",
+                cerrarMenu
+            );
+
+        };
+
+
+    }, []);
     return (
         <div className="sidebar-container">
 
@@ -82,12 +117,13 @@ function Sidebar({ usuario }) {
                     </MenuItem>
 
                     <MenuItem
-                        icon={
-                            <ChartNoAxesColumnIncreasing size={20} />
-                        }
+                        icon={<ChartNoAxesColumnIncreasing size={19} />}
+                        onClick={() => setInformesOpen(!informesOpen)}
                     >
                         INFORMES
                     </MenuItem>
+
+
                     {!collapsed && (
                         <div className="menu-section">
                             GESTIONAR
@@ -171,7 +207,61 @@ function Sidebar({ usuario }) {
                 </button>
 
             </ProSidebar>
+            {informesOpen && (
 
+                <div
+                    className="informes-panel"
+                    ref={informesRef}
+                >
+
+                    <div className="informes-title">
+                        TIEMPO
+                    </div>
+
+                    <div className="informes-item active">
+                        Resumido
+                    </div>
+
+                    <div className="informes-item">
+                        Detallado
+                    </div>
+
+                    <div className="informes-item">
+                        Semanal
+                    </div>
+
+                    <div className="informes-item">
+                        Compartido
+                    </div>
+
+
+                    <div className="informes-title">
+                        EQUIPO
+                    </div>
+
+
+                    <div className="informes-item">
+                        Asistencia
+                    </div>
+
+                    <div className="informes-item">
+                        Asignaciones
+                    </div>
+
+
+                    <div className="informes-title">
+                        GASTO
+                    </div>
+
+
+                    <div className="informes-item">
+                        Detallado
+                    </div>
+
+
+                </div>
+
+            )}
         </div>
     );
 }
