@@ -2,73 +2,70 @@ import { useState } from "react";
 import "./Login.css";
 import logoGM from "../../assets/logo-mg.png";
 import { useNavigate } from "react-router-dom";
+import { login } from "../../services/authService";
 
 function Login() {
-  const [usuario, setUsuario] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
+
     e.preventDefault();
 
-    const usuarioIngresado = usuario.trim();
-    const passwordIngresado = password;
 
-    // validaciones de campos vacios y longitud
-    if (!usuarioIngresado || !passwordIngresado) {
+    if (!email || !password) {
       setError("Complete todos los campos.");
       return;
     }
 
-    if (usuarioIngresado.length < 8 || usuarioIngresado.length > 12) {
-      setError("El usuario debe tener entre 8 y 12 digitos.");
+
+    if (password.length < 6) {
+      setError("La contraseña no es válida.");
       return;
     }
 
-    if (passwordIngresado.length < 6) {
-      setError("La contrasena no es valida");
-      return;
+
+    try {
+      const respuesta = await login(
+        email,
+        password
+      );
+
+
+      console.log(
+        "Usuario autenticado:",
+        respuesta
+      );
+
+
+      localStorage.setItem(
+        "token",
+        respuesta.access_token
+      );
+
+
+      sessionStorage.setItem(
+        "usuario",
+        JSON.stringify(respuesta.usuario)
+      );
+
+
+      setError("");
+
+      navigate("/app");
+
+
+    } catch (error) {
+
+
+      setError(error.message);
+
+
     }
 
-    // dara cruda 
-    const usuariosPrueba = [
-      {
-        usuario: "usuario1",
-        password: "usuario1",
-        nombre: "Frank Corilla Y.",
-        rol: "PRACTICANTE",
-      },
-      {
-        usuario: "admin1234",
-        password: "admin1234",
-        nombre: "Ing. Juan Carlos Gregorio",
-        rol: "ADMIN",
-      },
-    ];
 
-    // buscar usuario con con find
-    const usuarioEncontrado = usuariosPrueba.find(
-      (item) =>
-        item.usuario === usuarioIngresado &&
-        item.password === passwordIngresado
-    );
-
-    if (!usuarioEncontrado) {
-      setError("Usuario o contrasena incorrectos.");
-      return;
-    }
-
-    // atutenticacion correcta
-    setError("");
-
-    console.log("Usuario autenticado:", usuarioEncontrado);
-    sessionStorage.setItem(
-      "usuario",
-      JSON.stringify(usuarioEncontrado)
-    );
-
-    navigate("/app");
   };
 
   return (
@@ -115,22 +112,30 @@ function Login() {
             onSubmit={handleSubmit}
             className="login-form"
           >
-
-            <label htmlFor="usuario">
-              Usuario
+            <label htmlFor="email">
+              Correo
             </label>
 
             <input
-              id="usuario"
-              type="text"
-              maxLength={20}
-              placeholder="Ingrese su usuario"
-              value={usuario}
+
+              id="email"
+
+              type="email"
+
+              placeholder="Ingrese su correo"
+
+              value={email}
+
               onChange={(e) => {
-                setUsuario(e.target.value);
+
+                setEmail(e.target.value);
+
                 setError("");
+
               }}
-              autoComplete="username"
+
+              autoComplete="email"
+
             />
 
             <label htmlFor="password">

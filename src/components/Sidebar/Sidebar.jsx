@@ -147,7 +147,7 @@ function Sidebar({ usuario }) {
                     </MenuItem>
 
                     {/* SOLO ADMIN */}
-                    {rol === "ADMIN" && (
+                    {rol === "ADMINISTRADOR" && (
                         <>
                             <MenuItem
                                 icon={
@@ -161,14 +161,14 @@ function Sidebar({ usuario }) {
                             </MenuItem>
                             {mostrarMas && (
                                 <>
-                                    <MenuItem icon={<LayoutDashboard size={19} />}>
+                                    {/*<MenuItem icon={<LayoutDashboard size={19} />}>
                                         QUIOSCOS
                                     </MenuItem>
 
                                     <MenuItem icon={<FolderKanban size={19} />}>
                                         PLAN
                                     </MenuItem>
-
+                                    
                                     <MenuItem icon={<ChartNoAxesColumnIncreasing size={19} />}>
                                         GASTOS
                                     </MenuItem>
@@ -179,7 +179,7 @@ function Sidebar({ usuario }) {
 
                                     <MenuItem icon={<ChartNoAxesColumnIncreasing size={19} />}>
                                         ACTIVIDAD
-                                    </MenuItem>
+                                    </MenuItem>*/ }
                                     <MenuItem icon={<CalendarCheck size={19} />}>
                                         APROBACIONES
                                     </MenuItem>
