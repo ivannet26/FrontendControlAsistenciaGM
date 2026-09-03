@@ -1,0 +1,149 @@
+.profile-menu{
+
+    position:absolute;
+
+    right:10px;
+
+    top:55px;
+
+    width:300px;
+
+    background:#111c22;
+
+    border-radius:10px;
+
+    overflow:hidden;
+
+    color:#b8c7d1;
+
+    z-index:1000;
+
+}
+
+
+.profile-header{
+
+    text-align:center;
+
+    padding:20px;
+
+}
+
+
+.avatar-big{
+
+    width:65px;
+    height:65px;
+
+    margin:auto;
+
+    background:#00a88f;
+
+    border-radius:8px;
+
+    display:flex;
+
+    align-items:center;
+    justify-content:center;
+
+    font-size:35px;
+
+    color:white;
+
+}
+
+
+
+.profile-header h3{
+
+    color:white;
+
+    margin:12px 0 5px;
+
+}
+
+
+.profile-header p {
+
+    color: #9aaab5;
+
+    font-size: 13px;
+
+    font-weight: 400;
+
+    margin-top: 5px;
+
+}
+
+
+
+.account-btn{
+
+    width:85%;
+
+    margin:0 auto 15px;
+
+    display:block;
+
+    background:#344550;
+
+    color:white;
+
+    border:none;
+
+    padding:12px;
+
+    border-radius:7px;
+
+    font-weight:bold;
+
+}
+
+
+
+.profile-option{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:15px;
+
+    padding:15px 22px;
+
+    border-top:1px solid #26343d;
+
+    cursor:pointer;
+
+}
+
+
+
+.profile-option:hover{
+
+    background:#24343d;
+
+    color:white;
+
+}
+
+
+
+.logout{
+
+    color:#d6dfe5;
+
+}
+.profile-name {
+
+    color: #ffffff;
+
+    font-size: 17px;
+
+    font-weight: 500;
+
+    margin-top: 12px;
+
+    text-align: center;
+
+}
