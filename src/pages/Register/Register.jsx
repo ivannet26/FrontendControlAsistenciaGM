@@ -13,42 +13,86 @@ function Register() {
     const navigate = useNavigate();
     const handleSubmit = async (e) => {
 
-        e.preventDefault();
+    e.preventDefault();
 
-        if (
-            !nombre ||
-            !apellido ||
-            !correo ||
-            !password ||
-            !confirmPassword
-        ) {
-            setError("Complete todos los campos.");
-            return;
-        }
 
-        if (password !== confirmPassword) {
+    if (
+        !nombre ||
+        !apellido ||
+        !correo ||
+        !password ||
+        !confirmPassword
+    ) {
 
-            setError("Las contraseñas no coinciden.");
-            return;
-        }
+        setError("Complete todos los campos.");
 
-        if (password.length < 6) {
+        return;
 
-            setError("La contraseña debe tener mínimo 6 caracteres.");
-            return;
-        }
-        const nuevoUsuario = {
-            nombre,
-            apellido,
-            correo,
-            password
-        };
-        console.log("Datos registro:", nuevoUsuario);
-        setError("");
-        alert("Registro correcto");
-        navigate("/login");
+    }
+
+
+    if (password !== confirmPassword) {
+
+        setError("Las contraseñas no coinciden.");
+
+        return;
+
+    }
+
+
+    if (password.length < 6) {
+
+        setError("La contraseña debe tener mínimo 6 caracteres.");
+
+        return;
+
+    }
+
+
+    const nuevoUsuario = {
+
+        nombre,
+
+        apellido,
+
+        email: correo,
+
+        password
 
     };
+
+
+    try {
+
+
+        const respuesta = await register(nuevoUsuario);
+
+
+        console.log(
+            "Usuario registrado:",
+            respuesta
+        );
+
+
+        setError("");
+
+
+        alert("Registro correcto");
+
+
+        navigate("/login");
+
+
+    } catch(error) {
+
+
+        setError(error.message);
+
+
+    }
+
+
+};
 
     return (
         <div className="register-page">
