@@ -44,20 +44,7 @@ function ProyectoTable({
 
         <div className="tabla-container">
 
-             <div className="tabla-header">
-
-            <span>
-                Proyectos
-            </span>
-
-
-            <button>
-                Exportar ▾
-            </button>
-
-
-        </div>
-
+            
             <table>
 
 
