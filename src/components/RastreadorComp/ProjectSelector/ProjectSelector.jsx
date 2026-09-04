@@ -1,6 +1,6 @@
-import { Popover } from "@headlessui/react";
+
 import { Search, Star, Plus } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import ModalProyecto from "../ModalProyecto/ModalProyecto";
 import ModalTarea from "../ModalTarea/ModalTarea";
@@ -12,13 +12,14 @@ function ProjectSelector({ setProyecto }) {
 
 
     const [mostrarModalTarea, setMostrarModalTarea] = useState(false);
-
+    const [mostrarProyectos, setMostrarProyectos] = useState(false);
+    const projectRef = useRef(null);
     const [proyectoSeleccionado, setProyectoSeleccionado] = useState(null);
 
     const [proyectosAbiertos, setProyectosAbiertos] = useState([]);
 
     const [mostrarModalProyecto, setMostrarModalProyecto] = useState(false);
-
+    const [busqueda, setBusqueda] = useState("");
     const [favoritos, setFavoritos] = useState([]);
     const [tareasFavoritas, setTareasFavoritas] = useState([]);
 
@@ -265,7 +266,51 @@ function ProjectSelector({ setProyecto }) {
 
 
     ]);
+    const proyectosFiltrados = proyectos.filter((proyecto) => {
 
+        return proyecto.nombre
+            .toLowerCase()
+            .includes(
+                busqueda.toLowerCase()
+            );
+
+    });
+    useEffect(() => {
+
+
+        const cerrarPanel = (e) => {
+
+
+            if (
+                projectRef.current &&
+                !projectRef.current.contains(e.target)
+            ) {
+
+                setMostrarProyectos(false);
+
+            }
+
+
+        };
+
+
+        document.addEventListener(
+            "mousedown",
+            cerrarPanel
+        );
+
+
+        return () => {
+
+            document.removeEventListener(
+                "mousedown",
+                cerrarPanel
+            );
+
+        };
+
+
+    }, []);
 
 
 
@@ -289,438 +334,459 @@ function ProjectSelector({ setProyecto }) {
 
     return (
 
-        <Popover className="project-selector">
+        <div
+            className="project-selector"
+            ref={projectRef}
+        >
 
 
-            <Popover.Button className="project-btn">
+            <button
+
+                className="project-btn"
+
+                onClick={() =>
+                    setMostrarProyectos(!mostrarProyectos)
+                }
+
+            >
 
                 + Proyecto
 
-            </Popover.Button>
+            </button>
 
 
 
 
 
-            <Popover.Panel className="project-panel">
+            {
+                mostrarProyectos && (
 
+                    <div className="project-panel">
 
 
-                <div className="project-search">
 
+                        <div className="project-search">
 
-                    <Search size={17} />
 
+                            <Search size={17} />
 
-                    <input
 
-                        placeholder="Buscar Proyecto o Cliente"
+                            <input
 
-                    />
+                                placeholder="Buscar Proyecto o Cliente"
 
+                                value={busqueda}
 
-                </div>
+                                onChange={(e) => setBusqueda(e.target.value)}
 
+                            />
 
 
+                        </div>
 
 
-                <div className="project-list">
 
 
 
-                    {
-                        proyectos.map((proyecto) => (
+                        <div className="project-list">
 
 
-                            <div
-                                key={proyecto.id}
-                                className="project-container"
-                            >
 
+                            {
+                                proyectosFiltrados.map((proyecto) => (
 
 
+                                    <div
+                                        key={proyecto.id}
+                                        className="project-container"
+                                    >
 
-                                {/* PROYECTO */}
 
-                                <div
 
-                                    className="project-item"
 
-                                    onClick={() => {
+                                        {/* PROYECTO */}
 
+                                        <div
 
-                                        setProyecto(proyecto);
+                                            className="project-item"
 
+                                            onClick={() => {
 
-                                        setProyectosAbiertos((prev) => {
 
+                                                setProyecto(proyecto);
 
-                                            if (prev.includes(proyecto.id)) {
 
+                                                setProyectosAbiertos((prev) => {
 
-                                                return prev.filter(
-                                                    id => id !== proyecto.id
-                                                );
 
+                                                    if (prev.includes(proyecto.id)) {
 
-                                            }
 
+                                                        return prev.filter(
+                                                            id => id !== proyecto.id
+                                                        );
 
-                                            return [
-                                                ...prev,
-                                                proyecto.id
-                                            ];
 
+                                                    }
 
-                                        });
 
+                                                    return [
+                                                        ...prev,
+                                                        proyecto.id
+                                                    ];
 
-                                    }}
 
-                                >
+                                                });
 
-
-
-                                    <div className="project-info">
-
-
-                                        <span
-
-                                            className="project-dot"
-
-                                            style={{
-
-                                                backgroundColor:
-                                                    proyecto.color
-
-                                            }}
-
-                                        />
-
-
-
-                                        <span
-
-                                            className="project-name"
-
-                                            style={{
-
-                                                color:
-                                                    proyecto.color
 
                                             }}
 
                                         >
 
-                                            {proyecto.nombre}
 
 
-                                        </span>
+                                            <div className="project-info">
 
 
-                                    </div>
+                                                <span
+
+                                                    className="project-dot"
+
+                                                    style={{
+
+                                                        backgroundColor:
+                                                            proyecto.color
+
+                                                    }}
+
+                                                />
 
 
 
+                                                <span
 
+                                                    className="project-name"
 
-                                    {
-                                        proyecto.tareas.length > 0
+                                                    style={{
 
-                                            ?
+                                                        color:
+                                                            proyecto.color
 
-                                            <div className="task-control">
+                                                    }}
 
-                                                <span className="task-count">
+                                                >
 
-                                                    {proyecto.tareas.length} Tareas
+                                                    {proyecto.nombre}
+
 
                                                 </span>
 
 
-                                                {
-                                                    proyectosAbiertos.includes(proyecto.id)
-
-                                                        ?
-
-                                                        <ChevronUp size={16} />
-
-                                                        :
-
-                                                        <ChevronDown size={16} />
-
-                                                }
-
                                             </div>
 
 
-                                            :
-
-                                            <button
-
-                                                className="create-task-btn"
-
-                                                onClick={(e) =>
-                                                    abrirCrearTarea(
-                                                        e,
-                                                        proyecto
-                                                    )
-                                                }
-
-                                            >
-
-                                                Crear Tarea
-
-
-                                            </button>
-
-                                    }
-
-
-
-
-
-
-                                    <Star
-
-                                        size={17}
-
-                                        className={
-
-                                            favoritos.includes(proyecto.id)
-
-                                                ?
-
-                                                "star active"
-
-                                                :
-
-                                                "star"
-
-                                        }
-
-
-                                        onClick={(e) => {
-
-
-                                            e.stopPropagation();
-
-
-
-                                            if (
-                                                favoritos.includes(
-                                                    proyecto.id
-                                                )
-                                            ) {
-
-
-                                                setFavoritos(
-
-                                                    favoritos.filter(
-
-                                                        id =>
-                                                            id !== proyecto.id
-
-                                                    )
-
-                                                );
-
-
-                                            } else {
-
-
-                                                setFavoritos([
-
-                                                    ...favoritos,
-
-                                                    proyecto.id
-
-                                                ]);
-
-
-                                            }
-
-
-
-                                        }}
-
-
-                                    />
-
-
-
-                                </div>
-
-
-
-
-
-
-
-                                {/* TAREAS */}
-
-                                {
-                                    proyectosAbiertos.includes(proyecto.id) && (
-
-
-                                        <div className="task-list">
 
 
 
                                             {
-                                                proyecto.tareas.map((tarea) => (
+                                                proyecto.tareas.length > 0
 
+                                                    ?
 
-                                                    <div
-                                                        key={tarea.id}
-                                                        className="task-item"
-                                                    >
+                                                    <div className="task-control">
 
-                                                        <span>
-                                                            {tarea.nombre}
+                                                        <span className="task-count">
+
+                                                            {proyecto.tareas.length} Tareas
+
                                                         </span>
 
 
-                                                        <Star
+                                                        {
+                                                            proyectosAbiertos.includes(proyecto.id)
 
-                                                            size={16}
+                                                                ?
 
-                                                            className={
+                                                                <ChevronUp size={16} />
 
-                                                                tareasFavoritas.includes(tarea.id)
+                                                                :
 
-                                                                    ?
+                                                                <ChevronDown size={16} />
 
-                                                                    "task-star active"
-
-                                                                    :
-
-                                                                    "task-star"
-
-                                                            }
-
-
-                                                            onClick={(e) => {
-
-
-                                                                e.stopPropagation();
-
-
-                                                                if (
-                                                                    tareasFavoritas.includes(tarea.id)
-                                                                ) {
-
-                                                                    setTareasFavoritas(
-
-                                                                        tareasFavoritas.filter(
-
-                                                                            id => id !== tarea.id
-
-                                                                        )
-
-                                                                    );
-
-
-                                                                } else {
-
-
-                                                                    setTareasFavoritas([
-
-                                                                        ...tareasFavoritas,
-
-                                                                        tarea.id
-
-                                                                    ]);
-
-                                                                }
-
-
-                                                            }}
-
-                                                        />
+                                                        }
 
                                                     </div>
 
 
-                                                ))
+                                                    :
+
+                                                    <button
+
+                                                        className="create-task-btn"
+
+                                                        onClick={(e) =>
+                                                            abrirCrearTarea(
+                                                                e,
+                                                                proyecto
+                                                            )
+                                                        }
+
+                                                    >
+
+                                                        Crear Tarea
+
+
+                                                    </button>
+
                                             }
 
 
 
 
-                                            <div
 
-                                                className="new-task"
 
-                                                onClick={(e) =>
+                                            <Star
 
-                                                    abrirCrearTarea(
-                                                        e,
-                                                        proyecto
-                                                    )
+                                                size={17}
+
+                                                className={
+
+                                                    favoritos.includes(proyecto.id)
+
+                                                        ?
+
+                                                        "star active"
+
+                                                        :
+
+                                                        "star"
 
                                                 }
 
-                                            >
 
-                                                + Crear nueva Tarea
+                                                onClick={(e) => {
 
 
-                                            </div>
+                                                    e.stopPropagation();
+
+
+
+                                                    if (
+                                                        favoritos.includes(
+                                                            proyecto.id
+                                                        )
+                                                    ) {
+
+
+                                                        setFavoritos(
+
+                                                            favoritos.filter(
+
+                                                                id =>
+                                                                    id !== proyecto.id
+
+                                                            )
+
+                                                        );
+
+
+                                                    } else {
+
+
+                                                        setFavoritos([
+
+                                                            ...favoritos,
+
+                                                            proyecto.id
+
+                                                        ]);
+
+
+                                                    }
+
+
+
+                                                }}
+
+
+                                            />
 
 
 
                                         </div>
 
 
-                                    )
-                                }
-
-
-
-
-                            </div>
-
-
-
-                        ))
-                    }
-
-
-
-                </div>
 
 
 
 
 
+                                        {/* TAREAS */}
 
-                <button
-
-                    className="create-project"
-
-                    onClick={() =>
-
-                        setMostrarModalProyecto(true)
-
-                    }
-
-                >
-
-                    <Plus size={16} />
-
-                    Crear nuevo Proyecto
+                                        {
+                                            proyectosAbiertos.includes(proyecto.id) && (
 
 
-                </button>
+                                                <div className="task-list">
 
 
 
+                                                    {
+                                                        proyecto.tareas.map((tarea) => (
+
+
+                                                            <div
+                                                                key={tarea.id}
+                                                                className="task-item"
+                                                            >
+
+                                                                <span>
+                                                                    {tarea.nombre}
+                                                                </span>
+
+
+                                                                <Star
+
+                                                                    size={16}
+
+                                                                    className={
+
+                                                                        tareasFavoritas.includes(tarea.id)
+
+                                                                            ?
+
+                                                                            "task-star active"
+
+                                                                            :
+
+                                                                            "task-star"
+
+                                                                    }
+
+
+                                                                    onClick={(e) => {
+
+
+                                                                        e.stopPropagation();
+
+
+                                                                        if (
+                                                                            tareasFavoritas.includes(tarea.id)
+                                                                        ) {
+
+                                                                            setTareasFavoritas(
+
+                                                                                tareasFavoritas.filter(
+
+                                                                                    id => id !== tarea.id
+
+                                                                                )
+
+                                                                            );
+
+
+                                                                        } else {
+
+
+                                                                            setTareasFavoritas([
+
+                                                                                ...tareasFavoritas,
+
+                                                                                tarea.id
+
+                                                                            ]);
+
+                                                                        }
+
+
+                                                                    }}
+
+                                                                />
+
+                                                            </div>
+
+
+                                                        ))
+                                                    }
 
 
 
-            </Popover.Panel>
+
+                                                    <div
+
+                                                        className="new-task"
+
+                                                        onClick={(e) =>
+
+                                                            abrirCrearTarea(
+                                                                e,
+                                                                proyecto
+                                                            )
+
+                                                        }
+
+                                                    >
+
+                                                        + Crear nueva Tarea
+
+
+                                                    </div>
+
+
+
+                                                </div>
+
+
+                                            )
+                                        }
+
+
+
+
+                                    </div>
+
+
+
+                                ))
+                            }
+
+
+
+                        </div>
+
+
+
+
+
+
+                        <button
+
+                            className="create-project"
+
+                            onClick={() =>
+
+                                setMostrarModalProyecto(true)
+
+                            }
+
+                        >
+
+                            <Plus size={16} />
+
+                            Crear nuevo Proyecto
+
+
+                        </button>
+
+
+
+
+
+
+                    </div>
+
+                )
+            }
 
 
 
@@ -844,23 +910,18 @@ function ProjectSelector({ setProyecto }) {
 
                             setMostrarModalProyecto(false);
 
-
                         }}
 
-
                     />
-
 
                 )
             }
 
 
-
-        </Popover>
+        </div>
 
     );
 
 }
-
 
 export default ProjectSelector;
