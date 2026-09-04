@@ -130,7 +130,8 @@ function Sidebar({ usuario }) {
                         </div>
                     )}
                     <MenuItem
-                        icon={<FolderKanban size={20} />}
+                        icon={<LayoutDashboard size={20} />}
+                        onClick={() => navigate("/app/proyectos")}
                     >
                         PROYECTOS
                     </MenuItem>
