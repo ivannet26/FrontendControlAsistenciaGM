@@ -6,7 +6,7 @@ function ModalTarea({ cerrar, guardar }) {
 
 
     const [nombreTarea, setNombreTarea] = useState("");
-
+    
 
 
     const crear = ()=>{
