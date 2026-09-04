@@ -15,6 +15,7 @@ import Register from "./pages/Register/Register.jsx";
 
 import Rastreador from "./pages/Rastreador/Rastreador.jsx";
 import Panel from "./pages/Modulo-Panel/Panel.jsx";
+import Proyectos from "./pages/Proyectos/Proyectos.jsx";
 
 function App() {
 
@@ -54,9 +55,15 @@ function App() {
             path="rastreador"
             element={<Rastreador />}
           />
+          
           <Route
             path="panel"
             element={<Panel />}
+          />
+          
+          <Route
+            path="proyectos"
+            element={<Proyectos />}
           />
 
         </Route>
