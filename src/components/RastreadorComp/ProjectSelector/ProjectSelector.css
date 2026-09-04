@@ -1,78 +1,78 @@
-.project-selector{
-
-    position:relative;
-
+.project-selector {
+  position: relative;
 }
 
+/* BOTON + PROYECTO */
+.project-btn {
+  height: 40px;
+  background: transparent;
+  border: none;
 
+  color: #10a5f5;
 
-.project-btn{
+  cursor: pointer;
 
-    height:40px;
-
-    background:transparent;
-
-    border:none;
-
-    color:#10a5f5;
-
-    cursor:pointer;
-
+  font-size: 14px;
 }
 
+/* PANEL */
+.project-panel {
+  position: absolute;
 
+  top: 45px;
+  right: 0;
 
+  width: 380px;
 
+  background: #111c22;
 
-.project-panel{
+  border: 1px solid #344650;
 
+  border-radius: 8px;
 
-    position:absolute;
+  padding: 12px;
 
-    top:45px;
-
-    right:0;
-
-    width:320px;
-
-    background:#111c22;
-
-    border:1px solid #344650;
-
-    border-radius:8px;
-
-    padding:12px;
-
-    z-index:1000;
-
-
+  z-index: 1000;
 }
 
-
-
-.project-search{
-
+/* BUSCADOR */
+.project-search {
 
     display:flex;
 
     align-items:center;
 
-    gap:10px;
+    gap:6px;
 
-    background:#101b24;
+    background:#24343d;
 
-    padding:10px;
+    height:38px;
 
-    border-radius:6px;
+    padding:0 10px;
+
+    border-radius:5px;
 
 }
 
 
+.project-search svg {
 
-.project-search input{
+    width:16px;
+
+    height:16px;
+
+    flex-shrink:0;
+
+}
 
 
-    width:100%;
+.project-search input {
+
+    flex:1;
+
+    padding:0;
+
+    margin:0;
 
     background:none;
 
@@ -82,71 +82,271 @@
 
     color:white;
 
-}
-
-
-
-
-.project-item{
-
-
-    display:flex;
-
-    justify-content:space-between;
-
-    align-items:center;
-
-    padding:12px;
-
-    color:white;
-
-    cursor:pointer;
+    font-size:14px;
 
 }
 
 
+.project-search input::placeholder {
 
-.project-item:hover{
+    color:#8ea0af;
 
+}
+/* CONTENEDOR DE PROYECTOS */
+.project-list {
+
+    max-height:550px;
+
+    overflow-y:auto;
+
+    padding-right:1px;
+
+}
+
+/* BLOQUE PROYECTO */
+.project-container {
+  width: 100%;
+}
+
+/* FILA PROYECTO */
+.project-item {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  width: 100%;
+
+  padding: 9px 6px;
+
+  cursor: pointer;
+
+  box-sizing: border-box;
+}
+.project-list::-webkit-scrollbar{
+
+    width:3px;
+
+}
+
+
+.project-list::-webkit-scrollbar-thumb{
+
+    background:#10a5f5;
+
+    border-radius:10px;
+
+}
+
+
+.project-list::-webkit-scrollbar-track{
+
+    background:#111c22;
+
+}
+.project-item:hover {
+  background: #24343d;
+}
+
+/* PARTE IZQUIERDA */
+.project-info {
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+
+  flex: 1;
+}
+
+.project-dot {
+  width: 8px;
+
+  height: 8px;
+
+  border-radius: 50%;
+
+  flex-shrink: 0;
+}
+
+.project-name {
+  font-size: 14px;
+
+  font-weight: 500;
+
+  white-space: nowrap;
+}
+
+/* CANTIDAD DE TAREAS */
+.task-control {
+  display: flex;
+
+  align-items: center;
+
+  gap: 5px;
+
+  color: #b5c2cc;
+
+  font-size: 14px;
+
+  margin-left: auto;
+}
+
+/* CREAR TAREA */
+.create-task-btn {
+  background: none;
+
+  border: none;
+
+  color: #10a5f5;
+
+  cursor: pointer;
+
+  font-size: 14px;
+}
+
+.create-task-btn:hover {
+  text-decoration: underline;
+}
+
+/* ESTRELLA PROYECTO */
+.star {
+  color: #8ea0af;
+
+  cursor: pointer;
+
+  margin-left: 10px;
+
+  transition: 0.2s;
+}
+
+.star:hover {
+  color: #facc15;
+}
+
+.star.active {
+  color: #ffc107;
+
+  fill: #ffc107;
+}
+
+/* LISTA DE TAREAS */
+.task-list {
+  margin-left: 20px;
+
+  background: #111c22;
+}
+
+.task-item {
+  display: flex;
+  font-size: 14px;
+  align-items: center;
+
+  justify-content: space-between;
+
+  width: 100%;
+
+  min-height: 35px;
+
+  padding: 0 10px;
+
+  border-bottom: 1px solid #263943;
+
+  color: #a9bcc7;
+
+  cursor: pointer;
+
+  box-sizing: border-box;
+}
+
+.task-item:hover {
 
     background:#24343d;
 
 }
 
+/* ESTRELLA DE TAREA */
+.task-star {
+  color:#8ea0af;
 
+    cursor:pointer;
 
-.project-item small{
+    transition:.2s;
+}
+.task-star:hover{
 
+    color:#ffc107;
 
-    display:block;
+}
+.task-item span {
 
-    color:#8ea0af;
+    flex:1;
 
 }
 
 
+.task-star {
 
-.create-project{
 
+    color:#8ea0af;
 
-    width:100%;
-
-    margin-top:10px;
-
-    display:flex;
-
-    gap:8px;
-
-    justify-content:center;
-
-    padding:10px;
-
-    background:#10a5f5;
-
-    border:none;
-
-    color:white;
 
     cursor:pointer;
 
+
+    margin-left:auto;
+
+
+}
+.task-star.active {
+
+
+    color:#ffc107;
+
+
+    fill:#ffc107;
+
+
+}
+/* CREAR NUEVA TAREA */
+.new-task {
+  color: #10a5f5;
+
+  padding: 10px 12px;
+
+  cursor: pointer;
+
+  font-size: 14px;
+}
+
+.new-task:hover {
+  background: #24343d;
+}
+
+/* BOTON NUEVO PROYECTO */
+.create-project {
+  width: 100%;
+
+  margin-top: 10px;
+
+  display: flex;
+
+  justify-content: center;
+
+  align-items: center;
+
+  gap: 8px;
+
+  padding: 9px;
+
+  background: #10a5f5;
+
+  border: none;
+
+  color: white;
+
+  cursor: pointer;
+
+  font-size: 14px;
 }

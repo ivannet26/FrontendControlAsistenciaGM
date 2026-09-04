@@ -1,0 +1,293 @@
+.modal-overlay{
+
+    position:fixed;
+
+    inset:0;
+
+    background:rgba(0,0,0,0.65);
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    z-index:2000;
+
+}
+
+
+
+
+.modal-proyecto{
+
+    width:560px;
+
+    background:#1b2a33;
+
+    color:white;
+
+    border:1px solid #344650;
+
+    border-radius:4px;
+
+}
+
+
+
+
+.modal-header{
+
+    height:70px;
+
+    padding:0 20px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    border-bottom:1px solid #344650;
+
+}
+
+
+
+.modal-header h2{
+
+    font-size:22px;
+
+    font-weight:400;
+
+}
+
+
+
+
+
+
+.modal-body{
+
+    padding:20px;
+
+}
+
+
+
+
+
+
+.modal-row{
+
+    display:flex;
+
+    gap:12px;
+
+}
+
+
+
+
+
+
+.modal-row input{
+
+    flex:1;
+
+    height:38px;
+
+    background:#24343d;
+
+    border:1px solid #52616b;
+
+    color:white;
+
+    padding:0 12px;
+
+}
+
+
+
+
+
+.modal-row select{
+
+    width:260px;
+
+    height:38px;
+
+    background:#24343d;
+
+    border:1px solid #52616b;
+
+    color:white;
+
+    padding:0 10px;
+
+}
+
+
+
+
+
+
+
+
+.modal-options{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:14px;
+
+    margin-top:18px;
+
+}
+
+
+
+
+
+
+
+.color-box{
+
+    width:20px;
+
+    height:20px;
+
+}
+
+
+
+.color-box div{
+
+    width:20px;
+
+    height:20px;
+
+    background:#7ac943;
+
+}
+
+
+
+
+
+
+
+.public-label{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:8px;
+
+    font-size:15px;
+
+}
+
+
+
+
+
+
+.public-label input{
+
+    width:15px;
+
+    height:15px;
+
+}
+
+
+
+
+
+
+.template-select{
+
+    height:38px;
+
+    width:110px;
+
+    background:#24343d;
+
+    border:1px solid #52616b;
+
+    color:white;
+
+    padding:0 10px;
+
+}
+
+
+
+
+
+
+
+
+.modal-footer{
+
+    border-top:1px solid #344650;
+
+    padding:15px 20px;
+
+    display:flex;
+
+    justify-content:flex-end;
+
+    gap:15px;
+
+}
+
+
+
+
+
+
+.cancelar{
+
+    background:none;
+
+    border:none;
+
+    color:#10a5f5;
+
+    cursor:pointer;
+
+    font-size:14px;
+
+}
+
+
+
+
+
+
+.crear{
+
+    background:#10a5f5;
+
+    border:none;
+
+    color:white;
+
+    padding:12px 28px;
+
+    cursor:pointer;
+
+    font-size:14px;
+
+}
+
+
+.crear:hover{
+
+    background:#0794df;
+
+}
