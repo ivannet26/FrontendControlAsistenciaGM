@@ -33,7 +33,7 @@
 
     right:0;
 
-    width:320px;
+    width:380px;
 
     background:#111c22;
 
@@ -50,6 +50,8 @@
 
 
 
+
+
 .project-search{
 
 
@@ -61,9 +63,10 @@
 
     background:#101b24;
 
-    padding:10px;
+    padding:8px 10px;
 
     border-radius:6px;
+
 
 }
 
@@ -82,7 +85,9 @@
 
     color:white;
 
+
 }
+
 
 
 
@@ -90,17 +95,20 @@
 .project-item{
 
 
-    display:flex;
+    display:grid;
 
-    justify-content:space-between;
+    grid-template-columns:1fr auto 25px;
 
     align-items:center;
 
-    padding:12px;
+    gap:10px;
+
+    padding:7px 8px;
+
+    border-radius:5px;
 
     color:white;
 
-    cursor:pointer;
 
 }
 
@@ -111,18 +119,68 @@
 
     background:#24343d;
 
+
+}
+
+
+
+
+
+.project-name{
+
+
+    font-size:14px;
+
+    color:white;
+
+
 }
 
 
 
-.project-item small{
 
 
-    display:block;
+.create-task-btn{
 
-    color:#8ea0af;
+
+    background:none;
+
+    border:none;
+
+    color:#10a5f5;
+
+    font-size:14px;
+
+    cursor:pointer;
+
+    padding:0;
+
 
 }
+
+
+
+.create-task-btn:hover{
+
+
+    text-decoration:underline;
+
+
+}
+
+
+
+
+
+.project-item svg{
+
+
+    color:#a8b5bd;
+
+
+}
+
+
 
 
 
@@ -135,11 +193,15 @@
 
     display:flex;
 
-    gap:8px;
-
     justify-content:center;
 
-    padding:10px;
+    align-items:center;
+
+    gap:8px;
+
+    padding:8px;
+     font-size:14px;
+
 
     background:#10a5f5;
 
@@ -148,5 +210,53 @@
     color:white;
 
     cursor:pointer;
+
+}.project-info{
+
+    display:flex;
+    align-items:center;
+    gap:10px;
+
+}
+
+
+.project-dot{
+
+    width:8px;
+    height:8px;
+    border-radius:50%;
+
+}
+
+
+.project-name{
+
+    color:#e5edf2;
+    font-size:14px;
+
+}.project-left{
+
+    display:flex;
+    align-items:center;
+    gap:10px;
+
+}
+
+
+.project-dot{
+
+    width:8px;
+    height:8px;
+    border-radius:50%;
+    flex-shrink:0;
+
+}
+
+
+.project-name{
+
+    font-size:14px;
+    font-weight:500;
+    white-space:nowrap;
 
 }
