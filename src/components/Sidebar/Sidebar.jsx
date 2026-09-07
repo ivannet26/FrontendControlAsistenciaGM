@@ -136,7 +136,10 @@ function Sidebar({ usuario }) {
                         PROYECTOS
                     </MenuItem>
 
-                    <MenuItem icon={<Users size={20} />}>
+                    <MenuItem 
+                        icon={<Users size={20} />}
+                        onClick={() => navigate("/app/equipo")}
+                    >
                         EQUIPO
                     </MenuItem>
 
