@@ -1,0 +1,274 @@
+.clientes-tabla-container{
+
+    width:100%;
+
+    background:#101b22;
+
+    border:1px solid #263740;
+
+}
+
+
+
+
+.tabla-header{
+
+    height:45px;
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    padding:0 15px;
+
+    border-bottom:1px solid #263740;
+
+    color:#b5c4cc;
+
+    font-size:13px;
+
+}
+
+
+
+.tabla-header button{
+
+    background:none;
+
+    border:none;
+
+    color:#b5c4cc;
+
+    cursor:pointer;
+
+}
+
+
+
+
+
+.clientes-tabla-container table{
+
+
+    width:100%;
+
+    border-collapse:collapse;
+
+    table-layout:fixed;
+
+}
+
+
+
+
+
+.clientes-tabla-container thead{
+
+
+    background:#16242c;
+
+}
+
+
+
+
+
+.clientes-tabla-container th{
+
+
+    text-align:left;
+
+    padding:14px;
+
+    color:#9eacb5;
+
+    font-size:13px;
+
+    font-weight:500;
+
+}
+
+
+
+
+
+.clientes-tabla-container td{
+
+
+    padding:15px;
+
+    height:45px;
+
+    border-top:1px solid #263740;
+
+    color:#d3dde3;
+
+    font-size:14px;
+
+}
+
+
+
+
+
+.clientes-tabla-container tr:hover{
+
+
+    background:#1d303a;
+
+}
+
+
+
+
+
+.clientes-tabla-container th:first-child,
+
+.clientes-tabla-container td:first-child{
+
+
+    width:50px;
+
+    text-align:center;
+
+}
+
+
+
+
+
+.clientes-tabla-container th:nth-child(2),
+
+.clientes-tabla-container td:nth-child(2){
+
+
+    width:30%;
+
+
+}
+
+
+
+
+
+.clientes-tabla-container th:nth-child(3),
+
+.clientes-tabla-container td:nth-child(3){
+
+
+    width:45%;
+
+
+}
+
+
+
+
+
+.clientes-tabla-container th:nth-child(4),
+
+.clientes-tabla-container td:nth-child(4){
+
+
+    width:15%;
+
+
+}
+
+
+
+
+
+.col-acciones{
+
+
+    width:60px;
+
+    text-align:center;
+
+
+}
+
+
+
+
+
+.moneda-badge{
+
+
+    background:#162630;
+
+    padding:5px 12px;
+
+    font-size:12px;
+
+}
+
+
+
+
+
+.cliente-acciones{
+
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    gap:10px;
+
+}
+
+
+
+
+
+.cliente-acciones button{
+
+
+    background:none;
+
+    border:none;
+
+    color:#8799a5;
+
+    cursor:pointer;
+
+}
+
+
+
+
+
+.cliente-acciones button:hover{
+
+
+    color:white;
+
+}
+
+
+
+
+.menu-icon{
+
+
+    color:#8799a5;
+
+    cursor:pointer;
+
+
+}
+
+
+.menu-icon:hover{
+
+
+    color:white;
+
+
+}
