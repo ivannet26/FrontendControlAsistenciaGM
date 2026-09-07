@@ -1,0 +1,105 @@
+/* =========================
+   CONTENEDOR PRINCIPAL
+========================= */
+
+.clientes-container{
+
+    width:100%;
+    padding:8px;
+    box-sizing:border-box;
+
+}
+
+
+
+/* =========================
+   TITULO
+========================= */
+
+
+.clientes-top{
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:20px;
+
+
+}
+
+
+
+.clientes-top h1{
+
+    color:#d9e1e5;
+
+    font-size:28px;
+
+    font-weight:400;
+
+    margin:19px 19px 19px 0; 
+    /*margin:19px 19px 19px 0;*/
+
+}
+.clientes-contenedor{
+
+    background:#101b22;
+
+    border:1px solid #263740;
+
+    padding:19px;
+
+}
+/* =========================
+   HEADER INTERNO CONTENEDOR
+========================= */
+
+.contenedor-header{
+
+    height:60px;
+
+    display:flex;
+
+    justify-content:flex-end;
+
+    align-items:center;
+
+}
+
+
+
+/* =========================
+   BOTON CREAR CLIENTE
+========================= */
+
+.crear-cliente{
+
+
+    background:#10a5f5;
+
+    border:none;
+
+
+    color:white;
+
+
+    padding:12px 20px;
+
+
+    font-size:13px;
+
+
+    cursor:pointer;
+
+
+}
+
+
+
+.crear-cliente:hover{
+
+
+    background:#0795df;
+
+
+}

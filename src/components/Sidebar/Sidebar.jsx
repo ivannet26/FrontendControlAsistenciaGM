@@ -143,7 +143,10 @@ function Sidebar({ usuario }) {
                         EQUIPO
                     </MenuItem>
 
-                    <MenuItem icon={<CircleUserRound size={20} />}>
+                    <MenuItem 
+                        icon={<CircleUserRound size={20} />}
+                             onClick={() => navigate("/app/clientes")}
+                    >
                         CLIENTES
                     </MenuItem>
                     <MenuItem icon={<Tag size={20} />}>

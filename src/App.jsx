@@ -17,6 +17,7 @@ import Rastreador from "./pages/Rastreador/Rastreador.jsx";
 import Panel from "./pages/Modulo-Panel/Panel.jsx";
 import Proyectos from "./pages/Proyectos/Proyectos.jsx";
 import Equipo from "./pages/Equipo/Equipo.jsx";
+import Clientes from "./pages/Clientes/Clientes.jsx";
 function App() {
 
   return (
@@ -69,8 +70,12 @@ function App() {
             path="equipo"
             element={<Equipo />}
           />
+          <Route
+            path="clientes"
+            element={<Clientes />}
+          />
         </Route>
-
+      
 
       </Routes>
 
