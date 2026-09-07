@@ -1,0 +1,1012 @@
+/* =========================
+   CONTENEDOR PRINCIPAL
+========================= */
+
+.equipo-container{
+
+    width:100%;
+
+    padding:8px;
+
+    box-sizing:border-box;
+
+}
+
+
+/* =========================
+   HEADER
+========================= */
+
+
+.equipo-header{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    margin-bottom:30px;
+
+}
+
+
+.equipo-top h1{
+
+    color:#d9e1e5;
+
+    font-size:28px;
+
+    font-weight:400;
+
+    margin:9;
+
+}
+
+
+
+.equipo-header button{
+
+    background:#10a5f5;
+
+    border:none;
+
+    color:white;
+
+    padding:12px 20px;
+
+    cursor:pointer;
+
+}
+
+
+
+
+
+/* =========================
+   TABS
+========================= */
+
+
+.equipo-tabs{
+
+    display:flex;
+
+    margin-top:0px;
+
+}
+
+
+
+.equipo-tabs button{
+
+
+    background:#101b22;
+
+    border:1px solid #263740;
+
+    border-bottom:none;
+
+    color:#aebcc5;
+
+    padding:15px 25px;
+
+    cursor:pointer;
+
+    font-size:13px;
+
+}
+
+
+
+.equipo-tabs button.activo{
+
+    background:#162630;
+
+    color:white;
+
+}
+
+
+
+
+
+/* =========================
+   FILTROS
+========================= */
+
+
+.equipo-filtros{
+
+
+    width:100%;
+
+    height:55px;
+
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+
+    background:#111d24;
+
+    border:1px solid #273943;
+
+
+    margin-top:20px;
+
+    margin-bottom:25px;
+
+
+    position:relative;
+
+
+}
+
+
+
+.filtros-izquierda{
+
+
+    display:flex;
+
+    align-items:center;
+
+    height:100%;
+
+
+}
+
+
+
+.filtros-derecha{
+
+
+    display:flex;
+
+    align-items:center;
+
+    gap:10px;
+
+    padding-right:10px;
+
+
+}
+
+
+
+
+.filtro-titulo{
+
+
+    height:55px;
+
+    display:flex;
+
+    align-items:center;
+
+
+    padding:0 18px;
+
+
+    color:#aab8c2;
+
+
+    font-size:13px;
+
+
+    border-right:1px solid #344650;
+
+
+}
+
+
+
+
+
+/* =========================
+   BOTONES FILTRO
+========================= */
+
+
+.filtro-dropdown{
+
+
+    position:relative;
+
+    height:55px;
+
+}
+
+
+
+.filtro-btn{
+
+
+    height:55px;
+
+
+    padding:0 22px;
+
+
+    background:transparent!important;
+
+
+    border:none!important;
+
+
+    border-right:1px solid #344650!important;
+
+
+    color:#d3dde3!important;
+
+
+    cursor:pointer;
+
+
+    font-size:14px;
+
+
+}
+
+
+
+.filtro-btn:hover{
+
+
+    background:#1d303a!important;
+
+    color:white!important;
+
+
+}
+
+
+
+
+/* =========================
+   DROPDOWN FLOTANTE
+========================= */
+
+
+.dropdown-panel{
+
+
+    position:absolute;
+
+
+    top:58px;
+
+
+    left:0;
+
+
+    width:180px;
+
+
+    background:#101b22;
+
+
+    border:1px solid #344650;
+
+
+    padding:8px 0;
+
+
+    z-index:9999;
+
+
+    box-shadow:0 8px 20px rgba(0,0,0,.5);
+
+
+}
+
+
+
+
+
+.dropdown-panel label{
+
+
+    display:flex;
+
+
+    align-items:center;
+
+
+    gap:10px;
+
+
+    height:38px;
+
+
+    padding:0 15px;
+
+
+    color:#d3dde3;
+
+
+    cursor:pointer;
+
+
+    font-size:14px;
+
+
+}
+
+
+
+.dropdown-panel label:hover{
+
+
+    background:#1d303a;
+
+
+}
+
+
+
+.dropdown-panel input{
+
+
+    width:14px;
+
+    height:14px;
+
+
+    accent-color:#10a5f5;
+
+
+}
+
+
+
+
+
+/* =========================
+   BUSCADOR
+========================= */
+
+
+.equipo-buscador{
+
+
+    width:300px;
+
+
+    height:40px;
+
+
+    display:flex;
+
+
+    align-items:center;
+
+
+    gap:10px;
+
+
+    background:#162630;
+
+
+    border:1px solid #344650;
+
+
+    padding:0 12px;
+
+
+}
+
+
+
+.equipo-buscador input{
+
+
+    width:100%;
+
+
+    background:none;
+
+
+    border:none;
+
+
+    outline:none;
+
+
+    color:white;
+
+
+}
+
+
+
+
+
+
+/* =========================
+   BOTON APLICAR
+========================= */
+
+
+.aplicar-btn{
+
+
+    height:40px;
+
+
+    background:transparent!important;
+
+
+    border:1px solid #10a5f5!important;
+
+
+    color:#10a5f5!important;
+
+
+    padding:0 18px;
+
+
+    cursor:pointer;
+
+
+}
+
+
+.aplicar-btn:hover{
+
+
+    background:#10a5f5!important;
+
+
+    color:white!important;
+
+
+}
+
+
+
+
+
+
+
+
+/* =========================
+   TABLA
+========================= */
+
+
+.equipo-tabla-container{
+
+
+    background:#101b22;
+
+
+    border:1px solid #263740;
+
+
+    width:100%;
+
+
+}
+
+
+
+
+
+.tabla-header{
+
+
+    height:45px;
+
+
+    display:flex;
+
+
+    justify-content:space-between;
+
+
+    align-items:center;
+
+
+    padding:0 15px;
+
+
+    border-bottom:1px solid #263740;
+
+
+    color:#b5c4cc;
+
+
+    font-size:13px;
+
+
+}
+
+
+
+.tabla-header button{
+
+
+    background:none;
+
+
+    border:none;
+
+
+    color:#b5c4cc;
+
+
+}
+
+
+
+
+
+.equipo-tabla-container table{
+
+
+    width:100%;
+
+
+    border-collapse:collapse;
+
+
+}
+
+
+
+
+.equipo-tabla-container thead{
+
+
+    background:#16242c;
+
+
+}
+
+
+
+.equipo-tabla-container th{
+
+
+    text-align:left;
+
+
+    padding:14px;
+
+
+    color:#9eacb5;
+
+
+    font-size:13px;
+
+
+    font-weight:500;
+
+
+}
+
+
+
+.equipo-tabla-container td{
+
+
+    padding:15px;
+
+
+    height:45px;
+
+
+    border-top:1px solid #263740;
+
+
+    color:#d3dde3;
+
+
+    font-size:14px;
+
+
+}
+
+
+
+.equipo-tabla-container tr:hover{
+
+
+    background:#1d303a;
+
+
+}
+
+
+
+
+/* COLUMNA CHECKBOX */
+
+.equipo-tabla-container th:first-child,
+.equipo-tabla-container td:first-child{
+
+    width:50px;
+
+    padding:0;
+
+    text-align:center;
+
+}
+
+
+
+.equipo-tabla-container th:first-child input,
+.equipo-tabla-container td:first-child input{
+
+    width:14px;
+
+    height:14px;
+
+    margin:0;
+
+}.equipo-tabla-container table{
+
+    width:100%;
+
+    border-collapse:collapse;
+
+    table-layout:fixed;
+
+}
+.equipo-tabla-container th:nth-child(2),
+.equipo-tabla-container td:nth-child(2){
+
+    width:30%;
+
+}
+
+
+.equipo-tabla-container th:nth-child(3),
+.equipo-tabla-container td:nth-child(3){
+
+    width:32%;
+
+}
+
+
+.equipo-tabla-container th:nth-child(4),
+.equipo-tabla-container td:nth-child(4){
+
+    width:18%;
+
+}
+
+
+.equipo-tabla-container th:nth-child(5),
+.equipo-tabla-container td:nth-child(5){
+
+    width:15%;
+
+}
+
+
+.col-acciones{
+
+
+    width:60px;
+
+    text-align:center;
+
+
+}
+
+
+
+
+
+/* =========================
+   BADGES
+========================= */
+
+
+.rol-badge,
+
+.grupo-badge{
+
+
+    background:#101b22;
+
+
+    padding:5px 10px;
+
+
+    font-size:12px;
+
+
+}
+
+
+
+
+
+
+/* =========================
+   ACCIONES
+========================= */
+
+
+.equipo-acciones{
+
+
+    position:relative;
+
+
+    display:flex;
+
+
+    justify-content:center;
+
+
+}
+
+
+
+.menu-icon{
+
+
+    color:#8799a5;
+
+
+    cursor:pointer;
+
+
+}
+
+
+
+.menu-icon:hover{
+
+
+    color:white;
+
+
+}
+
+
+
+.menu-opciones{
+
+
+    position:absolute;
+
+
+    right:0;
+
+
+    top:25px;
+
+
+    width:170px;
+
+
+    background:#162630;
+
+
+    border:1px solid #344650;
+
+
+    z-index:1000;
+
+
+    padding:5px;
+
+
+}
+
+
+
+.menu-opciones button{
+
+
+    width:100%;
+
+
+    background:none;
+
+
+    border:none;
+
+
+    color:#d3dde3;
+
+
+    text-align:left;
+
+
+    padding:10px;
+
+
+    cursor:pointer;
+
+
+}
+
+
+.menu-opciones button:hover{
+
+
+    background:#24343d;
+
+
+    color:white;
+
+
+}
+
+
+
+
+
+
+/* =========================
+   MODAL
+========================= */
+
+
+.modal-miembro{
+
+
+    width:420px;
+
+
+    background:#162630;
+
+
+    border:1px solid #344650;
+
+
+}
+
+
+.modal-miembro .modal-header{
+
+
+    display:flex;
+
+
+    justify-content:space-between;
+
+
+    padding:15px;
+
+
+    border-bottom:1px solid #344650;
+
+
+}
+
+
+.modal-miembro .modal-body{
+
+
+    padding:20px;
+
+
+    display:flex;
+
+
+    flex-direction:column;
+
+
+    gap:10px;
+
+
+}
+
+
+
+.modal-miembro input,
+
+.modal-miembro select{
+
+
+    background:#101b22;
+
+
+    color:white;
+
+
+    border:1px solid #344650;
+
+
+    padding:10px;
+
+
+}
+
+
+.modal-miembro label{
+
+
+    color:#b8c5cc;
+
+
+}
+.equipo-top{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    margin-bottom:20px;
+
+}
+
+
+.crear-miembro{
+
+    background:#10a5f5;
+
+    border:none;
+
+    color:white;
+
+    padding:12px 20px;
+
+    cursor:pointer;
+
+    font-size:13px;
+
+}
+
+.equipo-contenedor{
+
+    background:#101b22;
+
+    border:1px solid #263740;
+
+    padding:19px;
+    
+}
+.mensaje-invitacion{
+
+    color:#9eacb5;
+
+    font-size:13px;
+
+    margin-top:10px;
+
+}
+
+
+.contenedor-header{
+
+    height:60px;
+
+    display:flex;
+
+    justify-content:flex-end;
+
+    align-items:center;
+
+}
+
+
+
+.crear-miembro{
+
+    background:#10a5f5;
+
+    border:none;
+
+    color:white;
+
+    padding:12px 20px;
+
+    font-size:13px;
+
+    cursor:pointer;
+
+}

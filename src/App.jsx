@@ -16,7 +16,7 @@ import Register from "./pages/Register/Register.jsx";
 import Rastreador from "./pages/Rastreador/Rastreador.jsx";
 import Panel from "./pages/Modulo-Panel/Panel.jsx";
 import Proyectos from "./pages/Proyectos/Proyectos.jsx";
-
+import Equipo from "./pages/Equipo/Equipo.jsx";
 function App() {
 
   return (
@@ -65,7 +65,10 @@ function App() {
             path="proyectos"
             element={<Proyectos />}
           />
-
+          <Route
+            path="equipo"
+            element={<Equipo />}
+          />
         </Route>
 
 
