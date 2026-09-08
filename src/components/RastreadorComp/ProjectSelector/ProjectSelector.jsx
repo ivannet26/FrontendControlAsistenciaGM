@@ -8,7 +8,7 @@ import ModalTarea from "../ModalTarea/ModalTarea";
 import "./ProjectSelector.css";
 
 
-function ProjectSelector({ setProyecto }) {
+function ProjectSelector({ proyecto, setProyecto }) {
 
 
     const [mostrarModalTarea, setMostrarModalTarea] = useState(false);
@@ -350,7 +350,13 @@ function ProjectSelector({ setProyecto }) {
 
             >
 
-                + Proyecto
+                {
+                    proyecto
+                        ?
+                        proyecto.nombre
+                        :
+                        "+ Proyecto"
+                }
 
             </button>
 
@@ -414,6 +420,9 @@ function ProjectSelector({ setProyecto }) {
 
 
                                                 setProyecto(proyecto);
+
+
+                                                setMostrarProyectos(false);
 
 
                                                 setProyectosAbiertos((prev) => {
