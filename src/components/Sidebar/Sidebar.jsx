@@ -149,9 +149,13 @@ function Sidebar({ usuario }) {
                     >
                         CLIENTES
                     </MenuItem>
-                    <MenuItem icon={<Tag size={20} />}>
+                    <MenuItem 
+                        icon={<Tag size={20} />}
+                             onClick={() => navigate("/app/etiquetas")}
+                    >
                         ETIQUETAS
                     </MenuItem>
+                    
 
                     {/* SOLO ADMIN */}
                     {rol === "ADMINISTRADOR" && (

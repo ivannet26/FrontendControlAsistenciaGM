@@ -18,6 +18,7 @@ import Panel from "./pages/Modulo-Panel/Panel.jsx";
 import Proyectos from "./pages/Proyectos/Proyectos.jsx";
 import Equipo from "./pages/Equipo/Equipo.jsx";
 import Clientes from "./pages/Clientes/Clientes.jsx";
+import Etiquetas from "./pages/Etiquetas/Etiquetas.jsx";
 function App() {
 
   return (
@@ -73,6 +74,10 @@ function App() {
           <Route
             path="clientes"
             element={<Clientes />}
+          />
+          <Route
+            path="etiquetas"
+            element={<Etiquetas />}
           />
         </Route>
       
