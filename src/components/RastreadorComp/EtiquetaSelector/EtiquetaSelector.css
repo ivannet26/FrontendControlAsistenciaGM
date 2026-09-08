@@ -1,0 +1,372 @@
+/* =========================
+   CONTENEDOR
+========================= */
+
+.etiqueta-selector{
+
+    position:relative;
+
+    display:flex;
+
+    align-items:center;
+
+}
+
+
+
+/* =========================
+   ICONO ETIQUETA
+========================= */
+
+
+.etiqueta-btn{
+
+    width:40px;
+
+    height:40px;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    background:transparent;
+
+    border:none;
+
+    color:#8ea0af;
+
+    cursor:pointer;
+
+}
+
+
+.etiqueta-btn:hover{
+
+    color:#10a5f5;
+
+}
+
+
+
+
+
+
+/* =========================
+   PANEL ETIQUETAS
+========================= */
+
+
+.etiqueta-panel{
+
+    position:absolute;
+
+    top:45px;
+
+    right:0;
+
+
+    width:330px;
+
+
+    background:#101b22;
+
+
+    border:1px solid #344650;
+
+
+    z-index:3000;
+
+
+    padding:10px;
+
+
+    box-shadow:0 8px 20px rgba(0,0,0,.5);
+
+}
+
+
+
+
+
+
+
+
+/* =========================
+   BUSCADOR
+========================= */
+
+
+.etiqueta-search{
+
+
+    height:38px;
+
+
+    width:100%;
+
+
+    display:flex;
+
+
+    align-items:center;
+
+
+    gap:8px;
+
+
+    background:#24343d;
+
+
+    padding:0 10px;
+
+
+    box-sizing:border-box;
+
+
+}
+
+
+
+.etiqueta-search svg{
+
+
+    color:#8ea0af;
+
+
+    flex-shrink:0;
+
+
+}
+
+
+
+
+.etiqueta-search input{
+
+
+    flex:1;
+
+
+    background:transparent;
+
+
+    border:none;
+
+
+    outline:none;
+
+
+    color:white;
+
+
+    font-size:14px;
+
+
+}
+
+
+
+
+.etiqueta-search input::placeholder{
+
+
+    color:#9aa8b3;
+
+
+}
+
+
+
+
+
+
+
+
+
+
+/* =========================
+   LISTA
+========================= */
+
+
+.lista-etiquetas{
+
+
+    margin-top:8px;
+
+
+    max-height:290px;
+
+
+    overflow-y:auto;
+
+
+}
+
+
+
+
+
+
+.lista-etiquetas::-webkit-scrollbar{
+
+
+    width:4px;
+
+
+}
+
+
+
+
+.lista-etiquetas::-webkit-scrollbar-thumb{
+
+
+    background:#10a5f5;
+
+
+    border-radius:10px;
+
+
+}
+
+
+
+
+
+.lista-etiquetas::-webkit-scrollbar-track{
+
+
+    background:#111c22;
+
+
+}
+
+
+
+
+
+
+
+
+
+/* =========================
+   ITEM ETIQUETA
+========================= */
+
+
+.etiqueta-item{
+
+
+    width:100%;
+
+
+    height:40px;
+
+
+    display:flex;
+
+
+    align-items:center;
+
+
+    justify-content:flex-start;
+
+
+    gap:10px;
+
+
+    padding:0 12px;
+
+
+    cursor:pointer;
+
+
+    box-sizing:border-box;
+
+
+}
+
+
+
+
+
+
+.etiqueta-item:hover{
+
+
+    background:#24343d;
+
+
+}
+
+
+
+
+
+
+
+
+
+/* =========================
+   CHECKBOX
+========================= */
+
+
+.etiqueta-item input{
+
+
+    width:16px;
+
+
+    height:16px;
+
+
+    cursor:pointer;
+
+
+    accent-color:#10a5f5;
+
+
+    flex:none;
+
+
+}
+
+
+
+
+
+
+
+
+
+/* =========================
+   NOMBRE ETIQUETA
+========================= */
+
+
+.etiqueta-item span{
+
+
+    font-size:14px;
+
+
+    color:#c5d0d6;
+
+
+    text-align:left;
+
+
+    white-space:nowrap;
+
+
+    overflow:hidden;
+
+
+    text-overflow:ellipsis;
+
+
+}
