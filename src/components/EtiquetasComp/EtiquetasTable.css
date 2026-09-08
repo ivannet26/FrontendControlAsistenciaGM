@@ -1,0 +1,379 @@
+.etiquetas-tabla-container{
+
+
+    width:100%;
+
+    background:#101b22;
+
+    border:1px solid #263740;
+
+    box-sizing:border-box;
+
+
+}
+
+
+
+.tabla-header{
+
+
+    height:45px;
+
+
+    display:flex;
+
+    align-items:center;
+
+
+    padding:0 15px;
+
+
+    color:#b5c4cc;
+
+
+    font-size:13px;
+
+
+    border-bottom:1px solid #263740;
+
+
+}
+
+
+
+
+
+
+.etiquetas-tabla-container table{
+
+
+    width:100%;
+
+
+    border-collapse:collapse;
+
+
+    table-layout:fixed;
+
+
+}
+
+
+
+
+
+.etiquetas-tabla-container th{
+
+
+    background:#16242c;
+
+
+    color:#9eacb5;
+
+
+    font-size:13px;
+
+
+    font-weight:500;
+
+
+    padding:14px;
+
+
+    text-align:left;
+
+
+}
+
+
+
+
+
+
+
+.etiquetas-tabla-container td{
+
+
+    padding:15px;
+
+
+    height:45px;
+
+
+    border-top:1px solid #263740;
+
+
+    color:#d3dde3;
+
+
+    font-size:14px;
+
+
+}
+
+
+
+
+
+
+
+.etiquetas-tabla-container tr:hover{
+
+
+    background:#1d303a;
+
+
+}
+
+
+
+
+
+
+
+/* CHECKBOX */
+
+.etiquetas-tabla-container th:first-child,
+
+.etiquetas-tabla-container td:first-child{
+
+
+    width:50px;
+
+
+    text-align:center;
+
+
+    padding:0;
+
+
+}
+
+
+
+
+
+
+
+.etiquetas-tabla-container input[type="checkbox"]{
+
+
+    width:14px;
+
+    height:14px;
+
+
+}
+
+
+
+
+
+
+
+/* NOMBRE */
+
+.etiquetas-tabla-container th:nth-child(2),
+
+.etiquetas-tabla-container td:nth-child(2){
+
+
+    width:auto;
+
+
+}
+
+
+
+
+
+
+
+
+/* ACCIONES */
+
+.col-acciones{
+
+
+    width:120px;
+
+
+    text-align:center;
+
+
+}
+
+
+
+
+
+
+
+.acciones{
+
+
+    display:flex;
+
+
+    justify-content:flex-end;
+
+
+    align-items:center;
+
+
+    gap:20px;
+
+
+    padding-right:20px;
+
+
+}
+
+
+
+
+
+
+
+
+.btn-icono{
+
+
+    background:none;
+
+
+    border:none;
+
+
+    color:#8799a5;
+
+
+    cursor:pointer;
+
+
+    display:flex;
+
+
+    align-items:center;
+
+
+}
+
+
+
+
+
+
+
+.btn-icono:hover{
+
+
+    color:white;
+
+
+}
+
+
+
+
+
+
+
+.menu-container{
+
+
+    position:relative;
+
+
+}
+
+
+
+
+
+
+
+.menu-opciones{
+
+
+    position:absolute;
+
+
+    right:0;
+
+
+    top:25px;
+
+
+    width:140px;
+
+
+    background:#162630;
+
+
+    border:1px solid #344650;
+
+
+    z-index:1000;
+
+
+}
+
+
+
+
+
+
+
+.menu-opciones button{
+
+
+    width:100%;
+
+
+    padding:10px;
+
+
+    background:none;
+
+
+    border:none;
+
+
+    color:#d3dde3;
+
+
+    text-align:left;
+
+
+    cursor:pointer;
+
+
+}
+
+
+
+
+
+
+
+.menu-opciones button:hover{
+
+
+    background:#24343d;
+
+
+}.fila-archivada {
+    opacity: 0.9;
+}
+
+.etiqueta-nombre {
+    color: #ffffff;
+}
+
+.etiqueta-nombre.archivada {
+    color: #aebcc5;
+    text-decoration: line-through;
+    text-decoration-thickness: 1.5px;
+    text-decoration-color: #aebcc5;
+}
