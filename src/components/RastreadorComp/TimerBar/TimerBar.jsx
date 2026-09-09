@@ -11,19 +11,23 @@ function TimerBar({
     setActividad,
 
     activo,
-    setActivo,
-
     segundos,
     setSegundos,
 
     proyecto,
     setProyecto,
+    tarea,
+    setTarea,
 
-    etiquetas = [],
-    etiquetasSeleccionadas = [],
+    etiquetas,
+
+    etiquetasSeleccionadas,
     setEtiquetasSeleccionadas,
 
-    detenerTiempo
+    iniciarTiempo,
+    detenerTiempo,
+
+    bloqueado
 
 }) {
 
@@ -33,22 +37,27 @@ function TimerBar({
 
         if (activo) {
 
-
-            if (detenerTiempo) {
-                detenerTiempo();
-            }
-
+            detenerTiempo();
 
         }
         else {
 
-            setActivo(true);
+
+            if (!actividad.trim()) {
+
+                alert("Ingrese una actividad");
+
+                return;
+
+            }
+
+
+            iniciarTiempo();
 
         }
 
 
     };
-
 
 
 
@@ -69,6 +78,8 @@ function TimerBar({
 
                 value={actividad}
 
+                disabled={bloqueado}
+
                 onChange={(e) =>
 
                     setActividad(e.target.value)
@@ -81,8 +92,6 @@ function TimerBar({
 
 
 
-
-
             {/* PROYECTO */}
 
             <ProjectSelector
@@ -90,9 +99,24 @@ function TimerBar({
                 proyecto={proyecto}
 
                 setProyecto={setProyecto}
+                tarea={tarea}
+                setTarea={setTarea}
+
+
+                bloqueado={bloqueado}
 
             />
+            {
+                tarea && (
 
+                    <div className="tarea-activa">
+
+                        {tarea.nombre}
+
+                    </div>
+
+                )
+            }
 
 
 
@@ -101,43 +125,93 @@ function TimerBar({
 
             {/* ETIQUETAS */}
 
-            <EtiquetaSelector
+            <div className="zona-etiquetas">
 
+                {
+                    etiquetasSeleccionadas.length === 0 && (
 
-                etiquetas={etiquetas}
+                        <EtiquetaSelector
 
+                            etiquetas={etiquetas}
 
-                etiquetasSeleccionadas={
-                    etiquetasSeleccionadas
+                            etiquetasSeleccionadas={
+                                etiquetasSeleccionadas
+                            }
+
+                            setEtiquetasSeleccionadas={
+                                setEtiquetasSeleccionadas
+                            }
+
+                            bloqueado={bloqueado}
+
+                        />
+
+                    )
                 }
 
 
-                setEtiquetasSeleccionadas={
-                    setEtiquetasSeleccionadas
+                {
+                    etiquetasSeleccionadas.length > 0 && (
+
+                        <div className="etiquetas-activas">
+
+                            {
+                                etiquetasSeleccionadas.map(e => (
+
+                                    <span
+                                        key={e.id}
+                                        className="etiqueta-activa"
+                                    >
+
+                                        {e.nombre}
+
+                                    </span>
+
+                                ))
+                            }
+
+
+                            {/* botón para agregar más */}
+
+                            {
+                                !bloqueado && (
+
+                                    <EtiquetaSelector
+
+                                        etiquetas={etiquetas}
+
+                                        etiquetasSeleccionadas={
+                                            etiquetasSeleccionadas
+                                        }
+
+                                        setEtiquetasSeleccionadas={
+                                            setEtiquetasSeleccionadas
+                                        }
+
+                                        bloqueado={bloqueado}
+
+                                    />
+
+                                )
+                            }
+
+
+                        </div>
+
+                    )
                 }
 
 
-            />
-            {
-                etiquetasSeleccionadas.length > 0 &&
+            </div>
 
-                <div className="etiquetas-activas">
 
-                    {
-                        etiquetasSeleccionadas.map(e => (
 
-                            <span key={e.id}>
 
-                                {e.nombre}
 
-                            </span>
 
-                        ))
-                    }
 
-                </div>
 
-            }
+
 
 
 
@@ -162,12 +236,23 @@ function TimerBar({
 
 
 
-
             {/* BOTON */}
 
             <button
 
-                className="start-btn"
+                className={
+
+                    activo
+
+                        ?
+
+                        "stop-btn"
+
+                        :
+
+                        "start-btn"
+
+                }
 
                 onClick={controlarTimer}
 
@@ -193,9 +278,8 @@ function TimerBar({
 
 
 
-
-
         </div>
+
 
     );
 
