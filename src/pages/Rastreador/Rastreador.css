@@ -6,13 +6,13 @@
 
     width:100%;
 
-    height:100%;
+    min-height:100vh;
 
     overflow-y:auto;
 
     background:#24343d;
 
-    padding:10px;
+    padding:10px 8px;
 
     box-sizing:border-box;
 
@@ -639,79 +639,329 @@
 
 
 }
+/* CONTENEDOR PRINCIPAL */
+
+.registro-container{
+
+    width:100%;
+
+    margin-top:25px;
+
+    background:#111c22;
+
+    border:1px solid #263943;
+
+}
+
+/* =========================
+   CONTENEDOR REGISTROS
+========================= */
+
+.registro-container{
+
+    width:100%;
+
+    margin-top:20px;
+
+    background:#111c22;
+
+    border:1px solid #263943;
+
+    box-sizing:border-box;
+
+}
+
+
+/* =========================
+   CABECERA FECHA
+========================= */
+
+.registro-header{
+
+    height:45px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    padding:0 20px;
+
+    background:#0d171d;
+
+    color:#9aa8b3;
+
+}
 
 
 
+.registro-total{
 
-.etiqueta-item:hover{
+    display:flex;
 
+    align-items:center;
+
+    gap:10px;
+
+}
+
+
+
+.registro-total strong{
+
+    color:white;
+
+    font-size:18px;
+
+}
+
+
+
+/* =========================
+   FILA REGISTRO
+========================= */
+
+.registro-row{
+
+    width:100%;
+
+    min-height:60px;
+
+    display:flex;
+
+    align-items:center;
+
+    padding:0 20px;
+
+    background:#17242c;
+
+    border-top:1px solid #263943;
+
+    box-sizing:border-box;
+
+}
+
+
+/* =========================
+   ACTIVIDAD
+========================= */
+
+.registro-actividad{
+
+    width:220px;
+
+    flex-shrink:0;
+
+    color:#e8f0f5;
+
+    font-size:14px;
+
+}
+
+
+
+/* =========================
+   PROYECTO - TAREA
+========================= */
+
+.registro-proyecto{
+
+    width:320px;
+
+    flex-shrink:0;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:10px;
+
+    color:#159de0;
+
+    font-size:14px;
+
+    white-space:nowrap;
+    
+
+}
+
+
+
+.punto{
+
+    width:8px;
+
+    height:8px;
+
+    border-radius:50%;
+
+    background:#10a878;
+
+    flex-shrink:0;
+
+}
+
+
+
+/* =========================
+   ESPACIO + ETIQUETAS
+========================= */
+
+.registro-tags{
+
+    flex:1;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:6px;
+
+    overflow:hidden;
+
+    padding-left:430px;
+
+}
+
+
+
+.tag{
 
     background:#24343d;
 
+    border:1px solid #344650;
+
+    color:#cbd5db;
+
+    padding:5px 10px;
+
+    font-size:12px;
+
+    border-radius:2px;
+
+    white-space:nowrap;
+
+}
+
+
+
+/* =========================
+   FECHA
+========================= */
+
+.registro-hora{
+
+    width:160px;
+
+    flex-shrink:0;
+
+    text-align:center;
+
+    color:#cbd5db;
+
+    font-size:14px;
+
+}
+
+
+
+/* =========================
+   TIEMPO
+========================= */
+
+.registro-tiempo{
+
+    width:100px;
+
+    flex-shrink:0;
+
+    text-align:center;
+
+    color:white;
+
+    font-size:17px;
+
+    font-weight:bold;
+
+}
+
+
+
+/* =========================
+   ICONOS EXTREMO DERECHO
+========================= */
+
+.registro-actions{
+
+    width:70px;
+
+    flex-shrink:0;
+
+    margin-left:10px;
+
+    display:flex;
+
+    justify-content:flex-end;
+
+    align-items:center;
+
+    gap:15px;
+
+}
+
+
+
+.registro-actions button{
+
+    background:none;
+
+    border:none;
+
+    color:#8ea0af;
+
+    font-size:20px;
+
+    cursor:pointer;
+
+}
+
+
+.registro-actions button:hover{
+
+    color:#10a5f5;
 
 }
 
 
 
 
+.registro-actions button{
 
 
-
-/* =========================
-   CHECKBOX
-========================= */
+    background:none;
 
 
-.etiqueta-item input{
+    border:none;
 
 
-    width:16px;
+    color:#8ea0af;
 
 
-    height:16px;
+    font-size:20px;
 
 
     cursor:pointer;
 
 
-    accent-color:#10a5f5;
-
-
-    flex-shrink:0;
-
-
 }
 
 
 
+.registro-actions button:hover{
 
 
-
-
-/* =========================
-   TEXTO
-========================= */
-
-
-.etiqueta-item span{
-
-
-    font-size:14px;
-
-
-    color:#c5d0d6;
-
-
-    text-align:left;
-
-
-    white-space:nowrap;
-
-
-    overflow:hidden;
-
-
-    text-overflow:ellipsis;
+    color:#10a5f5;
 
 
 }

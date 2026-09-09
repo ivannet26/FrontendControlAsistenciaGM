@@ -1,47 +1,64 @@
 import { useState, useEffect, useRef } from "react";
+
 import { Tag, Search } from "lucide-react";
 
 import "./EtiquetaSelector.css";
 
 
+
 function EtiquetaSelector({
 
-    etiquetas,
-    etiquetasSeleccionadas,
-    setEtiquetasSeleccionadas
+    etiquetas = [],
+
+    etiquetasSeleccionadas = [],
+
+    setEtiquetasSeleccionadas,
+
+    bloqueado
 
 }) {
 
 
     const [abierto, setAbierto] = useState(false);
+
     const [busqueda, setBusqueda] = useState("");
 
     const menuRef = useRef(null);
 
 
 
-    // cerrar al hacer click afuera
+
+
+    // CERRAR CUANDO HACE CLICK AFUERA
+
     useEffect(() => {
 
 
         const cerrar = (e) => {
 
+
             if (
+
                 menuRef.current &&
+
                 !menuRef.current.contains(e.target)
+
             ) {
 
                 setAbierto(false);
 
             }
 
+
         };
+
 
 
         document.addEventListener(
             "mousedown",
             cerrar
         );
+
 
 
         return () => {
@@ -51,7 +68,7 @@ function EtiquetaSelector({
                 cerrar
             );
 
-        }
+        };
 
 
     }, []);
@@ -59,12 +76,55 @@ function EtiquetaSelector({
 
 
 
+
+
+
+    // CERRAR PANEL CUANDO SE BLOQUEA
+
+    useEffect(() => {
+
+
+        if (bloqueado) {
+
+            setAbierto(false);
+
+        }
+
+
+    }, [bloqueado]);
+
+
+
+
+
+
+
+
+
     const seleccionarEtiqueta = (etiqueta) => {
 
 
+        // BLOQUEO DE SEGURIDAD
+
+        if (bloqueado) {
+
+            return;
+
+        }
+
+
+
+
+
         const existe = etiquetasSeleccionadas.some(
+
             e => e.id === etiqueta.id
+
         );
+
+
+
+
 
 
         if (existe) {
@@ -73,13 +133,18 @@ function EtiquetaSelector({
             setEtiquetasSeleccionadas(
 
                 etiquetasSeleccionadas.filter(
+
                     e => e.id !== etiqueta.id
+
                 )
 
             );
 
 
-        } else {
+
+        }
+
+        else {
 
 
             setEtiquetasSeleccionadas([
@@ -100,28 +165,53 @@ function EtiquetaSelector({
 
 
 
-    const etiquetasFiltradas = (etiquetas || []).filter(e =>
-    e.nombre
-        .toLowerCase()
-        .includes(
-            busqueda.toLowerCase()
-        )
-);
+
+
+
+
+    const etiquetasFiltradas = etiquetas.filter(e =>
+
+        e.nombre
+
+            .toLowerCase()
+
+            .includes(
+
+                busqueda.toLowerCase()
+
+            )
+
+    );
+
+
+
+
+
 
 
 
 
     return (
 
+
         <div
+
             className="etiqueta-selector"
+
             ref={menuRef}
+
         >
+
+
+
+
 
 
             <button
 
                 className="etiqueta-btn"
+
+                disabled={bloqueado}
 
                 onClick={() => setAbierto(!abierto)}
 
@@ -136,6 +226,12 @@ function EtiquetaSelector({
 
 
 
+
+
+
+
+
+
             {
 
                 abierto &&
@@ -144,21 +240,35 @@ function EtiquetaSelector({
                 <div className="etiqueta-panel">
 
 
+
+
+
                     <div className="etiqueta-search">
 
 
                         <Search size={17} />
 
 
+
                         <input
+
 
                             placeholder="Añadir/Buscar etiquetas"
 
+
                             value={busqueda}
 
-                            onChange={
-                                (e) => setBusqueda(e.target.value)
+
+                            onChange={(e) =>
+
+                                setBusqueda(
+
+                                    e.target.value
+
+                                )
+
                             }
+
 
                         />
 
@@ -169,7 +279,12 @@ function EtiquetaSelector({
 
 
 
+
+
+
+
                     <div className="lista-etiquetas">
+
 
 
                         {
@@ -186,21 +301,44 @@ function EtiquetaSelector({
                                 >
 
 
+
+
                                     <input
 
+
                                         type="checkbox"
+
+
+                                        disabled={bloqueado}
+
+
 
                                         checked={
 
                                             etiquetasSeleccionadas.some(
+
                                                 x => x.id === e.id
+
                                             )
 
                                         }
 
-                                        onChange={() => seleccionarEtiqueta(e)}
+
+
+                                        onChange={() =>
+
+
+                                            seleccionarEtiqueta(e)
+
+
+                                        }
+
 
                                     />
+
+
+
+
 
 
 
@@ -212,7 +350,10 @@ function EtiquetaSelector({
 
 
 
+
+
                                 </label>
+
 
 
                             ))
@@ -225,16 +366,21 @@ function EtiquetaSelector({
                     </div>
 
 
+
+
+
                 </div>
 
 
             }
 
 
+
+
         </div>
 
 
-    )
+    );
 
 
 }

@@ -8,7 +8,12 @@ import ModalTarea from "../ModalTarea/ModalTarea";
 import "./ProjectSelector.css";
 
 
-function ProjectSelector({ proyecto, setProyecto }) {
+function ProjectSelector({
+    proyecto,
+    setProyecto,
+    tarea,
+    setTarea,
+    bloqueado }) {
 
 
     const [mostrarModalTarea, setMostrarModalTarea] = useState(false);
@@ -418,13 +423,10 @@ function ProjectSelector({ proyecto, setProyecto }) {
 
                                             onClick={() => {
 
-
+                                                if (bloqueado)
+                                                    return;
                                                 setProyecto(proyecto);
-
-
-                                                setMostrarProyectos(false);
-
-
+                                                setTarea(null);
                                                 setProyectosAbiertos((prev) => {
 
 
@@ -645,8 +647,40 @@ function ProjectSelector({ proyecto, setProyecto }) {
 
 
                                                             <div
+
                                                                 key={tarea.id}
+
                                                                 className="task-item"
+
+
+                                                                onClick={() => {
+
+
+                                                                    if (bloqueado)
+                                                                        return;
+
+
+
+                                                                    // guarda proyecto padre
+
+                                                                    setProyecto(proyecto);
+
+
+
+                                                                    // guarda tarea seleccionada
+
+                                                                    setTarea(tarea);
+
+
+
+                                                                    // cerrar menú
+
+                                                                    setMostrarProyectos(false);
+
+
+
+                                                                }}
+
                                                             >
 
                                                                 <span>
