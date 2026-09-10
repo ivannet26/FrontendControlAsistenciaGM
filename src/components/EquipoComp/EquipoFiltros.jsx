@@ -3,7 +3,7 @@ import "./Equipo.css";
 import { useEffect, useRef } from "react";
 
 
-function EquipoFiltro({
+function EquipoFiltros({
 
     busqueda,
     setBusqueda,
@@ -18,7 +18,9 @@ function EquipoFiltro({
     setEstadoFiltro,
 
     filtroAbierto,
-    setFiltroAbierto
+    setFiltroAbierto,
+
+    grupos = []
 
 }) {
 
@@ -26,557 +28,234 @@ function EquipoFiltro({
     const filtroRef = useRef();
 
 
-
     useEffect(() => {
 
-
         const cerrarMenu = (e) => {
-
 
             if (
                 filtroRef.current &&
                 !filtroRef.current.contains(e.target)
             ) {
-
                 setFiltroAbierto(null);
-
             }
 
-
         };
 
-
-        document.addEventListener(
-            "mousedown",
-            cerrarMenu
-        );
-
+        document.addEventListener("mousedown", cerrarMenu);
 
         return () => {
-
-            document.removeEventListener(
-                "mousedown",
-                cerrarMenu
-            );
-
+            document.removeEventListener("mousedown", cerrarMenu);
         };
-
 
     }, [setFiltroAbierto]);
 
 
 
-
-
     const abrirFiltro = (nombre) => {
 
-
         setFiltroAbierto(
-
-            filtroAbierto === nombre
-
-                ?
-
-                null
-
-                :
-
-                nombre
-
+            filtroAbierto === nombre ? null : nombre
         );
-
 
     };
 
 
 
-
-
     return (
 
-
-        <div
-            className="equipo-filtros"
-            ref={filtroRef}
-        >
-
+        <div className="equipo-filtros" ref={filtroRef}>
 
             <div className="filtros-izquierda">
-
 
                 <span className="filtro-titulo">
                     FILTRAR
                 </span>
 
 
-
-
-
-                {/* ACTIVO */}
+                {/* ESTADO */}
 
                 <div className="filtro-dropdown">
 
-
                     <button
-
                         className="filtro-btn"
-
-                        onClick={() => abrirFiltro("activo")}
-
+                        onClick={() => abrirFiltro("estado")}
                     >
-
                         Estado ▾
-
                     </button>
 
-
-
-                    {
-                        filtroAbierto === "activo" &&
-
+                    {filtroAbierto === "estado" && (
                         <div className="dropdown-panel">
 
+                            <label>
+                                <input
+                                    type="checkbox"
+                                    checked={estadoFiltro === "Todos"}
+                                    onChange={() => setEstadoFiltro("Todos")}
+                                />
+                                Todos
+                            </label>
 
                             <label>
-
                                 <input
-
                                     type="checkbox"
-
-                                    checked={estadoFiltro === "Activo"}
-
-                                    onChange={(e) => {
-
-                                        setEstadoFiltro(
-
-                                            e.target.checked
-
-                                                ?
-
-                                                "Activo"
-
-                                                :
-
-                                                "Todos"
-
-                                        );
-
-                                    }}
-
+                                    checked={estadoFiltro === "ACTIVO"}
+                                    onChange={(e) =>
+                                        setEstadoFiltro(e.target.checked ? "ACTIVO" : "Todos")
+                                    }
                                 />
-
                                 Activo
-
                             </label>
 
-
-
                             <label>
-
                                 <input
-
                                     type="checkbox"
-
-                                    checked={estadoFiltro === "Inactivo"}
-
-                                    onChange={(e) => {
-
-                                        setEstadoFiltro(
-
-                                            e.target.checked
-
-                                                ?
-
-                                                "Inactivo"
-
-                                                :
-
-                                                "Todos"
-
-                                        );
-
-                                    }}
-
+                                    checked={estadoFiltro === "INACTIVO"}
+                                    onChange={(e) =>
+                                        setEstadoFiltro(e.target.checked ? "INACTIVO" : "Todos")
+                                    }
                                 />
-
                                 Inactivo
-
                             </label>
-
-
 
                             <label>
-
                                 <input
-
                                     type="checkbox"
-
-                                    checked={estadoFiltro === "Invitado"}
-
-                                    onChange={(e) => {
-
-                                        setEstadoFiltro(
-
-                                            e.target.checked
-
-                                                ?
-
-                                                "Invitado"
-
-                                                :
-
-                                                "Todos"
-
-                                        );
-
-                                    }}
-
+                                    checked={estadoFiltro === "INVITADO"}
+                                    onChange={(e) =>
+                                        setEstadoFiltro(e.target.checked ? "INVITADO" : "Todos")
+                                    }
                                 />
-
                                 Invitado
-
                             </label>
-
 
                         </div>
-                    }
-
+                    )}
 
                 </div>
-
-
-
-
-
 
 
                 {/* ROL */}
 
                 <div className="filtro-dropdown">
 
-
                     <button
-
                         className="filtro-btn"
-
                         onClick={() => abrirFiltro("rol")}
-
                     >
-
                         Rol ▾
-
                     </button>
 
-
-
-
-                    {
-                        filtroAbierto === "rol" &&
-
-
+                    {filtroAbierto === "rol" && (
                         <div className="dropdown-panel">
 
-
                             <label>
-
                                 <input
-
                                     type="checkbox"
-
-                                    checked={rolFiltro === "Administrador"}
-
-                                    onChange={(e) =>
-
-                                        setRolFiltro(
-
-                                            e.target.checked
-
-                                                ?
-
-                                                "Administrador"
-
-                                                :
-
-                                                "Todos"
-
-                                        )
-
-                                    }
-
+                                    checked={rolFiltro === "Todos"}
+                                    onChange={() => setRolFiltro("Todos")}
                                 />
-
-                                Administrador
-
+                                Todos
                             </label>
 
-
-
-
+                            <label>
+                                <input
+                                    type="checkbox"
+                                    checked={rolFiltro === "ADMINISTRACION"}
+                                    onChange={(e) =>
+                                        setRolFiltro(e.target.checked ? "ADMINISTRACION" : "Todos")
+                                    }
+                                />
+                                Administración
+                            </label>
 
                             <label>
-
                                 <input
-
                                     type="checkbox"
-
-                                    checked={rolFiltro === "Miembro"}
-
+                                    checked={rolFiltro === "MIEMBRO"}
                                     onChange={(e) =>
-
-                                        setRolFiltro(
-
-                                            e.target.checked
-
-                                                ?
-
-                                                "Miembro"
-
-                                                :
-
-                                                "Todos"
-
-                                        )
-
+                                        setRolFiltro(e.target.checked ? "MIEMBRO" : "Todos")
                                     }
-
                                 />
-
                                 Miembro
-
                             </label>
-
-
-
-
-
-                            <label>
-
-                                <input
-
-                                    type="checkbox"
-
-                                    checked={rolFiltro === "Propietario"}
-
-                                    onChange={(e) =>
-
-                                        setRolFiltro(
-
-                                            e.target.checked
-
-                                                ?
-
-                                                "Propietario"
-
-                                                :
-
-                                                "Todos"
-
-                                        )
-
-                                    }
-
-                                />
-
-                                Propietario
-
-                            </label>
-
-
-
 
                         </div>
-
-
-                    }
-
-
+                    )}
 
                 </div>
-
-
-
-
-
-
 
 
                 {/* GRUPO */}
 
-
                 <div className="filtro-dropdown">
 
-
                     <button
-
                         className="filtro-btn"
-
                         onClick={() => abrirFiltro("grupo")}
-
                     >
-
                         Grupo ▾
-
                     </button>
 
-
-
-                    {
-
-                        filtroAbierto === "grupo" &&
-
-
+                    {filtroAbierto === "grupo" && (
                         <div className="dropdown-panel">
 
-
-
                             <label>
-
                                 <input
-
                                     type="checkbox"
-
-                                    checked={grupoFiltro === "Sistemas"}
-
-                                    onChange={(e) =>
-
-                                        setGrupoFiltro(
-
-                                            e.target.checked
-
-                                                ?
-
-                                                "Sistemas"
-
-                                                :
-
-                                                "Todos"
-
-                                        )
-
-                                    }
-
+                                    checked={grupoFiltro === "Todos"}
+                                    onChange={() => setGrupoFiltro("Todos")}
                                 />
-
-                                Sistemas
-
+                                Todos
                             </label>
 
-
-
-
-
-                            <label>
-
-                                <input
-
-                                    type="checkbox"
-
-                                    checked={grupoFiltro === "Área técnica"}
-
-                                    onChange={(e) =>
-
-                                        setGrupoFiltro(
-
-                                            e.target.checked
-
-                                                ?
-
-                                                "Área técnica"
-
-                                                :
-
-                                                "Todos"
-
-                                        )
-
-                                    }
-
-                                />
-
-                                Área técnica
-
-                            </label>
-
-
-
+                            {grupos.map(g => (
+                                <label key={g.id}>
+                                    <input
+                                        type="checkbox"
+                                        checked={grupoFiltro === g.nombre}
+                                        onChange={(e) =>
+                                            setGrupoFiltro(e.target.checked ? g.nombre : "Todos")
+                                        }
+                                    />
+                                    {g.nombre}
+                                </label>
+                            ))}
 
                         </div>
-
-
-                    }
-
-
+                    )}
 
                 </div>
 
-
-
             </div>
-
-
-
-
-
-
 
 
             {/* PARTE DERECHA */}
 
-
             <div className="filtros-derecha">
-
-
 
                 <div className="equipo-buscador">
 
-
                     <Search size={18} />
 
-
                     <input
-
                         placeholder="Buscar por nombre o correo"
-
                         value={busqueda}
-
-                        onChange={(e) =>
-
-                            setBusqueda(e.target.value)
-
-                        }
-
+                        onChange={(e) => setBusqueda(e.target.value)}
                     />
-
 
                 </div>
 
-
-
-
-
                 <button className="aplicar-btn">
-
                     APLICAR FILTRO
-
                 </button>
-
-
 
             </div>
 
-
-
-
-
         </div>
 
-
-
     );
-
 
 }
 
 
-
-export default EquipoFiltro;
+export default EquipoFiltros;
