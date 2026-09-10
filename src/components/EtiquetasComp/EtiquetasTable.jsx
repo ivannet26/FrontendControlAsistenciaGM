@@ -78,7 +78,14 @@ function EtiquetasTable({
                                         <Pencil size={16} />
                                     </button>
 
-                                    <div className="menu-container" ref={menuRef}>
+                                    <div
+                                        className="menu-container"
+                                        ref={
+                                            menuAbierto === etiqueta.id
+                                                ? menuRef
+                                                : null
+                                        }
+                                    >
                                         <button
                                             className="btn-icono"
                                             onClick={() =>

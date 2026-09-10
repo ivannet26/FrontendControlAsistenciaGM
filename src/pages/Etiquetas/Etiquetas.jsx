@@ -5,7 +5,16 @@ import EtiquetasFiltro from "../../components/EtiquetasComp/EtiquetasFiltro";
 import EtiquetasTable from "../../components/EtiquetasComp/EtiquetasTable";
 
 import ModalEtiqueta from "../../components/EtiquetasComp/ModalEtiqueta";
+import { useEffect } from "react";
 
+import {
+    obtenerEtiquetas,
+    crearEtiqueta,
+    editarEtiquetaAPI,
+    archivarEtiquetaAPI,
+    restaurarEtiquetaAPI,
+    eliminarEtiquetaAPI
+} from "../../services/etiquetaService";
 import "./Etiquetas.css";
 
 
@@ -20,55 +29,65 @@ function Etiquetas() {
 
 
     const [estadoFiltro, setEstadoFiltro] = useState([
-        "Activo"
+        "Todos"
     ]);
 
-
+    const [etiquetas, setEtiquetas] = useState([]);
     const [etiquetaEditar, setEtiquetaEditar] = useState(null);
 
 
+    useEffect(() => {
+
+        cargarEtiquetas();
+
+    }, []);
 
 
 
-    const [etiquetas, setEtiquetas] = useState([
+    const cargarEtiquetas = async () => {
+
+        try {
+
+            const data = await obtenerEtiquetas();
 
 
-        {
-            id: 1,
-            nombre: "Análisis",
-            estado: "Activo"
-        },
+            console.log(
+                "Etiquetas backend:",
+                data
+            );
 
 
-        {
-            id: 2,
-            nombre: "CHAGUAL",
-            estado: "Activo"
-        },
+            setEtiquetas(
+                data.map(e => ({
+
+                    id: e.id,
+
+                    nombre: e.nombre,
+
+                    estado:
+                        e.archivado
+                            ?
+                            "Archivado"
+                            :
+                            "Activo"
+
+                }))
+            );
 
 
-        {
-            id: 3,
-            nombre: "Corral Quemado",
-            estado: "Activo"
-        },
+        } catch (error) {
 
+            console.error(
+                "Error cargando etiquetas",
+                error
+            );
 
-        {
-            id: 4,
-            nombre: "SQL",
-            estado: "Activo"
-        },
-
-
-        {
-            id: 5,
-            nombre: "Migraciones PostgreSQL",
-            estado: "Archivado"
         }
 
+    };
 
-    ]);
+
+
 
 
 
@@ -131,122 +150,63 @@ function Etiquetas() {
 
 
     // ARCHIVAR
+    const archivarEtiqueta = async (id) => {
+        try {
+            const actualizada = await archivarEtiquetaAPI(id);
 
-    const archivarEtiqueta = (id) => {
-
-
-        setEtiquetas(
-
-            etiquetas.map(e =>
-
-                e.id === id
-
-                    ?
-
-                    {
-
-                        ...e,
-
-                        estado: "Archivado"
-
-                    }
-
-                    :
-
-                    e
-
-            )
-
-        );
-
-
+            setEtiquetas(prev =>
+                prev.map(e =>
+                    e.id === id
+                        ? { ...e, estado: actualizada.archivado ? "Archivado" : "Activo" }
+                        : e
+                )
+            );
+        } catch (error) {
+            console.error("Error archivando etiqueta", error);
+            alert("No se pudo archivar la etiqueta");
+        }
     };
 
-    const restaurarEtiqueta = (id) => {
+    // RESTAURAR
+    const restaurarEtiqueta = async (id) => {
+        try {
+            const actualizada = await restaurarEtiquetaAPI(id);
 
-
-    setEtiquetas(
-
-        etiquetas.map(e =>
-
-            e.id === id
-
-            ?
-
-            {
-                ...e,
-                estado:"Activo"
-            }
-
-            :
-
-            e
-
-        )
-
-    );
-
-
-};
-
-
-
-
-
-
-
-    // ELIMINAR SOLO ARCHIVADAS
-
-    const eliminarEtiqueta = (id) => {
-
-
-        const etiqueta = etiquetas.find(
-
-            e => e.id === id
-
-        );
-
-
-
-        if (!etiqueta) {
-
-            return;
-
+            setEtiquetas(prev =>
+                prev.map(e =>
+                    e.id === id
+                        ? { ...e, estado: actualizada.archivado ? "Archivado" : "Activo" }
+                        : e
+                )
+            );
+        } catch (error) {
+            console.error("Error restaurando etiqueta", error);
+            alert("No se pudo restaurar la etiqueta");
         }
+    };
 
+    // ELIMINAR
+    const eliminarEtiqueta = async (id) => {
+        const etiqueta = etiquetas.find(e => e.id === id);
 
+        if (!etiqueta) return;
 
         if (etiqueta.estado !== "Archivado") {
-
-
-            alert(
-
-                "Primero debes archivar la etiqueta"
-
-            );
-
-
+            alert("Primero debes archivar la etiqueta");
             return;
-
-
         }
 
+        try {
+            await eliminarEtiquetaAPI(id);
 
-
-
-        setEtiquetas(
-
-            etiquetas.filter(
-
-                e => e.id !== id
-
-            )
-
-        );
-
-
+            setEtiquetas(prev =>
+                prev.filter(e => e.id !== id)
+            );
+        } catch (error) {
+            console.error("Error eliminando etiqueta", error);
+            alert("No se pudo eliminar la etiqueta");
+        }
     };
-
 
 
 
@@ -435,60 +395,86 @@ function Etiquetas() {
 
 
 
-                    guardar={(nuevaEtiqueta) => {
+                    guardar={async (nuevaEtiqueta) => {
+
+
+                        try {
+
+
+                            if (etiquetaEditar) {
+
+
+                                const actualizada = await editarEtiquetaAPI(
+
+                                    nuevaEtiqueta.id,
+
+                                    {
+                                        nombre: nuevaEtiqueta.nombre
+                                    }
+
+                                );
+
+
+                                // EDITAR
+                                setEtiquetas(prev =>
+                                    prev.map(e =>
+                                        e.id === actualizada.id
+                                            ? {
+                                                ...e,
+                                                nombre: actualizada.nombre,
+                                                estado: actualizada.archivado ? "Archivado" : "Activo"
+                                            }
+                                            : e
+                                    )
+                                );
+
+
+                            }
+
+                            else {
+
+
+                                const creada = await crearEtiqueta({
+
+                                    nombre: nuevaEtiqueta.nombre,
+
+                                    color: "#10A5F5"
+
+                                });
 
 
 
-                        if (etiquetaEditar) {
+                                setEtiquetas(prev => [
+                                    ...prev,
+                                    {
+                                        id: creada.id,
+                                        nombre: creada.nombre,
+                                        estado: "Activo"
+                                    }
+                                ]);
+
+                            }
 
 
 
-                            setEtiquetas(
+                            setMostrarModal(false);
+
+                            setEtiquetaEditar(null);
 
 
-                                etiquetas.map(e =>
 
-                                    e.id === nuevaEtiqueta.id
+                        }
 
-                                        ?
-
-                                        nuevaEtiqueta
-
-                                        :
-
-                                        e
-
-                                )
+                        catch (error) {
 
 
+                            console.error(
+                                "Error guardando etiqueta",
+                                error
                             );
 
 
-
                         }
-
-                        else {
-
-
-
-                            setEtiquetas([
-
-                                ...etiquetas,
-
-                                nuevaEtiqueta
-
-                            ]);
-
-
-
-                        }
-
-
-
-                        setMostrarModal(false);
-
-
-                        setEtiquetaEditar(null);
 
 
 

@@ -421,3 +421,75 @@
 
   padding: 10px 20px;
 }
+/* =========================
+   CONTENEDOR DE ACCIONES
+========================= */
+
+.col-acciones {
+    width: 100px;
+    text-align: right;
+}
+
+.acciones {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-icono {
+    background: transparent;
+    border: none;
+    color: #8799a5;
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+}
+
+.btn-icono:hover {
+    background: #24343d;
+    color: white;
+}
+
+/* =========================
+   MENÚ DESPLEGABLE
+========================= */
+.menu-container {
+    position: relative;
+    display: inline-block;
+}
+
+.menu-opciones {
+    position: absolute;
+    top: 100%;              /* aparece debajo del botón de 3 puntos */
+    right: 0;               /* alineado a la derecha */
+    width: 160px;
+    background: #162630;    /* fondo sólido */
+    border: 1px solid #344650;
+    z-index: 99999;         /* 👈 MUY ALTO para que quede encima de todo */
+    padding: 5px;
+    border-radius: 4px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.7);
+    /* 👇 opcional, para que se vea más "flotante" */
+    margin-top: 4px;
+}
+
+.menu-opciones button {
+    width: 100%;
+    background: none;
+    border: none;
+    color: #d3dde3;
+    text-align: left;
+    padding: 10px 12px;
+    cursor: pointer;
+    font-size: 14px;
+    border-radius: 3px;
+}
+
+.menu-opciones button:hover {
+    background: #24343d;
+    color: white;
+}

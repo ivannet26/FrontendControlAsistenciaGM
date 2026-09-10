@@ -320,11 +320,6 @@
 }
 
 
-
-
-
-
-
 .menu-opciones button{
 
 
@@ -354,17 +349,12 @@
 
 
 
-
-
-
 .menu-opciones button:hover{
 
 
     background:#24343d;
 
 
-}.fila-archivada {
-    opacity: 0.9;
 }
 
 .etiqueta-nombre {
@@ -377,3 +367,11 @@
     text-decoration-thickness: 1.5px;
     text-decoration-color: #aebcc5;
 }
+
+
+
+
+
+
+
+
