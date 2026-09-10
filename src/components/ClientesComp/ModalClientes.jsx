@@ -3,289 +3,132 @@ import "../ClientesComp/ModalClientes.css";
 
 
 function ModalCliente({
-
     cerrar,
     guardar,
     clienteEditar
-
 }) {
 
+    const [nombre, setNombre] = useState(clienteEditar?.nombre || "");
+    const [email, setEmail] = useState(clienteEditar?.email || "");
+    const [direccion, setDireccion] = useState(clienteEditar?.direccion || "");
+    const [nota, setNota] = useState(clienteEditar?.nota || "");
+    const [moneda, setMoneda] = useState(clienteEditar?.moneda || "USD");
 
-    const [nombre,setNombre] = useState(
-        clienteEditar?.nombre || ""
-    );
-
-
-    const [direccion,setDireccion] = useState(
-        clienteEditar?.direccion || ""
-    );
-
-
-    const [moneda,setMoneda] = useState(
-        clienteEditar?.moneda || "SOL"
-    );
+    // destinatarios_cc: lista de hasta 3 correos
+    const [cc1, setCc1] = useState(clienteEditar?.destinatarios_cc?.[0] || "");
+    const [cc2, setCc2] = useState(clienteEditar?.destinatarios_cc?.[1] || "");
+    const [cc3, setCc3] = useState(clienteEditar?.destinatarios_cc?.[2] || "");
 
 
+    const guardarCliente = () => {
 
+        if (!nombre.trim()) {
+            alert("El nombre es obligatorio");
+            return;
+        }
 
-    const guardarCliente = ()=>{
-
+        // Construir lista de CC sin vacíos
+        const destinatarios_cc = [cc1, cc2, cc3]
+            .map(s => s.trim())
+            .filter(s => s !== "");
 
         const nuevoCliente = {
-
-
-            id: clienteEditar
-
-                ?
-
-                clienteEditar.id
-
-                :
-
-                Date.now(),
-
-
-            nombre,
-
-            direccion,
-
-            moneda,
-
-            estado:"Activo"
-
-
+            id: clienteEditar?.id,
+            nombre: nombre.trim(),
+            email: email.trim() || null,
+            destinatarios_cc,
+            direccion: direccion.trim() || null,
+            nota: nota.trim() || null,
+            moneda
         };
 
-
-
         guardar(nuevoCliente);
-
-        cerrar();
-
-
     };
 
 
-
-
-
-
-
-    return(
-
+    return (
         <div className="modal-overlay">
-
-
 
             <div className="modal-cliente">
 
-
-
-
-
                 <div className="modal-header">
-
-
                     <h2>
-
-                        {
-                            clienteEditar
-
-                            ?
-
-                            "Editar cliente"
-
-                            :
-
-                            "Añadir nuevo cliente"
-
-                        }
-
+                        {clienteEditar ? "Editar cliente" : "Añadir nuevo cliente"}
                     </h2>
-
-
-
-                    <button
-
-                        onClick={cerrar}
-
-                    >
-
-                        ×
-
-                    </button>
-
-
+                    <button onClick={cerrar}>×</button>
                 </div>
-
-
-
-
-
-
-
-
 
                 <div className="modal-body">
 
-
-
-                    <label>
-
-                        Nombre
-
-                    </label>
-
-
+                    <label>Nombre *</label>
                     <input
-
                         placeholder="Nombre del cliente"
-
                         value={nombre}
-
-                        onChange={(e)=>
-
-                            setNombre(e.target.value)
-
-                        }
-
+                        onChange={(e) => setNombre(e.target.value)}
                     />
 
-
-
-
-
-
-
-                    <label>
-
-                        Dirección
-
-                    </label>
-
-
-
+                    <label>Email</label>
                     <input
-
-                        placeholder="Dirección"
-
-                        value={direccion}
-
-                        onChange={(e)=>
-
-                            setDireccion(e.target.value)
-
-                        }
-
+                        placeholder="correo@ejemplo.com"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
                     />
 
+                    <label>Destinatarios en copia (CC) — máx. 3</label>
+                    <input
+                        placeholder="cc1@ejemplo.com"
+                        value={cc1}
+                        onChange={(e) => setCc1(e.target.value)}
+                    />
+                    <input
+                        placeholder="cc2@ejemplo.com (opcional)"
+                        value={cc2}
+                        onChange={(e) => setCc2(e.target.value)}
+                    />
+                    <input
+                        placeholder="cc3@ejemplo.com (opcional)"
+                        value={cc3}
+                        onChange={(e) => setCc3(e.target.value)}
+                    />
 
+                    <label>Dirección</label>
+                    <input
+                        placeholder="Dirección"
+                        value={direccion}
+                        onChange={(e) => setDireccion(e.target.value)}
+                    />
 
+                    <label>Nota</label>
+                    <input
+                        placeholder="Nota interna"
+                        value={nota}
+                        onChange={(e) => setNota(e.target.value)}
+                    />
 
-
-
-
-
-
-                    <label>
-
-                        Moneda
-
-                    </label>
-
-
-
+                    <label>Moneda</label>
                     <select
-
                         value={moneda}
-
-                        onChange={(e)=>
-
-                            setMoneda(e.target.value)
-
-                        }
-
+                        onChange={(e) => setMoneda(e.target.value)}
                     >
-
-
-                        <option value="SOL">
-
-                            SOL
-
-                        </option>
-
-
-                        <option value="USD">
-
-                            USD
-
-                        </option>
-
-
-
+                        <option value="USD">USD</option>
+                        <option value="PEN">PEN</option>
+                        <option value="EUR">EUR</option>
                     </select>
 
-
-
-
                 </div>
-
-
-
-
-
-
 
                 <div className="modal-footer">
-
-
-                    <button
-
-                        className="cancelar"
-
-                        onClick={cerrar}
-
-                    >
-
+                    <button className="cancelar" onClick={cerrar}>
                         Cancelar
-
                     </button>
-
-
-
-
-
-                    <button
-
-                        className="guardar"
-
-                        onClick={guardarCliente}
-
-                    >
-
+                    <button className="guardar" onClick={guardarCliente}>
                         Guardar
-
                     </button>
-
-
                 </div>
 
-
-
-
-
-
             </div>
-
-
         </div>
-
-
     );
-
-
 }
-
-
 
 export default ModalCliente;
