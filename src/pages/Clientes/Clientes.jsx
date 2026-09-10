@@ -1,451 +1,261 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "../Clientes/Clientes.css";
 import ClientesFiltro from "../../components/ClientesComp/ClientesFiltro";
 import ClientesTable from "../../components/ClientesComp/ClientesTable";
 import ModalCliente from "../../components/ClientesComp/ModalClientes";
 
+import {
+    obtenerClientes,
+    crearCliente,
+    editarClienteAPI,
+    archivarClienteAPI,
+    restaurarClienteAPI,
+    eliminarClienteAPI
+} from "../../services/clientesService";
+
 
 function Clientes() {
 
-
     const [mostrarModal, setMostrarModal] = useState(false);
-
     const [busqueda, setBusqueda] = useState("");
-
     const [estadoFiltro, setEstadoFiltro] = useState("Todos");
-
-
     const [clienteEditar, setClienteEditar] = useState(null);
+    const [clientes, setClientes] = useState([]);
 
 
-
-    const [clientes, setClientes] = useState([
-
-    {
-        id:1,
-        nombre:"CESEL",
-        direccion:"Av. República de Panamá 3410 - San Isidro",
-        moneda:"SOL",
-        estado:"Activo"
-    },
-
-    {
-        id:2,
-        nombre:"CONSORCIO LURIN",
-        direccion:"Lurín - Lima",
-        moneda:"SOL",
-        estado:"Activo"
-    },
-
-    {
-        id:3,
-        nombre:"GM INGENIEROS Y CONSULTORES",
-        direccion:"Av. Javier Prado Este 1234",
-        moneda:"SOL",
-        estado:"Activo"
-    },
-
-    {
-        id:4,
-        nombre:"Municipalidad Provincial de Ayacucho",
-        direccion:"Portal Municipal N° 100 - Ayacucho",
-        moneda:"SOL",
-        estado:"Activo"
-    },
-
-    {
-        id:5,
-        nombre:"MINERA DEISI SAC",
-        direccion:"Calle Los Minerales 450 - Arequipa",
-        moneda:"USD",
-        estado:"Activo"
-    },
-
-    {
-        id:6,
-        nombre:"NIVARGO PERÚ",
-        direccion:"Av. Industrial 890 - Callao",
-        moneda:"USD",
-        estado:"Activo"
-    },
-
-    {
-        id:7,
-        nombre:"TRANSPORTES DEL SUR SAC",
-        direccion:"Jr. Comercio 230 - Cusco",
-        moneda:"SOL",
-        estado:"Activo"
-    },
-
-    {
-        id:8,
-        nombre:"CONSTRUCTORA ANDINA",
-        direccion:"Av. Primavera 780 - Surco",
-        moneda:"SOL",
-        estado:"Activo"
-    },
-
-    {
-        id:9,
-        nombre:"TECNOLOGÍAS DEL PACÍFICO",
-        direccion:"Av. Arequipa 1520 - Lima",
-        moneda:"USD",
-        estado:"Activo"
-    },
-
-    {
-        id:10,
-        nombre:"INVERSIONES DEL NORTE",
-        direccion:"Trujillo - La Libertad",
-        moneda:"SOL",
-        estado:"Archivado"
-    },
-
-    {
-        id:11,
-        nombre:"SERVICIOS GENERALES ROMA",
-        direccion:"Av. Brasil 560 - Lima",
-        moneda:"SOL",
-        estado:"Activo"
-    },
-
-    {
-        id:12,
-        nombre:"GRUPO EMPRESARIAL ALFA",
-        direccion:"Miraflores - Lima",
-        moneda:"USD",
-        estado:"Activo"
-    },
-
-    {
-        id:13,
-        nombre:"CLIENTE DEMO",
-        direccion:"Sin dirección registrada",
-        moneda:"SOL",
-        estado:"Archivado"
-    },
-
-    {
-        id:14,
-        nombre:"UNIVERSIDAD TECNOLÓGICA DEL PERÚ",
-        direccion:"Av. Petit Thouars 116 - Lima",
-        moneda:"SOL",
-        estado:"Activo"
-    },
-
-    {
-        id:15,
-        nombre:"MUNICIPALIDAD DISTRITAL DE CHORRILLOS",
-        direccion:"Plaza Central Chorrillos",
-        moneda:"SOL",
-        estado:"Activo"
-    },
-
-    {
-        id:16,
-        nombre:"CONSULTORA SMART SOLUTIONS",
-        direccion:"Av. La Marina 900 - San Miguel",
-        moneda:"USD",
-        estado:"Activo"
-    },
-
-    {
-        id:17,
-        nombre:"AGROEXPORTACIONES DEL VALLE",
-        direccion:"Ica - Perú",
-        moneda:"USD",
-        estado:"Activo"
-    },
-
-    {
-        id:18,
-        nombre:"IMPORTACIONES GLOBAL SAC",
-        direccion:"Av. Argentina 3200 - Lima",
-        moneda:"USD",
-        estado:"Archivado"
-    },
-
-    {
-        id:19,
-        nombre:"CLÍNICA SAN MARTÍN",
-        direccion:"Av. Brasil 1200 - Lima",
-        moneda:"SOL",
-        estado:"Activo"
-    },
-
-    {
-        id:20,
-        nombre:"EMPRESA LOGÍSTICA EXPRESS",
-        direccion:"Callao - Perú",
-        moneda:"SOL",
-        estado:"Activo"
-    }
-
-]);
+    useEffect(() => {
+        cargarClientes();
+    }, []);
 
 
+    const cargarClientes = async () => {
+        try {
+            const data = await obtenerClientes();
+
+            console.log("Clientes backend:", data);
+
+            setClientes(
+                data.map(c => ({
+                    id: c.id,
+                    nombre: c.nombre,
+                    email: c.email || "",
+                    destinatarios_cc: c.destinatarios_cc || [],
+                    direccion: c.direccion || "",
+                    nota: c.nota || "",
+                    moneda: c.moneda,
+                    estado: c.archivado ? "Archivado" : "Activo"
+                }))
+            );
+        } catch (error) {
+            console.error("Error cargando clientes", error);
+        }
+    };
 
 
+    // FILTROS
 
     const clientesFiltrados = clientes.filter((cliente) => {
 
-
         const texto = busqueda.toLowerCase();
 
-
-
         const coincideBusqueda =
-
-            cliente.nombre
-                .toLowerCase()
-                .includes(texto)
-
-            ||
-
-            cliente.direccion
-                .toLowerCase()
-                .includes(texto);
-
-
+            cliente.nombre.toLowerCase().includes(texto) ||
+            (cliente.direccion || "").toLowerCase().includes(texto);
 
         const coincideEstado =
-
-            estadoFiltro === "Todos"
-
-            ||
-
+            estadoFiltro === "Todos" ||
             cliente.estado === estadoFiltro;
 
-
-
-        return (
-
-            coincideBusqueda
-
-            &&
-
-            coincideEstado
-
-        );
-
-
+        return coincideBusqueda && coincideEstado;
     });
 
 
+    // ARCHIVAR
 
+    const archivarCliente = async (id) => {
+        try {
+            const actualizado = await archivarClienteAPI(id);
 
-
-
-
-    const eliminarCliente = (id) => {
-
-
-        setClientes(
-
-            clientes.filter(
-
-                cliente => cliente.id !== id
-
-            )
-
-        );
-
-
+            setClientes(prev =>
+                prev.map(c =>
+                    c.id === id
+                        ? { ...c, estado: actualizado.archivado ? "Archivado" : "Activo" }
+                        : c
+                )
+            );
+        } catch (error) {
+            console.error("Error archivando cliente", error);
+            alert(error.response?.data?.detail || "No se pudo archivar el cliente");
+        }
     };
 
 
+    // RESTAURAR
+
+    const restaurarCliente = async (id) => {
+        try {
+            const actualizado = await restaurarClienteAPI(id);
+
+            setClientes(prev =>
+                prev.map(c =>
+                    c.id === id
+                        ? { ...c, estado: actualizado.archivado ? "Archivado" : "Activo" }
+                        : c
+                )
+            );
+        } catch (error) {
+            console.error("Error restaurando cliente", error);
+            alert(error.response?.data?.detail || "No se pudo restaurar el cliente");
+        }
+    };
 
 
+    // ELIMINAR
+
+    const eliminarCliente = async (id) => {
+
+        const cliente = clientes.find(c => c.id === id);
+        if (!cliente) return;
+
+        if (cliente.estado !== "Archivado") {
+            alert("Primero debes archivar el cliente");
+            return;
+        }
+
+        try {
+            await eliminarClienteAPI(id);
+
+            setClientes(prev => prev.filter(c => c.id !== id));
+        } catch (error) {
+            console.error("Error eliminando cliente", error);
+            alert(error.response?.data?.detail || "No se pudo eliminar el cliente");
+        }
+    };
 
 
+    // EDITAR
 
     const editarCliente = (cliente) => {
-
-
         setClienteEditar(cliente);
-
         setMostrarModal(true);
-
-
     };
-
-
-
-
-
-
-
 
 
     return (
-
         <div className="clientes-container">
 
-
-
             <div className="clientes-top">
-
-
-                <h1>
-
-                    Clientes
-
-                </h1>
-
-
-
+                <h1>Clientes</h1>
             </div>
-
-
-
-
-
-
 
             <div className="clientes-contenedor">
 
-
                 <div className="contenedor-header">
-
                     <button
-
                         className="crear-cliente"
-
-                        onClick={() => setMostrarModal(true)}
-
+                        onClick={() => {
+                            setClienteEditar(null);
+                            setMostrarModal(true);
+                        }}
                     >
-
                         AÑADIR NUEVO CLIENTE
-
                     </button>
-
-
                 </div>
 
-
-
                 <ClientesFiltro
-
                     busqueda={busqueda}
-
                     setBusqueda={setBusqueda}
-
                     estadoFiltro={estadoFiltro}
-
                     setEstadoFiltro={setEstadoFiltro}
-
                 />
-
-
 
                 <ClientesTable
-
                     clientes={clientesFiltrados}
-
+                    archivarCliente={archivarCliente}
+                    restaurarCliente={restaurarCliente}
                     eliminarCliente={eliminarCliente}
-
                     editarCliente={editarCliente}
-
                 />
-
-
             </div>
 
-
-
-
-
-
-
-
-
             {
-
                 mostrarModal &&
-
-
                 <ModalCliente
-
-
                     cerrar={() => {
-
                         setMostrarModal(false);
-
                         setClienteEditar(null);
-
                     }}
-
-
 
                     clienteEditar={clienteEditar}
 
+                    guardar={async (nuevoCliente) => {
+                        try {
+                            if (clienteEditar) {
+                                const actualizado = await editarClienteAPI(
+                                    nuevoCliente.id,
+                                    {
+                                        nombre: nuevoCliente.nombre,
+                                        email: nuevoCliente.email || null,
+                                        destinatarios_cc: nuevoCliente.destinatarios_cc,
+                                        direccion: nuevoCliente.direccion,
+                                        nota: nuevoCliente.nota,
+                                        moneda: nuevoCliente.moneda
+                                    }
+                                );
 
+                                setClientes(prev =>
+                                    prev.map(c =>
+                                        c.id === actualizado.id
+                                            ? {
+                                                ...c,
+                                                nombre: actualizado.nombre,
+                                                email: actualizado.email || "",
+                                                destinatarios_cc: actualizado.destinatarios_cc || [],
+                                                direccion: actualizado.direccion || "",
+                                                nota: actualizado.nota || "",
+                                                moneda: actualizado.moneda,
+                                                estado: actualizado.archivado ? "Archivado" : "Activo"
+                                              }
+                                            : c
+                                    )
+                                );
+                            } else {
+                                const creado = await crearCliente({
+                                    nombre: nuevoCliente.nombre,
+                                    email: nuevoCliente.email || null,
+                                    destinatarios_cc: nuevoCliente.destinatarios_cc,
+                                    direccion: nuevoCliente.direccion,
+                                    nota: nuevoCliente.nota,
+                                    moneda: nuevoCliente.moneda
+                                });
 
-                    guardar={(nuevo) => {
+                                setClientes(prev => [
+                                    ...prev,
+                                    {
+                                        id: creado.id,
+                                        nombre: creado.nombre,
+                                        email: creado.email || "",
+                                        destinatarios_cc: creado.destinatarios_cc || [],
+                                        direccion: creado.direccion || "",
+                                        nota: creado.nota || "",
+                                        moneda: creado.moneda,
+                                        estado: "Activo"
+                                    }
+                                ]);
+                            }
 
-
-                        if (clienteEditar) {
-
-
-                            setClientes(
-
-                                clientes.map(c =>
-
-                                    c.id === nuevo.id
-
-                                        ?
-
-                                        nuevo
-
-                                        :
-
-                                        c
-
-                                )
-
-                            );
-
-
+                            setMostrarModal(false);
+                            setClienteEditar(null);
+                        } catch (error) {
+                            console.error("Error guardando cliente", error);
+                            alert(error.response?.data?.detail || "No se pudo guardar el cliente");
                         }
-
-                        else {
-
-
-                            setClientes([
-
-                                ...clientes,
-
-                                nuevo
-
-                            ]);
-
-
-                        }
-
-
-
-                        setMostrarModal(false);
-
-
                     }}
-
-
-
                 />
-
-
             }
-
-
-
-
         </div>
-
     );
-
-
 }
-
 
 
 export default Clientes;
