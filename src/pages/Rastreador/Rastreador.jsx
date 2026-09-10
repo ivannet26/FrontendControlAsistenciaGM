@@ -1,11 +1,20 @@
 import "./Rastreador.css";
 
-import { useState } from "react";
+import {
+    useState,
+    useEffect
+} from "react";
 
 import TimerBar from "../../components/RastreadorComp/TimerBar/TimerBar";
 
+import {
+    obtenerEtiquetas
+} from "../../services/etiquetaService";
+
+
 
 function Rastreador() {
+
 
     const [actividad, setActividad] = useState("");
 
@@ -21,53 +30,13 @@ function Rastreador() {
 
     const [bloqueado, setBloqueado] = useState(false);
 
+
     const [registros, setRegistros] = useState([]);
 
 
+    // ETIQUETAS DESDE BACKEND
 
-    const [etiquetas] = useState([
-
-        {
-            id: 1,
-            nombre: "Análisis"
-        },
-
-        {
-            id: 2,
-            nombre: "Programación"
-        },
-
-        {
-            id: 3,
-            nombre: "Desarrollo Frontend"
-        },
-
-        {
-            id: 4,
-            nombre: "Desarrollo Backend"
-        },
-
-        {
-            id: 5,
-            nombre: "Base de Datos"
-        },
-
-        {
-            id: 6,
-            nombre: "SQL"
-        },
-
-        {
-            id: 7,
-            nombre: "PostgreSQL"
-        },
-
-        {
-            id: 8,
-            nombre: "Testing"
-        }
-
-    ]);
+    const [etiquetas, setEtiquetas] = useState([]);
 
 
 
@@ -79,35 +48,81 @@ function Rastreador() {
 
 
 
+    // =====================================
+    // CARGAR ETIQUETAS
+    // =====================================
+
+    useEffect(() => {
+
+        cargarEtiquetas();
+
+    }, []);
+
+
+
+    const cargarEtiquetas = async () => {
+
+        try {
+
+            const data = await obtenerEtiquetas();
+
+            setEtiquetas(data);
+
+
+        } catch (error) {
+
+            console.error(
+                "Error cargando etiquetas",
+                error
+            );
+
+        }
+
+    };
+
+
+
+
+
+    // =====================================
     // INICIAR TIMER
+    // =====================================
 
     const iniciarTiempo = () => {
 
 
         if (!actividad.trim()) {
 
-            alert("Ingrese actividad");
+            alert(
+                "Ingrese actividad"
+            );
 
             return;
-
         }
+
 
 
         if (!proyecto) {
 
-            alert("Seleccione un proyecto");
+            alert(
+                "Seleccione proyecto"
+            );
 
             return;
-
         }
 
 
 
-        setHoraInicio(new Date());
+        setHoraInicio(
+            new Date()
+        );
+
 
         setSegundos(0);
 
+
         setActivo(true);
+
 
         setBloqueado(true);
 
@@ -119,7 +134,10 @@ function Rastreador() {
 
 
 
-    // DETENER TIMER Y GUARDAR
+
+    // =====================================
+    // DETENER TIMER
+    // =====================================
 
     const detenerTiempo = () => {
 
@@ -147,6 +165,7 @@ function Rastreador() {
                 etiquetasSeleccionadas,
 
 
+
             horaInicio,
 
 
@@ -163,14 +182,14 @@ function Rastreador() {
 
 
         setRegistros([
-
             ...registros,
-
             nuevoRegistro
-
         ]);
 
 
+
+
+        // LIBERAR CAMPOS
 
         setActivo(false);
 
@@ -179,6 +198,7 @@ function Rastreador() {
 
 
         setSegundos(0);
+
 
         setHoraInicio(null);
 
@@ -190,6 +210,7 @@ function Rastreador() {
 
         setTarea(null);
 
+
         setEtiquetasSeleccionadas([]);
 
 
@@ -200,14 +221,29 @@ function Rastreador() {
 
 
 
+
+
+
+
+    // =====================================
+    // FORMATO TIEMPO
+    // =====================================
+
     const formatoTiempo = (seg) => {
 
 
-        const h = Math.floor(seg / 3600);
+        const h = Math.floor(
+            seg / 3600
+        );
 
-        const m = Math.floor((seg % 3600) / 60);
+
+        const m = Math.floor(
+            (seg % 3600) / 60
+        );
+
 
         const s = seg % 60;
+
 
 
         return (
@@ -230,6 +266,11 @@ function Rastreador() {
 
 
 
+
+    // =====================================
+    // FORMATO HORA
+    // =====================================
+
     const formatoHora = (fecha) => {
 
 
@@ -245,20 +286,19 @@ function Rastreador() {
             }
         );
 
-
     };
 
 
 
 
 
+
     const totalTiempo = registros.reduce(
-
         (total, r) =>
+            total + r.tiempo,
+        0
+    );
 
-            total + r.tiempo
-
-        , 0);
 
 
 
@@ -274,27 +314,39 @@ function Rastreador() {
 
             <TimerBar
 
+
                 actividad={actividad}
+
                 setActividad={setActividad}
 
 
+
                 activo={activo}
+
                 setActivo={setActivo}
 
 
+
                 segundos={segundos}
+
                 setSegundos={setSegundos}
 
 
+
                 proyecto={proyecto}
+
                 setProyecto={setProyecto}
 
 
+
                 tarea={tarea}
+
                 setTarea={setTarea}
 
 
+
                 etiquetas={etiquetas}
+
 
 
                 etiquetasSeleccionadas={
@@ -302,20 +354,34 @@ function Rastreador() {
                 }
 
 
+
                 setEtiquetasSeleccionadas={
                     setEtiquetasSeleccionadas
                 }
 
 
-                iniciarTiempo={iniciarTiempo}
+
+                iniciarTiempo={
+                    iniciarTiempo
+                }
 
 
-                detenerTiempo={detenerTiempo}
+
+                detenerTiempo={
+                    detenerTiempo
+                }
+
 
 
                 bloqueado={bloqueado}
 
+
+
             />
+
+
+
+
 
 
 
@@ -332,13 +398,19 @@ function Rastreador() {
                     </span>
 
 
+
                     <div className="registro-total">
 
-                        Total:
+                        <span>
+                            Total:
+                        </span>
+
 
                         <strong>
 
-                            {formatoTiempo(totalTiempo)}
+                            {
+                                formatoTiempo(totalTiempo)
+                            }
 
                         </strong>
 
@@ -353,47 +425,84 @@ function Rastreador() {
 
 
 
+
                 {
+
                     registros.map(registro => (
 
 
                         <div
+
                             className="registro-row"
+
                             key={registro.id}
+
                         >
+
+
 
 
                             <div className="registro-actividad">
 
-                                {registro.actividad}
+                                {
+                                    registro.actividad
+                                }
 
                             </div>
+
+
+
 
 
 
 
                             <div className="registro-proyecto">
 
+
                                 <span className="punto"></span>
+
+
 
                                 <span>
 
-                                    {registro.proyecto?.nombre || "Sin proyecto"}
 
                                     {
-                                        registro.tarea &&
-                                        <>
-                                            {" - "}
-                                            <span className="registro-tarea">
-                                                {registro.tarea.nombre}
-                                            </span>
-                                        </>
+                                        registro.proyecto?.nombre
+                                        ||
+                                        "Sin proyecto"
                                     }
+
+
+
+                                    {
+
+                                        registro.tarea &&
+
+                                        <span className="registro-tarea">
+
+
+                                            {" - "}
+
+
+                                            {
+                                                registro.tarea.nombre
+                                            }
+
+
+                                        </span>
+
+
+                                    }
+
+
 
                                 </span>
 
 
+
                             </div>
+
+
 
 
 
@@ -403,18 +512,27 @@ function Rastreador() {
 
 
                                 {
-                                    registro.etiquetas.map(e => (
+
+                                    registro.etiquetas?.map(e => (
+
 
                                         <span
+
                                             className="tag"
+
                                             key={e.id}
+
                                         >
+
 
                                             {e.nombre}
 
+
                                         </span>
 
+
                                     ))
+
 
                                 }
 
@@ -425,15 +543,32 @@ function Rastreador() {
 
 
 
+
+
                             <div className="registro-hora">
 
-                                {formatoHora(registro.horaInicio)}
+
+                                {
+                                    formatoHora(
+                                        registro.horaInicio
+                                    )
+                                }
+
 
                                 -
 
-                                {formatoHora(registro.horaFin)}
+                                {
+
+                                    formatoHora(
+                                        registro.horaFin
+                                    )
+
+                                }
+
 
                             </div>
+
+
 
 
 
@@ -441,26 +576,43 @@ function Rastreador() {
 
                             <div className="registro-tiempo">
 
-                                {formatoTiempo(registro.tiempo)}
+
+                                {
+                                    formatoTiempo(
+                                        registro.tiempo
+                                    )
+
+                                }
+
 
                             </div>
+
+
+
 
 
 
 
                             <div className="registro-actions">
 
+
                                 <button>
+
                                     ▶
+
                                 </button>
 
 
                                 <button>
+
                                     ⋮
+
                                 </button>
 
 
                             </div>
+
+
 
 
 
@@ -470,12 +622,13 @@ function Rastreador() {
 
                     ))
 
+
                 }
 
 
 
-            </div>
 
+            </div>
 
 
 
@@ -487,6 +640,7 @@ function Rastreador() {
 
 
 }
+
 
 
 export default Rastreador;
