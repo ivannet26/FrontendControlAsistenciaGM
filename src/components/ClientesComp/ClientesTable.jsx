@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { MoreVertical, Pencil } from "lucide-react";
 import "./ClientesTable.css";
 
@@ -12,7 +13,10 @@ function ClientesTable({
 }) {
 
     const [menuAbierto, setMenuAbierto] = useState(null);
+    const [menuPos, setMenuPos] = useState({ top: 0, right: 0 });
+
     const menuRef = useRef(null);
+
 
     useEffect(() => {
         const cerrarMenu = (e) => {
@@ -27,6 +31,26 @@ function ClientesTable({
             document.removeEventListener("mousedown", cerrarMenu);
         };
     }, []);
+
+
+    // ✅ Abrir menú con posición calculada
+    const abrirMenu = (e, id) => {
+        e.stopPropagation();
+
+        const rect = e.currentTarget.getBoundingClientRect();
+
+        setMenuPos({
+            top: rect.bottom + 4,
+            right: window.innerWidth - rect.right
+        });
+
+        setMenuAbierto(menuAbierto === id ? null : id);
+    };
+
+
+    // ✅ Cliente del menú abierto
+    const clienteMenu = clientes.find(c => c.id === menuAbierto);
+
 
     return (
         <div className="clientes-tabla-container">
@@ -43,6 +67,7 @@ function ClientesTable({
                         <th>NOMBRE</th>
                         <th>DIRECCIÓN</th>
                         <th>MONEDA</th>
+                        
                         <th className="col-acciones"></th>
                     </tr>
                 </thead>
@@ -91,59 +116,69 @@ function ClientesTable({
 
                                     <button
                                         className="btn-icono"
-                                        onClick={() =>
-                                            setMenuAbierto(
-                                                menuAbierto === cliente.id
-                                                    ? null
-                                                    : cliente.id
-                                            )
-                                        }
+                                        onClick={(e) => abrirMenu(e, cliente.id)}
                                     >
                                         <MoreVertical size={18} />
                                     </button>
                                 </div>
-
-                                {menuAbierto === cliente.id && (
-                                    <div className="menu-opciones" ref={menuRef}>
-                                        {cliente.estado === "Activo" ? (
-                                            <button
-                                                onClick={() => {
-                                                    archivarCliente(cliente.id);
-                                                    setMenuAbierto(null);
-                                                }}
-                                            >
-                                                Archivar
-                                            </button>
-                                        ) : (
-                                            <>
-                                                <button
-                                                    onClick={() => {
-                                                        restaurarCliente(cliente.id);
-                                                        setMenuAbierto(null);
-                                                    }}
-                                                >
-                                                    Restaurar
-                                                </button>
-
-                                                <button
-                                                    onClick={() => {
-                                                        eliminarCliente(cliente.id);
-                                                        setMenuAbierto(null);
-                                                    }}
-                                                >
-                                                    Eliminar
-                                                </button>
-                                            </>
-                                        )}
-                                    </div>
-                                )}
                             </td>
                         </tr>
                     ))}
                 </tbody>
             </table>
+
+
+            {/* ✅ MENÚ RENDERIZADO EN EL BODY */}
+            {menuAbierto && clienteMenu && createPortal(
+
+                <div
+                    className="menu-opciones-portal"
+                    ref={menuRef}
+                    style={{
+                        position: "fixed",
+                        top: menuPos.top,
+                        right: menuPos.right,
+                        zIndex: 9999999
+                    }}
+                >
+                    {clienteMenu.estado === "Activo" ? (
+                        <button
+                            onClick={() => {
+                                archivarCliente(clienteMenu.id);
+                                setMenuAbierto(null);
+                            }}
+                        >
+                            Archivar
+                        </button>
+                    ) : (
+                        <>
+                            <button
+                                onClick={() => {
+                                    restaurarCliente(clienteMenu.id);
+                                    setMenuAbierto(null);
+                                }}
+                            >
+                                Restaurar
+                            </button>
+
+                            <button
+                                onClick={() => {
+                                    eliminarCliente(clienteMenu.id);
+                                    setMenuAbierto(null);
+                                }}
+                            >
+                                Eliminar
+                            </button>
+                        </>
+                    )}
+                </div>,
+
+                document.body
+            )}
+
         </div>
     );
 }
+
 
 export default ClientesTable;

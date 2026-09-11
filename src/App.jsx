@@ -16,6 +16,7 @@ import Register from "./pages/Register/Register.jsx";
 import Rastreador from "./pages/Rastreador/Rastreador.jsx";
 import Panel from "./pages/Modulo-Panel/Panel.jsx";
 import Proyectos from "./pages/Proyectos/Proyectos.jsx";
+import DetalleProyecto from "./pages/Proyectos/DetalleProyecto/DetalleProyecto.jsx";
 import Equipo from "./pages/Equipo/Equipo.jsx";
 import Clientes from "./pages/Clientes/Clientes.jsx";
 import Etiquetas from "./pages/Etiquetas/Etiquetas.jsx";
@@ -66,6 +67,10 @@ function App() {
           <Route
             path="proyectos"
             element={<Proyectos />}
+          />
+          <Route
+            path="proyectos/:id"
+            element={<DetalleProyecto />}
           />
           <Route
             path="equipo"

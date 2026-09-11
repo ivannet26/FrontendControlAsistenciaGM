@@ -1,14 +1,8 @@
 import ProyectosComp from "../../components/ProyectosComp/ProyectosComp";
 
 
-function Proyectos(){
-
-    return (
-
-        <ProyectosComp />
-
-    );
-
+function Proyectos() {
+    return <ProyectosComp />;
 }
 
 

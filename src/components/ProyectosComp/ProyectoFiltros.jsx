@@ -32,14 +32,20 @@ function ProyectoFiltros({
                 value={clienteFiltro}
                 onChange={(e) => setClienteFiltro(e.target.value)}
             >
-                <option value="TODOS">Todos los clientes</option>
+                <option value="TODOS">Cliente</option>
                 {clientes.map(c => (
                     <option key={c.id} value={c.id}>
                         {c.nombre}
                     </option>
                 ))}
             </select>
-
+            <select
+                value={estadoFiltro}
+                onChange={(e) => setEstadoFiltro(e.target.value)}
+            >
+                <option value="ACCESO">Acceso</option>
+                
+            </select>
             <div className="buscador">
                 <Search size={18} />
                 <input

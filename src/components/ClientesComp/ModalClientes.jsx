@@ -14,10 +14,8 @@ function ModalCliente({
     const [nota, setNota] = useState(clienteEditar?.nota || "");
     const [moneda, setMoneda] = useState(clienteEditar?.moneda || "USD");
 
-    // destinatarios_cc: lista de hasta 3 correos
+    // ✅ Un solo destinatario CC
     const [cc1, setCc1] = useState(clienteEditar?.destinatarios_cc?.[0] || "");
-    const [cc2, setCc2] = useState(clienteEditar?.destinatarios_cc?.[1] || "");
-    const [cc3, setCc3] = useState(clienteEditar?.destinatarios_cc?.[2] || "");
 
 
     const guardarCliente = () => {
@@ -28,9 +26,7 @@ function ModalCliente({
         }
 
         // Construir lista de CC sin vacíos
-        const destinatarios_cc = [cc1, cc2, cc3]
-            .map(s => s.trim())
-            .filter(s => s !== "");
+        const destinatarios_cc = cc1.trim() ? [cc1.trim()] : [];
 
         const nuevoCliente = {
             id: clienteEditar?.id,
@@ -74,21 +70,11 @@ function ModalCliente({
                         onChange={(e) => setEmail(e.target.value)}
                     />
 
-                    <label>Destinatarios en copia (CC) — máx. 3</label>
+                    <label>Destinatario en copia (CC)</label>
                     <input
-                        placeholder="cc1@ejemplo.com"
+                        placeholder="cc@ejemplo.com"
                         value={cc1}
                         onChange={(e) => setCc1(e.target.value)}
-                    />
-                    <input
-                        placeholder="cc2@ejemplo.com (opcional)"
-                        value={cc2}
-                        onChange={(e) => setCc2(e.target.value)}
-                    />
-                    <input
-                        placeholder="cc3@ejemplo.com (opcional)"
-                        value={cc3}
-                        onChange={(e) => setCc3(e.target.value)}
                     />
 
                     <label>Dirección</label>

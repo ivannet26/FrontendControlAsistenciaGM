@@ -375,3 +375,43 @@
 
 
 
+/* =========================
+   MENÚ DESPLEGABLE (PORTAL)
+========================= */
+
+.menu-opciones-portal {
+    position: fixed;
+    width: 160px;
+
+    background: #162630 !important;
+    background-color: #162630 !important;
+    opacity: 1 !important;
+
+    border: 1px solid #344650;
+    border-radius: 4px;
+    padding: 5px;
+
+    box-shadow:
+        0 10px 30px rgba(0, 0, 0, 0.95),
+        0 0 0 1px rgba(0, 0, 0, 0.5);
+
+    z-index: 9999999;
+}
+
+.menu-opciones-portal button {
+    width: 100%;
+    padding: 10px 12px;
+    background: none;
+    border: none;
+    color: #d3dde3;
+    text-align: left;
+    cursor: pointer;
+    border-radius: 3px;
+    font-size: 14px;
+    display: block;
+}
+
+.menu-opciones-portal button:hover {
+    background: #24343d;
+    color: white;
+}

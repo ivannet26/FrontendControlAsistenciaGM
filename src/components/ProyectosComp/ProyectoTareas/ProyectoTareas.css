@@ -1,0 +1,263 @@
+/* =========================
+   CONTENEDOR
+========================= */
+
+.proyecto-tareas-container {
+    width: 100%;
+}
+
+
+/* =========================
+   TOOLBAR
+========================= */
+
+.tareas-toolbar {
+    width: 100%;
+    height: 55px;
+    display: flex;
+    align-items: center;
+    background: #111d24;
+    border: 1px solid #273943;
+    margin-top: 20px;
+    margin-bottom: 25px;
+}
+
+.tareas-toolbar-der {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: auto;
+    padding-right: 10px;
+}
+
+.filtro-tareas {
+    height: 55px;
+    padding: 0 22px;
+    background: transparent;
+    border: none;
+    border-right: 1px solid #344650;
+    color: #d3dde3;
+    cursor: pointer;
+    font-size: 14px;
+    outline: none;
+}
+
+.filtro-tareas option {
+    background: #101b22;
+    color: #d3dde3;
+}
+
+.filtro-tareas:hover {
+    background: #1d303a;
+    color: white;
+}
+
+.buscador-tareas {
+    height: 40px;
+    background: #162630;
+    border: 1px solid #344650;
+    color: white;
+    padding: 0 12px;
+    outline: none;
+    font-size: 14px;
+    margin-left: 10px;
+    width: 320px;
+}
+
+.buscador-tareas::placeholder {
+    color: #5f6f7a;
+}
+
+.buscador-tareas:focus {
+    border-color: #10a5f5;
+}
+
+.input-nueva-tarea {
+    height: 40px;
+    width: 260px;
+    background: #162630;
+    border: 1px solid #344650;
+    color: white;
+    padding: 0 12px;
+    outline: none;
+    font-size: 14px;
+}
+
+.input-nueva-tarea::placeholder {
+    color: #5f6f7a;
+}
+
+.input-nueva-tarea:focus {
+    border-color: #10a5f5;
+}
+
+.btn-anadir-tarea {
+    height: 40px;
+    background: #10a5f5;
+    border: none;
+    color: white;
+    padding: 0 22px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.btn-anadir-tarea:hover {
+    background: #078ed5;
+}
+
+
+/* =========================
+   TABLA
+========================= */
+
+.tareas-tabla-container {
+    background: #101b22;
+    border: 1px solid #263740;
+    width: 100%;
+}
+
+.tabla-header-tareas {
+    height: 45px;
+    display: flex;
+    align-items: center;
+    padding: 0 15px;
+    border-bottom: 1px solid #263740;
+    color: #b5c4cc;
+    font-size: 13px;
+}
+
+.tareas-tabla-container table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+.tareas-tabla-container thead {
+    background: #16242c;
+}
+
+.tareas-tabla-container th {
+    text-align: left;
+    padding: 14px 20px;
+    color: #9eacb5;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+
+/* =========================
+   ANCHOS FIJOS DE COLUMNAS
+========================= */
+
+/* Columna 1: NOMBRE */
+.tareas-tabla-container th:nth-child(1),
+.tareas-tabla-container td:nth-child(1) {
+    width: 45%;
+    text-align: left;
+}
+
+/* Columna 2: ENCARGADOS */
+.tareas-tabla-container th:nth-child(2),
+.tareas-tabla-container td:nth-child(2) {
+    width: 35%;
+    text-align: left;
+}
+
+/* Columna 3: ACCIONES (los 3 puntos) */
+.tareas-tabla-container th:nth-child(3),
+.tareas-tabla-container td:nth-child(3) {
+    width: 60px;
+    text-align: center;
+    padding: 14px 0;
+}
+
+
+/* =========================
+   CELDAS
+========================= */
+
+.tareas-tabla-container td {
+    padding: 14px 20px;
+    height: 52px;
+    border-top: 1px solid #263740;
+    color: #d3dde3;
+    font-size: 14px;
+    vertical-align: middle;
+    text-align: left;
+}
+
+.tareas-tabla-container tbody tr:hover {
+    background: #16242c;
+}
+
+.tareas-tabla-container tbody tr td[colspan] {
+    padding: 40px 20px;
+    text-align: center;
+    color: #5f6f7a;
+    font-size: 14px;
+}
+
+
+/* =========================
+   CELDA NOMBRE
+========================= */
+
+.td-nombre-tarea {
+    color: #d3dde3;
+    font-size: 14px;
+    font-weight: 400;
+    letter-spacing: 0.2px;
+    text-align: left;
+}
+
+
+/* =========================
+   BOTÓN ENCARGADOS
+========================= */
+
+.encargados-btn {
+    background: #101b22;
+    border: 1px solid #344650;
+    color: #d3dde3;
+    padding: 6px 14px;
+    font-size: 12px;
+    cursor: pointer;
+    border-radius: 3px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.15s;
+}
+
+.encargados-btn:hover {
+    background: #162630;
+    color: white;
+    border-color: #10a5f5;
+}
+
+
+/* =========================
+   COLUMNA ACCIONES
+========================= */
+
+.col-acciones-tareas {
+    width: 60px;
+    text-align: center;
+    position: relative;
+    overflow: visible;
+    padding: 0 !important;
+}
+
+.menu-icon-tarea {
+    color: #5f6f7a;
+    cursor: pointer;
+    transition: color 0.15s;
+}
+
+.menu-icon-tarea:hover {
+    color: white;
+}

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { MoreVertical } from "lucide-react";
 import "./Equipo.css";
 
@@ -10,7 +11,10 @@ function EquipoAcciones({
 }) {
 
     const [abierto, setAbierto] = useState(false);
+    const [menuPos, setMenuPos] = useState({ top: 0, right: 0 });
+
     const menuRef = useRef(null);
+
 
     useEffect(() => {
         const cerrarMenu = (e) => {
@@ -26,18 +30,42 @@ function EquipoAcciones({
         };
     }, []);
 
+
+    const abrirMenu = (e) => {
+        e.stopPropagation();
+
+        const rect = e.currentTarget.getBoundingClientRect();
+
+        setMenuPos({
+            top: rect.bottom + 4,
+            right: window.innerWidth - rect.right
+        });
+
+        setAbierto(!abierto);
+    };
+
+
     return (
-        <div className="equipo-acciones" ref={menuRef}>
+        <div className="equipo-acciones">
 
             <MoreVertical
                 size={20}
                 className="menu-icon"
-                onClick={() => setAbierto(!abierto)}
+                onClick={abrirMenu}
             />
 
-            {abierto && (
-                <div className="menu-opciones">
+            {abierto && createPortal(
 
+                <div
+                    className="menu-opciones-portal"
+                    ref={menuRef}
+                    style={{
+                        position: "fixed",
+                        top: menuPos.top,
+                        right: menuPos.right,
+                        zIndex: 9999999
+                    }}
+                >
                     <button
                         onClick={() => {
                             editar(miembro);
@@ -64,9 +92,11 @@ function EquipoAcciones({
                     >
                         Eliminar miembro
                     </button>
+                </div>,
 
-                </div>
+                document.body
             )}
+
         </div>
     );
 }
