@@ -1,205 +1,170 @@
+import { useState, useEffect, useRef } from "react";
 import { Star, MoreVertical } from "lucide-react";
-
 import "./Proyectos.css";
 
 
 function ProyectoTable({
     proyectos,
-    setProyectos
+    archivarProyecto,
+    restaurarProyecto,
+    eliminarProyecto,
+    editarProyecto
 }) {
 
+    const [favoritos, setFavoritos] = useState({});
+    const [menuAbierto, setMenuAbierto] = useState(null);
+    const menuRef = useRef(null);
+
+
+    useEffect(() => {
+        const cerrarMenu = (e) => {
+            if (menuRef.current && !menuRef.current.contains(e.target)) {
+                setMenuAbierto(null);
+            }
+        };
+
+        document.addEventListener("mousedown", cerrarMenu);
+
+        return () => {
+            document.removeEventListener("mousedown", cerrarMenu);
+        };
+    }, []);
 
 
     const cambiarFavorito = (id) => {
-
-
-        setProyectos(
-
-            proyectos.map((proyecto) =>
-
-
-                proyecto.id === id
-
-                    ?
-
-                    {
-                        ...proyecto,
-                        favorito: !proyecto.favorito
-                    }
-
-                    :
-
-                    proyecto
-
-            )
-
-        );
-
-
+        setFavoritos(prev => ({
+            ...prev,
+            [id]: !prev[id]
+        }));
     };
 
 
-
     return (
-
         <div className="tabla-container">
 
-            
             <table>
-
-
                 <thead>
-
                     <tr>
-
-                        <th>
-                            <input type="checkbox" />
-                        </th>
-
-                        <th>
-                            NOMBRE
-                        </th>
-
-
-                        <th>
-                            CLIENTE
-                        </th>
-
-
-                        <th>
-                            REGISTRADO
-                        </th>
-
-
-                        <th>
-                            PROGRESO
-                        </th>
-
-
-                        <th>
-                            ACCESO
-                        </th>
-
-
-                        <th className="col-acciones">
-
-                        </th>
-
-
+                        <th><input type="checkbox" /></th>
+                        <th>NOMBRE</th>
+                        <th>CLIENTE</th>
+                        <th>ESTADO</th>
+                        <th className="col-acciones"></th>
                     </tr>
-
                 </thead>
 
-
-
                 <tbody>
+                    {proyectos.map((proyecto) => (
+                        <tr
+                            key={proyecto.id}
+                            className={
+                                proyecto.archivado ? "fila-archivada" : ""
+                            }
+                        >
+                            <td><input type="checkbox" /></td>
 
+                            <td>
+                                <span className="nombre-proyecto">
+                                    <span
+                                        className="punto"
+                                        style={{ background: proyecto.color }}
+                                    />
+                                    {proyecto.nombre}
+                                </span>
+                            </td>
 
-                    {
-                        proyectos.map((proyecto) => (
+                            <td>{proyecto.cliente}</td>
 
+                            <td>
+                                <span
+                                    className={
+                                        "estado-badge estado-" +
+                                        (proyecto.estado || "").toLowerCase()
+                                    }
+                                >
+                                    {proyecto.estado}
+                                </span>
+                            </td>
 
-                            <tr key={proyecto.id}>
+                            <td className="col-acciones">
+                                <div className="acciones">
 
+                                    <Star
+                                        size={20}
+                                        className={
+                                            favoritos[proyecto.id]
+                                                ? "star activo"
+                                                : "star"
+                                        }
+                                        onClick={() => cambiarFavorito(proyecto.id)}
+                                    />
 
-                                <td>
+                                    <MoreVertical
+                                        size={20}
+                                        className="menu-icon"
+                                        onClick={() =>
+                                            setMenuAbierto(
+                                                menuAbierto === proyecto.id
+                                                    ? null
+                                                    : proyecto.id
+                                            )
+                                        }
+                                    />
+                                </div>
 
-                                    <input type="checkbox" />
+                                {menuAbierto === proyecto.id && (
+                                    <div className="menu-opciones" ref={menuRef}>
 
-                                </td>
+                                        <button
+                                            onClick={() => {
+                                                editarProyecto(proyecto);
+                                                setMenuAbierto(null);
+                                            }}
+                                        >
+                                            Editar
+                                        </button>
 
+                                        {!proyecto.archivado ? (
+                                            <button
+                                                onClick={() => {
+                                                    archivarProyecto(proyecto.id);
+                                                    setMenuAbierto(null);
+                                                }}
+                                            >
+                                                Archivar
+                                            </button>
+                                        ) : (
+                                            <>
+                                                <button
+                                                    onClick={() => {
+                                                        restaurarProyecto(proyecto.id);
+                                                        setMenuAbierto(null);
+                                                    }}
+                                                >
+                                                    Restaurar
+                                                </button>
 
-                                <td>
-
-                                    <span className="nombre-proyecto">
-                                        {proyecto.nombre}
-                                    </span>
-
-                                </td>
-
-
-
-                                <td>
-
-                                    {proyecto.cliente}
-
-                                </td>
-
-
-
-                                <td>
-
-                                    {proyecto.horas}
-
-                                </td>
-
-
-
-                                <td>
-
-                                    {proyecto.progreso}
-
-                                </td>
-
-
-
-                                <td>
-
-                                    {proyecto.acceso}
-
-                                </td>
-
-
-
-                                <td className="col-acciones">
-
-                                    <div className="acciones">
-
-                                        <Star
-                                            size={20}
-                                            className={
-                                                proyecto.favorito
-                                                    ?
-                                                    "star activo"
-                                                    :
-                                                    "star"
-                                            }
-                                            onClick={() =>
-                                                cambiarFavorito(proyecto.id)
-                                            }
-                                        />
-
-
-                                        <MoreVertical
-                                            size={20}
-                                            className="menu-icon"
-                                        />
+                                                <button
+                                                    onClick={() => {
+                                                        eliminarProyecto(proyecto.id);
+                                                        setMenuAbierto(null);
+                                                    }}
+                                                >
+                                                    Eliminar
+                                                </button>
+                                            </>
+                                        )}
 
                                     </div>
-
-                                </td>
-
-
-                            </tr>
-
-
-                        ))
-
-                    }
-
-
+                                )}
+                            </td>
+                        </tr>
+                    ))}
                 </tbody>
-
-
             </table>
 
-
-
         </div>
-
     );
-
 }
-
 
 export default ProyectoTable;
