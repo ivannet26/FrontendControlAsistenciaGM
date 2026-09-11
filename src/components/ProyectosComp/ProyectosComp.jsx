@@ -1,253 +1,273 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import ProyectoTable from "./ProyectoTable";
 import ProyectoFiltros from "./ProyectoFiltros";
 import ModalProyecto from "./ModalProyecto";
+
+import {
+    obtenerProyectos,
+    crearProyectoAPI,
+    editarProyectoAPI,
+    archivarProyectoAPI,
+    restaurarProyectoAPI,
+    eliminarProyectoAPI
+} from "../../services/proyectosService";
+
+import { obtenerClientes } from "../../services/clientesService";
 
 import "./Proyectos.css";
 
 
 function ProyectosComp() {
 
-
     const [mostrarModal, setMostrarModal] = useState(false);
+    const [proyectoEditar, setProyectoEditar] = useState(null);
+
+    const [proyectos, setProyectos] = useState([]);
+    const [clientes, setClientes] = useState([]);
+
+    const [busqueda, setBusqueda] = useState("");
+    const [estadoFiltro, setEstadoFiltro] = useState("TODO");
+    const [clienteFiltro, setClienteFiltro] = useState("TODOS");
 
 
-    const [proyectos, setProyectos] = useState([
-
-        {
-            id: 1,
-            nombre: "Sistema de asistencia GM",
-            cliente: "sistema_asistencia_gm",
-            horas: "1.94h",
-            progreso: "-",
-            acceso: "Público",
-            favorito: false
-        },
-
-        {
-            id: 2,
-            nombre: "Portal Web Empresarial",
-            cliente: "GM Ingenieros",
-            horas: "0.00h",
-            progreso: "-",
-            acceso: "Público",
-            favorito: false
-        },
-
-        {
-            id: 3,
-            nombre: "Aplicación móvil Android",
-            cliente: "Área Tecnología",
-            horas: "0.00h",
-            progreso: "-",
-            acceso: "Público",
-            favorito: false
-        },
-
-        {
-            id: 4,
-            nombre: "Migración Base de Datos",
-            cliente: "Sistema Interno",
-            horas: "0.00h",
-            progreso: "-",
-            acceso: "Público",
-            favorito: false
-        },
-
-        {
-            id: 5,
-            nombre: "API Backend FastAPI",
-            cliente: "Desarrollo Backend",
-            horas: "0.00h",
-            progreso: "-",
-            acceso: "Público",
-            favorito: false
-        },
-
-        {
-            id: 6,
-            nombre: "Sistema de Inventario",
-            cliente: "Logística GM",
-            horas: "0.00h",
-            progreso: "-",
-            acceso: "Público",
-            favorito: false
-        },
-
-        {
-            id: 7,
-            nombre: "Aplicación Recursos Humanos",
-            cliente: "RRHH",
-            horas: "0.00h",
-            progreso: "-",
-            acceso: "Público",
-            favorito: false
-        },
-
-        {
-            id: 8,
-            nombre: "Portal de Empleados",
-            cliente: "Gestión Interna",
-            horas: "0.00h",
-            progreso: "-",
-            acceso: "Público",
-            favorito: false
-        },
-
-        {
-            id: 9,
-            nombre: "Sistema de Facturación",
-            cliente: "Área Comercial",
-            horas: "0.00h",
-            progreso: "-",
-            acceso: "Público",
-            favorito: false
-        },
-
-        {
-            id: 10,
-            nombre: "Dashboard Empresarial",
-            cliente: "Gerencia General",
-            horas: "0.00h",
-            progreso: "-",
-            acceso: "Público",
-            favorito: false
-        },{
-    id:11,
-    nombre:"Sistema de Gestión Documentaria",
-    cliente:"Administración",
-    horas:"0.00h",
-    progreso:"-",
-    acceso:"Público",
-    favorito:false
-},
-
-{
-    id:12,
-    nombre:"Módulo de Usuarios y Roles",
-    cliente:"Seguridad del Sistema",
-    horas:"0.00h",
-    progreso:"-",
-    acceso:"Público",
-    favorito:false
-},
-
-{
-    id:13,
-    nombre:"Diseño del módulo Proyectos",
-    cliente:"Gestión de Proyectos",
-    horas:"0.00h",
-    progreso:"-",
-    acceso:"Público",
-    favorito:false
-},
-
-{
-    id:14,
-    nombre:"Refactorización de Tareas",
-    cliente:"Optimización Plataforma",
-    horas:"0.00h",
-    progreso:"-",
-    acceso:"Público",
-    favorito:false
-},
-
-{
-    id:15,
-    nombre:"Sistema de Notificaciones",
-    cliente:"Comunicación Interna",
-    horas:"0.00h",
-    progreso:"-",
-    acceso:"Público",
-    favorito:false
-}
+    useEffect(() => {
+        cargarProyectos();
+        cargarClientes();
+    }, []);
 
 
-    ]);
+    const cargarProyectos = async () => {
+        try {
+            const data = await obtenerProyectos({ estado: "todo" });
 
+            console.log("Proyectos backend:", data);
+
+            setProyectos(
+                data.map(p => ({
+                    id: p.id,
+                    nombre: p.nombre,
+                    descripcion: p.descripcion || "",
+                    cliente_id: p.cliente_id,
+                    cliente: p.nombre_cliente || "Sin cliente",
+                    estado: p.estado,          // ACTIVO | ARCHIVADO | ...
+                    color: p.color || "#10b981",
+                    archivado: p.archivado,
+                    favorito: false
+                }))
+            );
+        } catch (error) {
+            console.error("Error cargando proyectos", error);
+        }
+    };
+
+
+    const cargarClientes = async () => {
+        try {
+            const data = await obtenerClientes();
+            setClientes(data);
+        } catch (error) {
+            console.error("Error cargando clientes", error);
+        }
+    };
+
+
+    // FILTROS
+
+    const proyectosFiltrados = proyectos.filter((p) => {
+
+        const texto = busqueda.toLowerCase();
+
+        const coincideBusqueda =
+            p.nombre.toLowerCase().includes(texto);
+
+        const coincideEstado =
+            estadoFiltro === "TODO" ||
+            p.estado === estadoFiltro;
+
+        const coincideCliente =
+            clienteFiltro === "TODOS" ||
+            String(p.cliente_id) === String(clienteFiltro);
+
+        return coincideBusqueda && coincideEstado && coincideCliente;
+    });
+
+
+    // ARCHIVAR
+
+    const archivarProyecto = async (id) => {
+        try {
+            const actualizado = await archivarProyectoAPI(id);
+
+            setProyectos(prev =>
+                prev.map(p =>
+                    p.id === id
+                        ? { ...p, estado: actualizado.estado, archivado: actualizado.archivado }
+                        : p
+                )
+            );
+        } catch (error) {
+            console.error("Error archivando proyecto", error);
+            alert(error.response?.data?.detail || "No se pudo archivar");
+        }
+    };
+
+
+    // RESTAURAR
+
+    const restaurarProyecto = async (id) => {
+        try {
+            const actualizado = await restaurarProyectoAPI(id);
+
+            setProyectos(prev =>
+                prev.map(p =>
+                    p.id === id
+                        ? { ...p, estado: actualizado.estado, archivado: actualizado.archivado }
+                        : p
+                )
+            );
+        } catch (error) {
+            console.error("Error restaurando proyecto", error);
+            alert(error.response?.data?.detail || "No se pudo restaurar");
+        }
+    };
+
+
+    // ELIMINAR
+
+    const eliminarProyecto = async (id) => {
+        if (!window.confirm("¿Eliminar este proyecto permanentemente?")) return;
+
+        try {
+            await eliminarProyectoAPI(id);
+            setProyectos(prev => prev.filter(p => p.id !== id));
+        } catch (error) {
+            console.error("Error eliminando proyecto", error);
+            alert(error.response?.data?.detail || "No se pudo eliminar");
+        }
+    };
+
+
+    // EDITAR
+
+    const editarProyecto = (proyecto) => {
+        setProyectoEditar(proyecto);
+        setMostrarModal(true);
+    };
 
 
     return (
-
         <div className="proyectos-container">
 
-
             <div className="proyectos-header">
-
-
-                <h1>
-                    Proyectos
-                </h1>
-
+                <h1>Proyectos</h1>
 
                 <button
-                    onClick={() =>
-                        setMostrarModal(true)
-                    }
+                    onClick={() => {
+                        setProyectoEditar(null);
+                        setMostrarModal(true);
+                    }}
                 >
-
                     CREAR NUEVO PROYECTO
-
                 </button>
-
-
             </div>
 
-
-
-            <ProyectoFiltros />
-
-
-
-            <ProyectoTable
-
-                proyectos={proyectos}
-
-                setProyectos={setProyectos}
-
+            <ProyectoFiltros
+                busqueda={busqueda}
+                setBusqueda={setBusqueda}
+                estadoFiltro={estadoFiltro}
+                setEstadoFiltro={setEstadoFiltro}
+                clienteFiltro={clienteFiltro}
+                setClienteFiltro={setClienteFiltro}
+                clientes={clientes}
             />
 
-
+            <ProyectoTable
+                proyectos={proyectosFiltrados}
+                archivarProyecto={archivarProyecto}
+                restaurarProyecto={restaurarProyecto}
+                eliminarProyecto={eliminarProyecto}
+                editarProyecto={editarProyecto}
+            />
 
             {
                 mostrarModal && (
-
                     <ModalProyecto
-
-                        cerrar={() =>
-                            setMostrarModal(false)
-                        }
-
-                        guardar={(nuevo) => {
-
-
-                            setProyectos([
-
-                                ...proyectos,
-
-                                nuevo
-
-                            ]);
-
-
+                        cerrar={() => {
                             setMostrarModal(false);
-
-
+                            setProyectoEditar(null);
                         }}
 
-                    />
+                        proyectoEditar={proyectoEditar}
+                        clientes={clientes}
 
+                        guardar={async (nuevoProyecto) => {
+                            try {
+                                if (proyectoEditar) {
+                                    const actualizado = await editarProyectoAPI(
+                                        nuevoProyecto.id,
+                                        {
+                                            nombre: nuevoProyecto.nombre,
+                                            descripcion: nuevoProyecto.descripcion,
+                                            cliente_id: nuevoProyecto.cliente_id,
+                                            estado: nuevoProyecto.estado,
+                                            color: nuevoProyecto.color
+                                        }
+                                    );
+
+                                    setProyectos(prev =>
+                                        prev.map(p =>
+                                            p.id === actualizado.id
+                                                ? {
+                                                    ...p,
+                                                    nombre: actualizado.nombre,
+                                                    descripcion: actualizado.descripcion || "",
+                                                    cliente_id: actualizado.cliente_id,
+                                                    cliente: actualizado.nombre_cliente || "Sin cliente",
+                                                    estado: actualizado.estado,
+                                                    color: actualizado.color || "#10b981",
+                                                    archivado: actualizado.archivado
+                                                  }
+                                                : p
+                                        )
+                                    );
+                                } else {
+                                    const creado = await crearProyectoAPI({
+                                        nombre: nuevoProyecto.nombre,
+                                        descripcion: nuevoProyecto.descripcion || null,
+                                        cliente_id: nuevoProyecto.cliente_id || null,
+                                        estado: nuevoProyecto.estado,
+                                        color: nuevoProyecto.color
+                                    });
+
+                                    setProyectos(prev => [
+                                        ...prev,
+                                        {
+                                            id: creado.id,
+                                            nombre: creado.nombre,
+                                            descripcion: creado.descripcion || "",
+                                            cliente_id: creado.cliente_id,
+                                            cliente: creado.nombre_cliente || "Sin cliente",
+                                            estado: creado.estado,
+                                            color: creado.color || "#10b981",
+                                            archivado: creado.archivado,
+                                            favorito: false
+                                        }
+                                    ]);
+                                }
+
+                                setMostrarModal(false);
+                                setProyectoEditar(null);
+                            } catch (error) {
+                                console.error("Error guardando proyecto", error);
+                                alert(error.response?.data?.detail || "No se pudo guardar el proyecto");
+                            }
+                        }}
+                    />
                 )
             }
-
-
-
         </div>
-
     );
-
 }
-
 
 export default ProyectosComp;

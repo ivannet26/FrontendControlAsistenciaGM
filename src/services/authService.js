@@ -28,7 +28,7 @@ export async function login(email, password) {
   }
 
 
-  // ✅ Guardar token y usuario en localStorage
+  
   localStorage.setItem("token", data.access_token);
   localStorage.setItem("usuario", JSON.stringify(data.usuario));
 
@@ -67,7 +67,7 @@ export async function register(datosUsuario) {
 
 
 
-// ✅ NUEVO: función para cerrar sesión
+
 export function logout() {
 
   localStorage.removeItem("token");

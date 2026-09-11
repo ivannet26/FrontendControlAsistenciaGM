@@ -617,4 +617,90 @@ tr:hover{
 
     color:white;
 
+}/* =========================
+   MENÚ DESPLEGABLE
+========================= */
+
+.menu-opciones {
+    position: absolute;
+    top: calc(100% + 4px);
+    right: 8px;
+    width: 160px;
+    background-color: #162630;
+    background: #162630;
+    border: 1px solid #344650;
+    border-radius: 4px;
+    z-index: 99999;
+    padding: 5px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.9),
+                0 0 0 1px rgba(0, 0, 0, 0.4);
+    opacity: 1;
+}
+
+.menu-opciones button {
+    width: 100%;
+    padding: 10px 12px;
+    background: none;
+    border: none;
+    color: #d3dde3;
+    text-align: left;
+    cursor: pointer;
+    border-radius: 3px;
+    font-size: 14px;
+    display: block;
+}
+
+.menu-opciones button:hover {
+    background: #24343d;
+    color: white;
+}
+
+/* COL-ACCIONES: relative para anclar el menú */
+
+.col-acciones {
+    position: relative;
+    overflow: visible;
+}
+
+/* ESTADO BADGES */
+
+.estado-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    font-size: 12px;
+    border-radius: 3px;
+    border: 1px solid #344650;
+    background: #101b22;
+    color: #d3dde3;
+}
+
+.estado-activo {
+    color: #4ade80;
+    border-color: #166534;
+}
+
+.estado-pausado {
+    color: #fbbf24;
+    border-color: #78350f;
+}
+
+.estado-finalizado {
+    color: #60a5fa;
+    border-color: #1e3a8a;
+}
+
+.estado-archivado {
+    color: #aebcc5;
+    border-color: #4b5563;
+}
+
+/* FILA ARCHIVADA */
+
+.fila-archivada {
+    opacity: 0.6;
+}
+
+.fila-archivada .nombre-proyecto {
+    text-decoration: line-through;
+    text-decoration-thickness: 1.5px;
 }
