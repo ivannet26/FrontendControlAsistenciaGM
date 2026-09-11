@@ -1,9 +1,20 @@
+/* =========================
+   CONTENEDOR
+========================= */
+
 .clientes-tabla-container {
     width: 100%;
     background: #101b22;
     border: 1px solid #263740;
     box-sizing: border-box;
+    overflow: visible;
+    padding: 0;
 }
+
+
+/* =========================
+   TABLA HEADER
+========================= */
 
 .tabla-header {
     height: 45px;
@@ -23,6 +34,7 @@
     padding: 6px 12px;
     cursor: pointer;
     font-size: 12px;
+    border-radius: 3px;
 }
 
 .tabla-header button:hover {
@@ -30,70 +42,120 @@
     color: white;
 }
 
+
+/* =========================
+   TABLA
+========================= */
+
 .clientes-tabla-container table {
     width: 100%;
     border-collapse: collapse;
-    table-layout: auto;
+    table-layout: fixed;         /* ✅ FIXED: respeta los width */
 }
 
 .clientes-tabla-container th {
     background: #16242c;
     color: #9eacb5;
-    font-size: 13px;
-    font-weight: 500;
-    padding: 14px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    padding: 14px 20px;
     text-align: left;
 }
 
 .clientes-tabla-container td {
-    padding: 15px;
-    height: 45px;
+    padding: 14px 20px;
+    height: 55px;
     border-top: 1px solid #263740;
     color: #d3dde3;
     font-size: 14px;
+    vertical-align: middle;
+    text-align: left;
 }
 
 .clientes-tabla-container tr:hover {
     background: #1d303a;
 }
 
-.clientes-tabla-container th:first-child,
-.clientes-tabla-container td:first-child {
+
+/* =========================
+   ANCHOS DE COLUMNAS
+   Los porcentajes suman 100% para que NO haya huecos
+========================= */
+
+/* 1. CHECKBOX */
+.clientes-tabla-container th:nth-child(1),
+.clientes-tabla-container td:nth-child(1) {
     width: 50px;
     text-align: center;
     padding: 0;
 }
 
+/* 2. NOMBRE */
+.clientes-tabla-container th:nth-child(2),
+.clientes-tabla-container td:nth-child(2) {
+    width: 18%;
+}
+
+/* 3. DIRECCIÓN (absorbe el espacio) */
+.clientes-tabla-container th:nth-child(3),
+.clientes-tabla-container td:nth-child(3) {
+    width: auto;
+}
+
+/* 4. MONEDA */
+.clientes-tabla-container th:nth-child(4),
+.clientes-tabla-container td:nth-child(4) {
+    width: 100px;
+}
+
+/* 5. ACCIONES */
+.clientes-tabla-container th:nth-child(5),
+.clientes-tabla-container td:nth-child(5) {
+    width: 110px;
+    text-align: right;
+    padding-right: 20px;
+}
+
+
+/* =========================
+   CHECKBOX
+========================= */
+
 .clientes-tabla-container input[type="checkbox"] {
     width: 14px;
     height: 14px;
+    cursor: pointer;
+    accent-color: #10a5f5;
 }
 
-/* MONEDA BADGE */
+
+/* =========================
+   BADGE MONEDA
+========================= */
 
 .moneda-badge {
+    display: inline-block;
     background: #101b22;
-    padding: 5px 10px;
+    padding: 4px 10px;
     font-size: 12px;
     border: 1px solid #344650;
     border-radius: 3px;
+    color: #d3dde3;
 }
 
-/* COLUMNA ACCIONES */
 
-.col-acciones {
-    position: relative;
-    width: 120px;
-    text-align: right;
-    overflow: visible;
-}
+/* =========================
+   COLUMNA ACCIONES
+========================= */
 
 .cliente-acciones {
     display: flex;
     justify-content: flex-end;
     align-items: center;
     gap: 12px;
-    padding-right: 8px;
+    width: 100%;
 }
 
 .btn-icono {
@@ -110,26 +172,31 @@
     color: white;
 }
 
-/* MENÚ DESPLEGABLE */
 
-.menu-opciones {
-    position: absolute;
-    top: calc(100% + 4px);
-    right: 8px;
-    width: 150px;
-    background-color: #162630;
-    background: #162630;
+/* =========================
+   MENÚ DESPLEGABLE (PORTAL)
+========================= */
+
+.menu-opciones-portal {
+    position: fixed;
+    width: 160px;
+
+    background: #162630 !important;
+    background-color: #162630 !important;
+    opacity: 1 !important;
+
     border: 1px solid #344650;
     border-radius: 4px;
-    z-index: 99999;
     padding: 5px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.9),
-                0 0 0 1px rgba(0, 0, 0, 0.4);
-    opacity: 1;
-    backdrop-filter: none;
+
+    box-shadow:
+        0 10px 30px rgba(0, 0, 0, 0.95),
+        0 0 0 1px rgba(0, 0, 0, 0.5);
+
+    z-index: 9999999;
 }
 
-.menu-opciones button {
+.menu-opciones-portal button {
     width: 100%;
     padding: 10px 12px;
     background: none;
@@ -142,12 +209,15 @@
     display: block;
 }
 
-.menu-opciones button:hover {
+.menu-opciones-portal button:hover {
     background: #24343d;
     color: white;
 }
 
-/* ESTADOS */
+
+/* =========================
+   ESTADOS
+========================= */
 
 .fila-archivada {
     opacity: 0.9;

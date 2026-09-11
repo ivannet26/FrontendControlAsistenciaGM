@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import ProyectoTable from "./ProyectoTable";
 import ProyectoFiltros from "./ProyectoFiltros";
 import ModalProyecto from "./ModalProyecto";
+import LoadingOverlay from "../Loading/LoadingOverlay";   // 👈 OVERLAY
 
 import {
     obtenerProyectos,
@@ -30,11 +31,26 @@ function ProyectosComp() {
     const [estadoFiltro, setEstadoFiltro] = useState("TODO");
     const [clienteFiltro, setClienteFiltro] = useState("TODOS");
 
+    const [cargando, setCargando] = useState(true);
+
 
     useEffect(() => {
-        cargarProyectos();
-        cargarClientes();
+        cargarTodo();
     }, []);
+
+
+    const cargarTodo = async () => {
+        try {
+            setCargando(true);
+
+            await Promise.all([
+                cargarProyectos(),
+                cargarClientes()
+            ]);
+        } finally {
+            setCargando(false);
+        }
+    };
 
 
     const cargarProyectos = async () => {
@@ -50,7 +66,7 @@ function ProyectosComp() {
                     descripcion: p.descripcion || "",
                     cliente_id: p.cliente_id,
                     cliente: p.nombre_cliente || "Sin cliente",
-                    estado: p.estado,          // ACTIVO | ARCHIVADO | ...
+                    estado: p.estado,
                     color: p.color || "#10b981",
                     archivado: p.archivado,
                     favorito: false
@@ -72,8 +88,6 @@ function ProyectosComp() {
     };
 
 
-    // FILTROS
-
     const proyectosFiltrados = proyectos.filter((p) => {
 
         const texto = busqueda.toLowerCase();
@@ -93,12 +107,9 @@ function ProyectosComp() {
     });
 
 
-    // ARCHIVAR
-
     const archivarProyecto = async (id) => {
         try {
             const actualizado = await archivarProyectoAPI(id);
-
             setProyectos(prev =>
                 prev.map(p =>
                     p.id === id
@@ -113,12 +124,9 @@ function ProyectosComp() {
     };
 
 
-    // RESTAURAR
-
     const restaurarProyecto = async (id) => {
         try {
             const actualizado = await restaurarProyectoAPI(id);
-
             setProyectos(prev =>
                 prev.map(p =>
                     p.id === id
@@ -133,8 +141,6 @@ function ProyectosComp() {
     };
 
 
-    // ELIMINAR
-
     const eliminarProyecto = async (id) => {
         if (!window.confirm("¿Eliminar este proyecto permanentemente?")) return;
 
@@ -148,8 +154,6 @@ function ProyectosComp() {
     };
 
 
-    // EDITAR
-
     const editarProyecto = (proyecto) => {
         setProyectoEditar(proyecto);
         setMostrarModal(true);
@@ -159,36 +163,43 @@ function ProyectosComp() {
     return (
         <div className="proyectos-container">
 
-            <div className="proyectos-header">
-                <h1>Proyectos</h1>
+            {/* ✅ OVERLAY: aparece ENCIMA, no reemplaza */}
+            <LoadingOverlay visible={cargando} />
 
-                <button
-                    onClick={() => {
-                        setProyectoEditar(null);
-                        setMostrarModal(true);
-                    }}
-                >
-                    CREAR NUEVO PROYECTO
-                </button>
+            <div className="proyectos-contenedor">
+
+                <div className="proyectos-header">
+                    <h1>Proyectos</h1>
+
+                    <button
+                        onClick={() => {
+                            setProyectoEditar(null);
+                            setMostrarModal(true);
+                        }}
+                    >
+                        CREAR NUEVO PROYECTO
+                    </button>
+                </div>
+
+                <ProyectoFiltros
+                    busqueda={busqueda}
+                    setBusqueda={setBusqueda}
+                    estadoFiltro={estadoFiltro}
+                    setEstadoFiltro={setEstadoFiltro}
+                    clienteFiltro={clienteFiltro}
+                    setClienteFiltro={setClienteFiltro}
+                    clientes={clientes}
+                />
+
+                <ProyectoTable
+                    proyectos={proyectosFiltrados}
+                    archivarProyecto={archivarProyecto}
+                    restaurarProyecto={restaurarProyecto}
+                    eliminarProyecto={eliminarProyecto}
+                    editarProyecto={editarProyecto}
+                />
+
             </div>
-
-            <ProyectoFiltros
-                busqueda={busqueda}
-                setBusqueda={setBusqueda}
-                estadoFiltro={estadoFiltro}
-                setEstadoFiltro={setEstadoFiltro}
-                clienteFiltro={clienteFiltro}
-                setClienteFiltro={setClienteFiltro}
-                clientes={clientes}
-            />
-
-            <ProyectoTable
-                proyectos={proyectosFiltrados}
-                archivarProyecto={archivarProyecto}
-                restaurarProyecto={restaurarProyecto}
-                eliminarProyecto={eliminarProyecto}
-                editarProyecto={editarProyecto}
-            />
 
             {
                 mostrarModal && (
@@ -197,10 +208,8 @@ function ProyectosComp() {
                             setMostrarModal(false);
                             setProyectoEditar(null);
                         }}
-
                         proyectoEditar={proyectoEditar}
                         clientes={clientes}
-
                         guardar={async (nuevoProyecto) => {
                             try {
                                 if (proyectoEditar) {

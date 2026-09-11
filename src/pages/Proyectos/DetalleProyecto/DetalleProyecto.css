@@ -1,0 +1,92 @@
+/* =========================
+   CONTENEDOR PRINCIPAL
+========================= */
+
+.detalle-proyecto-container {
+    width: 100%;
+    padding: 8px;
+    box-sizing: border-box;
+}
+
+
+/* =========================
+   BREADCRUMB
+========================= */
+
+.detalle-breadcrumb {
+    margin-bottom: 12px;
+    font-size: 14px;          /* 👈 antes 13px */
+}
+
+.breadcrumb-link {
+    color: #10a5f5;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.breadcrumb-link:hover {
+    text-decoration: underline;
+}
+
+
+/* =========================
+   HEADER
+========================= */
+
+.detalle-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.detalle-header-izq h1 {
+    color: #d9e1e5;
+    font-size: 30px;
+    font-weight: 400;
+    margin: 0 0 6px 0;
+    letter-spacing: -1.1px;
+}
+
+.detalle-header-izq p {
+    color: #9eacb5;
+    font-size: 17px;          /* 👈 antes 14px */
+    margin: 0;
+    letter-spacing: 0.2px;
+}
+
+.detalle-header-der {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-header-icon {
+    background: transparent;
+    border: 1px solid #263740;
+    color: #aebcc5;
+    padding: 8px 10px;
+    cursor: pointer;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    transition: background 0.15s;
+}
+
+.btn-header-icon:hover {
+    background: #162630;
+    color: white;
+}
+
+
+/* =========================
+   TAB VACÍA
+========================= */
+
+.tab-vacia {
+    padding: 40px;
+    color: #9eacb5;
+    text-align: center;
+    background: #101b22;
+    border: 1px solid #263740;
+    font-size: 14px;
+}

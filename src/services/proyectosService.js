@@ -94,3 +94,14 @@ export const eliminarProyectoAPI = async (id) => {
         getConfig()
     );
 };
+// =============================
+// OBTENER PROYECTO POR ID
+// =============================
+
+export const obtenerProyectoPorId = async (id) => {
+    const response = await axios.get(
+        `${API_URL}/proyectos/${id}`,
+        getConfig()
+    );
+    return response.data;
+};

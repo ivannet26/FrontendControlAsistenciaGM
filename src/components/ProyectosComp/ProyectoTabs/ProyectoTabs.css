@@ -1,0 +1,28 @@
+/* =========================
+   TABS (igual que equipo-tabs)
+========================= */
+
+.proyecto-tabs {
+    display: flex;
+    margin-top: 0px;
+}
+
+.tab-btn {
+    background: #101b22;
+    border: 1px solid #263740;
+    border-bottom: none;
+    color: #aebcc5;
+    padding: 15px 25px;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.tab-btn:hover {
+    background: #162630;
+    color: white;
+}
+
+.tab-btn.activo {
+    background: #162630;
+    color: white;
+}

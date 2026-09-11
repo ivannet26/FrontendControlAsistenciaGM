@@ -1,0 +1,84 @@
+/* =========================
+   OVERLAY SEMI-TRANSPARENTE
+========================= */
+
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(10, 20, 28, 0.55);
+    backdrop-filter: blur(3px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999999;
+}
+
+
+/* =========================
+   TARJETA CENTRAL
+========================= */
+
+.loading-card {
+    background: #0d161c;
+    border: 1px solid #2a3a44;
+    border-radius: 10px;
+    padding: 20px 32px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    box-shadow:
+        0 20px 50px rgba(0, 0, 0, 0.7),
+        0 0 0 1px rgba(0, 0, 0, 0.5),
+        0 0 40px rgba(16, 165, 245, 0.08);
+    animation: aparecer 0.25s ease-out;
+}
+
+@keyframes aparecer {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+
+/* =========================
+   GIF
+========================= */
+
+.loading-gif {
+    width: 70px;
+    height: 70px;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
+
+/* =========================
+   TEXTO
+========================= */
+
+.loading-texto {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.loading-texto strong {
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+}
+
+.loading-texto span {
+    color: #7b8b96;
+    font-size: 12px;
+    letter-spacing: 0.2px;
+}
