@@ -11,6 +11,8 @@
   color: #10a5f5;
 
   cursor: pointer;
+  white-space: nowrap;
+    padding:0;
 
   font-size: 14px;
 }
@@ -22,7 +24,7 @@
   top: 45px;
   right: 0;
 
-  width: 380px;
+  width: 365px;
 
   background: #111c22;
 
@@ -118,7 +120,7 @@
 
   width: 100%;
 
-  padding: 9px 6px;
+  padding: 8px 19px;
 
   cursor: pointer;
 
@@ -161,9 +163,9 @@
 }
 
 .project-dot {
-  width: 8px;
+  width: 5px;
 
-  height: 8px;
+  height: 5px;
 
   border-radius: 50%;
 
@@ -173,7 +175,7 @@
 .project-name {
   font-size: 14px;
 
-  font-weight: 500;
+  font-weight: 400;
 
   white-space: nowrap;
 }
@@ -188,7 +190,7 @@
 
   color: #b5c2cc;
 
-  font-size: 14px;
+  font-size: 13px;
 
   margin-left: auto;
 }
@@ -203,7 +205,7 @@
 
   cursor: pointer;
 
-  font-size: 14px;
+  font-size: 12px;
 }
 
 .create-task-btn:hover {
@@ -247,9 +249,9 @@
 
   width: 100%;
 
-  min-height: 35px;
+  height: 30px;
 
-  padding: 0 10px;
+  padding: 0 19px;
 
   border-bottom: 1px solid #263943;
 
@@ -313,40 +315,41 @@
 .new-task {
   color: #10a5f5;
 
-  padding: 10px 12px;
+  padding: 10px 7px;
 
   cursor: pointer;
 
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .new-task:hover {
   background: #24343d;
 }
 
+
 /* BOTON NUEVO PROYECTO */
 .create-project {
-  width: 100%;
+    width: 100%;
+    margin-top: 10px;
+    display: flex;
+    justify-content: flex-start;    /* ✅ alineado a la izquierda */
+    align-items: center;
+    gap: 1px;
+    padding: 10px 12px;
+    background: transparent;         /* ✅ sin fondo */
+    border: none;
+    color: #10a5f5;                  /* ✅ mismo azul que "Crear nueva Tarea" */
+    cursor: pointer;
+    font-size: 13px;
+    text-align: left;
+    border-radius: 4px;
+}
 
-  margin-top: 10px;
+.create-project:hover {
+    background: #24343d;             /* ✅ hover sutil */
+}
 
-  display: flex;
-
-  justify-content: center;
-
-  align-items: center;
-
-  gap: 8px;
-
-  padding: 9px;
-
-  background: #10a5f5;
-
-  border: none;
-
-  color: white;
-
-  cursor: pointer;
-
-  font-size: 14px;
+.create-project svg {
+    color: #10a5f5;
+    flex-shrink: 0;
 }

@@ -1,11 +1,20 @@
 import { useState, useEffect } from "react";
 import { MoreVertical } from "lucide-react";
 
+import EncargadosPopover from "./EncargadosPopover";
+
 import {
     obtenerTareasProyecto,
     crearTarea,
-    eliminarTareaAPI
+    eliminarTareaAPI,
+    asignarMiembroTareaAPI,          // 👈 NUEVO
+    desasignarMiembroTareaAPI        // 👈 NUEVO
 } from "../../../services/tareasService";
+
+import {
+    obtenerMiembros,
+    obtenerGrupos
+} from "../../../services/equipoService";
 
 import "./ProyectoTareas.css";
 
@@ -16,19 +25,30 @@ function ProyectoTareas({ proyectoId }) {
     const [nuevaTarea, setNuevaTarea] = useState("");
     const [cargando, setCargando] = useState(true);
 
+    const [miembros, setMiembros] = useState([]);
+    const [grupos, setGrupos] = useState([]);
+
 
     useEffect(() => {
-        cargarTareas();
+        cargarTodo();
     }, [proyectoId]);
 
 
-    const cargarTareas = async () => {
+    const cargarTodo = async () => {
         try {
             setCargando(true);
-            const data = await obtenerTareasProyecto(proyectoId);
-            setTareas(data);
+
+            const [tareasData, miembrosData, gruposData] = await Promise.all([
+                obtenerTareasProyecto(proyectoId),
+                obtenerMiembros(),
+                obtenerGrupos()
+            ]);
+
+            setTareas(tareasData);
+            setMiembros(miembrosData);
+            setGrupos(gruposData);
         } catch (error) {
-            console.error("Error cargando tareas", error);
+            console.error("Error cargando datos", error);
         } finally {
             setCargando(false);
         }
@@ -67,6 +87,42 @@ function ProyectoTareas({ proyectoId }) {
     };
 
 
+    // ✅ NUEVO: Asignar miembro
+    const handleAsignarMiembro = async (tareaId, miembroId) => {
+        try {
+            const actualizada = await asignarMiembroTareaAPI(tareaId, miembroId);
+
+            setTareas(prev =>
+                prev.map(t =>
+                    t.id === tareaId
+                        ? { ...t, miembros: actualizada.miembros || [] }
+                        : t
+                )
+            );
+        } catch (error) {
+            console.error("Error asignando miembro", error);
+        }
+    };
+
+
+    // ✅ NUEVO: Desasignar miembro
+    const handleDesasignarMiembro = async (tareaId, miembroId) => {
+        try {
+            const actualizada = await desasignarMiembroTareaAPI(tareaId, miembroId);
+
+            setTareas(prev =>
+                prev.map(t =>
+                    t.id === tareaId
+                        ? { ...t, miembros: actualizada.miembros || [] }
+                        : t
+                )
+            );
+        } catch (error) {
+            console.error("Error desasignando miembro", error);
+        }
+    };
+
+
     return (
         <div className="proyecto-tareas-container">
 
@@ -93,10 +149,7 @@ function ProyectoTareas({ proyectoId }) {
                         }}
                     />
 
-                    <button
-                        className="btn-anadir-tarea"
-                        onClick={handleCrearTarea}
-                    >
+                    <button className="btn-anadir-tarea" onClick={handleCrearTarea}>
                         AÑADIR
                     </button>
 
@@ -144,9 +197,15 @@ function ProyectoTareas({ proyectoId }) {
                                     </td>
 
                                     <td>
-                                        <button className="encargados-btn">
-                                            Cualquiera ▾
-                                        </button>
+                                        {/* ✅ AHORA SÍ PASA TODAS LAS PROPS */}
+                                        <EncargadosPopover
+                                            tareaId={tarea.id}
+                                            miembrosAsignados={tarea.miembros || []}
+                                            todosLosMiembros={miembros}
+                                            grupos={grupos}
+                                            onAsignar={handleAsignarMiembro}
+                                            onDesasignar={handleDesasignarMiembro}
+                                        />
                                     </td>
 
                                     <td className="col-acciones-tareas">

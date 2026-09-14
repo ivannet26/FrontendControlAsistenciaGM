@@ -108,16 +108,13 @@ function TimerBar({
             />
             {
                 tarea && (
-
                     <div className="tarea-activa">
-
-                        {tarea.nombre}
-
+                    
+                        {proyecto && <span className="tarea-separador"> - </span>}
+                        <span className="tarea-nombre">{tarea.nombre}</span>
                     </div>
-
                 )
             }
-
 
 
 
