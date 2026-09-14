@@ -1,0 +1,216 @@
+/* =========================
+   CONTENEDOR TABLA GRUPOS
+========================= */
+
+.grupos-tabla-container {
+    background: #101b22;
+    border: 1px solid #263740;
+    width: 100%;
+    overflow: visible;
+}
+
+
+/* =========================
+   HEADER DE LA TABLA
+========================= */
+
+.grupos-tabla-container .tabla-header {
+    height: 50px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 30px;
+    border-bottom: 1px solid #263740;
+    color: #b5c4cc;
+    font-size: 13px;
+}
+
+.grupos-tabla-container .tabla-header button {
+    background: none;
+    border: 1px solid #344650;
+    color: #b5c4cc;
+    padding: 6px 12px;
+    cursor: pointer;
+    font-size: 12px;
+    border-radius: 3px;
+}
+
+.grupos-tabla-container .tabla-header button:hover {
+    background: #1d303a;
+    color: white;
+}
+
+
+/* =========================
+   TABLA
+========================= */
+
+.grupos-tabla-container table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+.grupos-tabla-container thead {
+    background: #16242c;
+}
+
+.grupos-tabla-container th {
+    text-align: left;
+    padding: 16px 30px;
+    color: #9eacb5;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.grupos-tabla-container td {
+    padding: 18px 30px;
+    height: 60px;
+    border-top: 1px solid #263740;
+    color: #d3dde3;
+    font-size: 14px;
+    vertical-align: middle;
+    text-align: left;
+}
+
+.grupos-tabla-container tbody tr:hover {
+    background: #1d303a;
+}
+
+
+/* =========================
+   ANCHOS DE COLUMNAS
+========================= */
+
+/* 1. NOMBRE — con espacio extra a la izquierda */
+.grupos-tabla-container th:nth-child(1),
+.grupos-tabla-container td:nth-child(1) {
+    width: 40%;
+    text-align: left;
+    padding-left: 45px;
+}
+
+/* 2. ACCESO (absorbe el espacio) */
+.grupos-tabla-container th:nth-child(2),
+.grupos-tabla-container td:nth-child(2) {
+    width: auto;
+    text-align: left;
+}
+
+/* 3. ACCIONES */
+.grupos-tabla-container th:nth-child(3),
+.grupos-tabla-container td:nth-child(3) {
+    width: 100px;
+    text-align: right;
+    padding: 0 30px 0 0;
+    overflow: visible;
+    position: relative;
+}
+
+
+/* =========================
+   CELDAS
+========================= */
+
+.grupo-nombre {
+    color: #d3dde3;
+    font-size: 14px;
+    font-weight: 500;
+    text-align: left;
+}
+
+.grupo-miembros {
+    color: #9eacb5;
+    font-size: 13px;
+    text-align: left;
+    display: inline-block;
+    max-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+}
+
+
+/* =========================
+   HEADERS ORDENABLES
+========================= */
+
+.th-ordenable {
+    cursor: pointer;
+    user-select: none;
+    transition: color 0.15s;
+    text-align: left;
+}
+
+.th-ordenable span {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.th-ordenable:hover {
+    color: #ffffff;
+}
+
+.th-ordenable .icono-sort {
+    display: inline-block;
+    vertical-align: middle;
+    margin-left: 6px;
+    color: #5f6f7a;
+    transition: color 0.15s;
+}
+
+.th-ordenable:hover .icono-sort {
+    color: #9eacb5;
+}
+
+.th-ordenable .icono-sort.activo {
+    color: #10a5f5;
+}
+
+
+/* =========================
+   ACCIONES
+========================= */
+
+.col-acciones-grupo {
+    width: 100px;
+    text-align: right;
+    padding: 0 30px 0 0;
+}
+
+.grupo-acciones {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 15px;
+}
+
+.grupo-acciones .btn-icono {
+    background: none;
+    border: none;
+    color: #8799a5;
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    transition: color 0.15s;
+}
+
+.grupo-acciones .btn-icono:hover {
+    color: white;
+}
+
+
+/* =========================
+   FILA VACÍA
+========================= */
+
+.grupos-tabla-container tbody tr td[colspan] {
+    padding: 40px 20px;
+    text-align: center;
+    color: #5f6f7a;
+    font-size: 14px;
+}

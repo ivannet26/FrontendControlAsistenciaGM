@@ -9,7 +9,7 @@ function EquipoTable({
 }) {
 
     return (
-        <div className="equipo-tabla-container">
+        <div className="miembros-tabla-container">
 
             <div className="tabla-header">
                 <span>Miembros</span>

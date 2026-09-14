@@ -3,25 +3,40 @@ import EquipoTabs from "../../components/EquipoComp/EquipoTabs";
 import EquipoFiltros from "../../components/EquipoComp/EquipoFiltros";
 import EquipoTable from "../../components/EquipoComp/EquipoTable";
 import ModalMiembro from "../../components/EquipoComp/ModalMiembro";
- import "../../components/EquipoComp/Equipo.css";
+import GruposTable from "../../components/EquipoComp/GrupoComp/GruposTable";
+import GruposFiltros from "../../components/EquipoComp/GrupoComp/GruposFiltros";
+import ModalGrupo from "../../components/EquipoComp/GrupoComp/ModalGrupo";
+import "../../components/EquipoComp/Equipo.css";
+
 import {
     obtenerMiembros,
     obtenerGrupos,
     crearMiembroAPI,
     editarMiembroAPI,
-    eliminarMiembroAPI
+    eliminarMiembroAPI,
+    crearGrupoAPI,          // 👈 NUEVO
+    editarGrupoAPI,         // 👈 NUEVO
+    eliminarGrupoAPI        // 👈 NUEVO
 } from "../../services/equipoService";
 
 
 function Equipo() {
 
     const [mostrarModal, setMostrarModal] = useState(false);
+    const [mostrarModalGrupo, setMostrarModalGrupo] = useState(false);   // 👈 NUEVO
+
     const [busqueda, setBusqueda] = useState("");
+    const [busquedaGrupo, setBusquedaGrupo] = useState("");              // 👈 NUEVO
+    const [nuevoGrupo, setNuevoGrupo] = useState("");                    // 👈 NUEVO
+
     const [miembroEditar, setMiembroEditar] = useState(null);
+    const [grupoEditar, setGrupoEditar] = useState(null);                // 👈 NUEVO
+
     const [rolFiltro, setRolFiltro] = useState("Todos");
     const [grupoFiltro, setGrupoFiltro] = useState("Todos");
     const [estadoFiltro, setEstadoFiltro] = useState("Todos");
     const [filtroAbierto, setFiltroAbierto] = useState(null);
+
     const [tabActiva, setTabActiva] = useState("MIEMBROS");
 
     const [miembros, setMiembros] = useState([]);
@@ -37,7 +52,6 @@ function Equipo() {
     const cargarMiembros = async () => {
         try {
             const data = await obtenerMiembros();
-
             console.log("Miembros backend:", data);
 
             setMiembros(
@@ -48,8 +62,8 @@ function Equipo() {
                     correo: m.email_usuario,
                     grupo_id: m.grupo_id,
                     grupo: m.nombre_grupo || "Sin grupo",
-                    rol: m.tipo_usuario,          // MIEMBRO | ADMINISTRACION
-                    estado: m.estado,             // ACTIVO | INACTIVO | INVITADO
+                    rol: m.tipo_usuario,
+                    estado: m.estado,
                     tiene_clave_temp: m.tiene_clave_temp,
                     clave_temp_mascara: m.clave_temp_mascara,
                     etiquetas: m.etiquetas || []
@@ -71,7 +85,7 @@ function Equipo() {
     };
 
 
-    // FILTROS
+    // FILTROS DE MIEMBROS
 
     const miembrosFiltrados = miembros.filter((miembro) => {
 
@@ -82,27 +96,29 @@ function Equipo() {
             miembro.correo.toLowerCase().includes(texto);
 
         const coincideRol =
-            rolFiltro === "Todos" ||
-            miembro.rol === rolFiltro;
+            rolFiltro === "Todos" || miembro.rol === rolFiltro;
 
         const coincideGrupo =
-            grupoFiltro === "Todos" ||
-            miembro.grupo === grupoFiltro;
+            grupoFiltro === "Todos" || miembro.grupo === grupoFiltro;
 
         const coincideEstado =
-            estadoFiltro === "Todos" ||
-            miembro.estado === estadoFiltro;
+            estadoFiltro === "Todos" || miembro.estado === estadoFiltro;
 
         return (
-            coincideBusqueda &&
-            coincideRol &&
-            coincideGrupo &&
-            coincideEstado
+            coincideBusqueda && coincideRol && coincideGrupo && coincideEstado
         );
     });
 
 
-    // ELIMINAR
+    // FILTROS DE GRUPOS
+
+    const gruposFiltrados = grupos.filter((g) => {
+        const texto = busquedaGrupo.toLowerCase();
+        return g.nombre.toLowerCase().includes(texto);
+    });
+
+
+    // ELIMINAR MIEMBRO
 
     const eliminarMiembro = async (id) => {
         if (!window.confirm("¿Eliminar este miembro del equipo?")) return;
@@ -117,11 +133,55 @@ function Equipo() {
     };
 
 
-    // EDITAR
+    // EDITAR MIEMBRO
 
     const editarMiembro = (miembro) => {
         setMiembroEditar(miembro);
         setMostrarModal(true);
+    };
+
+
+    // CREAR GRUPO RÁPIDO
+
+    const crearGrupoRapido = async () => {
+        if (!nuevoGrupo.trim()) return;
+
+        try {
+            const creado = await crearGrupoAPI({
+                nombre: nuevoGrupo.trim(),
+                descripcion: null
+            });
+
+            setGrupos(prev => [...prev, creado]);
+            setNuevoGrupo("");
+        } catch (error) {
+            console.error("Error creando grupo", error);
+            alert(error.response?.data?.detail || "No se pudo crear el grupo");
+        }
+    };
+
+
+    // EDITAR GRUPO
+
+    const editarGrupo = (grupo) => {
+        setGrupoEditar(grupo);
+        setMostrarModalGrupo(true);
+    };
+
+
+    // ELIMINAR GRUPO
+
+    const eliminarGrupo = async (id) => {
+        if (!window.confirm("¿Eliminar este grupo? Los miembros quedarán sin grupo.")) return;
+
+        try {
+            await eliminarGrupoAPI(id);
+            setGrupos(prev => prev.filter(g => g.id !== id));
+            cargarMiembros();
+        } catch (error) {
+            console.error("Error eliminando grupo", error);
+            alert(error.response?.data?.detail || "No se pudo eliminar el grupo");
+        }
     };
 
 
@@ -137,6 +197,7 @@ function Equipo() {
                 setTabActiva={setTabActiva}
             />
 
+            {/* ================ PESTAÑA MIEMBROS ================ */}
             {tabActiva === "MIEMBROS" && (
                 <div className="equipo-contenedor">
 
@@ -174,14 +235,27 @@ function Equipo() {
                 </div>
             )}
 
+            {/* ================ PESTAÑA GRUPOS ================ */}
             {tabActiva === "GRUPOS" && (
                 <div className="equipo-contenedor">
-                    <p style={{ color: "#b5c4cc", padding: 20 }}>
-                        Vista de grupos (pendiente)
-                    </p>
+
+                    <GruposFiltros
+                        busqueda={busquedaGrupo}
+                        setBusqueda={setBusquedaGrupo}
+                        nuevoGrupo={nuevoGrupo}
+                        setNuevoGrupo={setNuevoGrupo}
+                        onCrear={crearGrupoRapido}
+                    />
+
+                    <GruposTable
+                        grupos={gruposFiltrados}
+                        editarGrupo={editarGrupo}
+                        eliminarGrupo={eliminarGrupo}
+                    />
                 </div>
             )}
 
+            {/* ================ PESTAÑA RECORDATORIOS ================ */}
             {tabActiva === "RECORDATORIOS" && (
                 <div className="equipo-contenedor">
                     <p style={{ color: "#b5c4cc", padding: 20 }}>
@@ -190,6 +264,7 @@ function Equipo() {
                 </div>
             )}
 
+            {/* ================ MODAL MIEMBRO ================ */}
             {
                 mostrarModal &&
                 <ModalMiembro
@@ -197,10 +272,8 @@ function Equipo() {
                         setMostrarModal(false);
                         setMiembroEditar(null);
                     }}
-
                     miembroEditar={miembroEditar}
                     grupos={grupos}
-
                     guardar={async (nuevoMiembro) => {
                         try {
                             if (miembroEditar) {
@@ -265,6 +338,53 @@ function Equipo() {
                     }}
                 />
             }
+
+            {/* ================ MODAL GRUPO ================ */}
+            {
+                mostrarModalGrupo &&
+                <ModalGrupo
+                    cerrar={() => {
+                        setMostrarModalGrupo(false);
+                        setGrupoEditar(null);
+                    }}
+                    grupoEditar={grupoEditar}
+                    guardar={async (nuevoGrupo) => {
+                        try {
+                            if (grupoEditar) {
+                                const actualizado = await editarGrupoAPI(
+                                    nuevoGrupo.id,
+                                    {
+                                        nombre: nuevoGrupo.nombre,
+                                        descripcion: nuevoGrupo.descripcion
+                                    }
+                                );
+
+                                setGrupos(prev =>
+                                    prev.map(g =>
+                                        g.id === actualizado.id
+                                            ? { ...g, nombre: actualizado.nombre, descripcion: actualizado.descripcion }
+                                            : g
+                                    )
+                                );
+                            } else {
+                                const creado = await crearGrupoAPI({
+                                    nombre: nuevoGrupo.nombre,
+                                    descripcion: nuevoGrupo.descripcion
+                                });
+
+                                setGrupos(prev => [...prev, creado]);
+                            }
+
+                            setMostrarModalGrupo(false);
+                            setGrupoEditar(null);
+                        } catch (error) {
+                            console.error("Error guardando grupo", error);
+                            alert(error.response?.data?.detail || "No se pudo guardar el grupo");
+                        }
+                    }}
+                />
+            }
+
         </div>
     );
 }

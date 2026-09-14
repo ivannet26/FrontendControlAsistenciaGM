@@ -1,0 +1,61 @@
+/* =========================
+   TOOLBAR GRUPOS
+========================= */
+
+.grupos-toolbar {
+    width: 100%;
+    height: 55px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #111d24;
+    border: 1px solid #273943;
+    padding: 0 15px;
+    margin-bottom: 20px;
+    box-sizing: border-box;
+    gap: 15px;
+}
+
+.grupos-toolbar-der {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: auto;
+}
+
+.input-nuevo-grupo {
+    height: 40px;
+    width: 260px;
+    background: #162630;
+    border: 1px solid #344650;
+    color: white;
+    padding: 0 12px;
+    outline: none;
+    font-size: 14px;
+    border-radius: 3px;
+}
+
+.input-nuevo-grupo::placeholder {
+    color: #5f6f7a;
+}
+
+.input-nuevo-grupo:focus {
+    border-color: #10a5f5;
+}
+
+.btn-anadir-grupo {
+    height: 40px;
+    background: #10a5f5;
+    border: none;
+    color: white;
+    padding: 0 22px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    border-radius: 3px;
+}
+
+.btn-anadir-grupo:hover {
+    background: #078ed5;
+}
