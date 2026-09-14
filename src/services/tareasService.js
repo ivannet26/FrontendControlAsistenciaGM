@@ -60,3 +60,30 @@ export const eliminarTareaAPI = async (id) => {
         getConfig()
     );
 };
+
+
+// =============================
+// ASIGNAR MIEMBRO A TAREA
+// =============================
+
+export const asignarMiembroTareaAPI = async (tareaId, miembroId) => {
+    const response = await axios.post(
+        `${API_URL}/rastreador/tareas/${tareaId}/miembros/${miembroId}`,
+        {},
+        getConfig()
+    );
+    return response.data;
+};
+
+
+// =============================
+// DESASIGNAR MIEMBRO DE TAREA
+// =============================
+
+export const desasignarMiembroTareaAPI = async (tareaId, miembroId) => {
+    const response = await axios.delete(
+        `${API_URL}/rastreador/tareas/${tareaId}/miembros/${miembroId}`,
+        getConfig()
+    );
+    return response.data;
+};

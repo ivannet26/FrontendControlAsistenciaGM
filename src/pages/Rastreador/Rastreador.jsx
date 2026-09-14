@@ -31,10 +31,20 @@ function Rastreador() {
     const [bloqueado, setBloqueado] = useState(false);
 
 
-    const [registros, setRegistros] = useState([]);
+
+    const [registros, setRegistros] = useState(() => {
+
+        const datos = localStorage.getItem(
+            "rastreador_registros"
+        );
+
+        return datos
+            ? JSON.parse(datos)
+            : [];
+
+    });
 
 
-    // ETIQUETAS DESDE BACKEND
 
     const [etiquetas, setEtiquetas] = useState([]);
 
@@ -44,6 +54,159 @@ function Rastreador() {
         etiquetasSeleccionadas,
         setEtiquetasSeleccionadas
     ] = useState([]);
+
+
+const continuarRegistro = (registro)=>{
+
+
+    setActividad(
+        registro.actividad
+    );
+
+
+    setProyecto(
+        registro.proyecto
+    );
+
+
+    setTarea(
+        registro.tarea
+    );
+
+
+    setEtiquetasSeleccionadas(
+        registro.etiquetas || []
+    );
+
+
+
+    const inicio = new Date();
+
+
+
+    setHoraInicio(
+        inicio
+    );
+
+
+    setSegundos(
+        registro.tiempo
+    );
+
+
+    setActivo(true);
+
+
+    setBloqueado(true);
+
+
+
+    localStorage.setItem(
+
+        "actividad_activa",
+
+        JSON.stringify({
+
+            actividad:
+                registro.actividad,
+
+
+            proyecto:
+                registro.proyecto,
+
+
+            tarea:
+                registro.tarea,
+
+
+            etiquetas:
+                registro.etiquetas,
+
+
+            horaInicio:
+                inicio.toISOString()
+
+        })
+
+    );
+
+
+};
+
+    // =====================================
+    // RECUPERAR ACTIVIDAD ACTIVA
+    // =====================================
+
+    useEffect(() => {
+
+
+        const guardado = localStorage.getItem(
+            "actividad_activa"
+        );
+
+
+        if (guardado) {
+
+
+            const data = JSON.parse(
+                guardado
+            );
+
+
+
+            setActividad(
+                data.actividad
+            );
+
+
+            setProyecto(
+                data.proyecto
+            );
+
+
+            setTarea(
+                data.tarea
+            );
+
+
+            setEtiquetasSeleccionadas(
+                data.etiquetas || []
+            );
+
+
+
+            const inicio = new Date(
+                data.horaInicio
+            );
+
+
+            setHoraInicio(
+                inicio
+            );
+
+
+
+            const diferencia = Math.floor(
+                (new Date() - inicio) / 1000
+            );
+
+
+            setSegundos(
+                diferencia
+            );
+
+
+
+            setActivo(true);
+
+            setBloqueado(true);
+
+
+        }
+
+
+    }, []);
+
 
 
 
@@ -62,14 +225,17 @@ function Rastreador() {
 
     const cargarEtiquetas = async () => {
 
+
         try {
+
 
             const data = await obtenerEtiquetas();
 
             setEtiquetas(data);
 
 
-        } catch (error) {
+        }
+        catch (error) {
 
             console.error(
                 "Error cargando etiquetas",
@@ -78,7 +244,60 @@ function Rastreador() {
 
         }
 
+
     };
+
+
+
+
+
+
+    // =====================================
+    // CONTADOR REAL
+    // =====================================
+
+    useEffect(() => {
+
+
+        if (!activo || !horaInicio)
+            return;
+
+
+
+        const intervalo = setInterval(() => {
+
+
+            const ahora = new Date();
+
+
+
+            const diferencia = Math.floor(
+                (ahora - new Date(horaInicio)) / 1000
+            );
+
+
+
+            setSegundos(
+                diferencia
+            );
+
+
+        }, 1000);
+
+
+
+        return () => clearInterval(intervalo);
+
+
+
+    }, [
+        activo,
+        horaInicio
+    ]);
+
+
+
+
 
 
 
@@ -91,6 +310,7 @@ function Rastreador() {
     const iniciarTiempo = () => {
 
 
+
         if (!actividad.trim()) {
 
             alert(
@@ -98,23 +318,47 @@ function Rastreador() {
             );
 
             return;
+
         }
 
 
 
         if (!proyecto) {
 
+
             alert(
                 "Seleccione proyecto"
             );
 
+
             return;
+
         }
 
 
 
+
+        if (!tarea) {
+
+
+            alert(
+                "Seleccione una tarea"
+            );
+
+
+            return;
+
+        }
+
+
+
+
+        const inicio = new Date();
+
+
+
         setHoraInicio(
-            new Date()
+            inicio
         );
 
 
@@ -127,7 +371,35 @@ function Rastreador() {
         setBloqueado(true);
 
 
+
+
+        localStorage.setItem(
+
+            "actividad_activa",
+
+            JSON.stringify({
+
+                actividad,
+
+                proyecto,
+
+                tarea,
+
+                etiquetas:
+                    etiquetasSeleccionadas,
+
+
+                horaInicio:
+                    inicio.toISOString()
+
+            })
+
+        );
+
+
     };
+
+
 
 
 
@@ -142,7 +414,27 @@ function Rastreador() {
     const detenerTiempo = () => {
 
 
+
+        const confirmar = window.confirm(
+
+            "¿Está seguro que desea terminar esta actividad?"
+
+        );
+
+
+
+        if (!confirmar) {
+
+            return;
+
+        }
+
+
+
+
         const horaFin = new Date();
+
+
 
 
 
@@ -166,35 +458,86 @@ function Rastreador() {
 
 
 
-            horaInicio,
+            horaInicio:
+                horaInicio?.toISOString(),
 
 
-            horaFin,
+
+            horaFin:
+                horaFin.toISOString(),
 
 
-            tiempo: segundos,
+
+            tiempo:
+                segundos,
 
 
-            fecha: new Date()
+
+            fecha:
+                new Date().toISOString()
+
 
         };
 
 
 
-        setRegistros([
+
+
+        const nuevosRegistros = [
+
             ...registros,
+
             nuevoRegistro
-        ]);
+
+        ];
 
 
 
 
-        // LIBERAR CAMPOS
+
+        setRegistros(
+            nuevosRegistros
+        );
+
+
+
+
+
+        localStorage.setItem(
+
+            "rastreador_registros",
+
+            JSON.stringify(
+                nuevosRegistros
+            )
+
+        );
+
+
+
+
+
+
+
+        // eliminar actividad activa
+
+        localStorage.removeItem(
+            "actividad_activa"
+        );
+
+
+
+
+
+
+
+        // limpiar
+
 
         setActivo(false);
 
-        setBloqueado(false);
 
+        setBloqueado(false);
 
 
         setSegundos(0);
@@ -206,9 +549,12 @@ function Rastreador() {
 
         setActividad("");
 
+
         setProyecto(null);
 
+
         setTarea(null);
+
 
 
         setEtiquetasSeleccionadas([]);
@@ -260,6 +606,7 @@ function Rastreador() {
 
         );
 
+
     };
 
 
@@ -278,13 +625,19 @@ function Rastreador() {
             return "";
 
 
-        return fecha.toLocaleTimeString(
-            [],
-            {
-                hour: "2-digit",
-                minute: "2-digit"
-            }
-        );
+
+        return new Date(fecha)
+            .toLocaleTimeString(
+                [],
+                {
+
+                    hour: "2-digit",
+
+                    minute: "2-digit"
+
+                }
+            );
+
 
     };
 
@@ -293,10 +646,15 @@ function Rastreador() {
 
 
 
+
     const totalTiempo = registros.reduce(
+
         (total, r) =>
+
             total + r.tiempo,
+
         0
+
     );
 
 
@@ -373,8 +731,9 @@ function Rastreador() {
 
 
 
-                bloqueado={bloqueado}
-
+                bloqueado={
+                    bloqueado
+                }
 
 
             />
@@ -401,6 +760,7 @@ function Rastreador() {
 
                     <div className="registro-total">
 
+
                         <span>
                             Total:
                         </span>
@@ -425,7 +785,6 @@ function Rastreador() {
 
 
 
-
                 {
 
                     registros.map(registro => (
@@ -441,7 +800,6 @@ function Rastreador() {
 
 
 
-
                             <div className="registro-actividad">
 
                                 {
@@ -453,22 +811,17 @@ function Rastreador() {
 
 
 
-
-
-
                             <div className="registro-proyecto">
 
 
                                 <span className="punto"></span>
 
 
-
                                 <span>
 
 
                                     {
-                                        registro.proyecto?.nombre
-                                        ||
+                                        registro.proyecto?.nombre ||
                                         "Sin proyecto"
                                     }
 
@@ -480,17 +833,13 @@ function Rastreador() {
 
                                         <span className="registro-tarea">
 
-
                                             {" - "}
-
 
                                             {
                                                 registro.tarea.nombre
                                             }
 
-
                                         </span>
-
 
                                     }
 
@@ -499,10 +848,7 @@ function Rastreador() {
                                 </span>
 
 
-
                             </div>
-
-
 
 
 
@@ -512,34 +858,25 @@ function Rastreador() {
 
 
                                 {
-
                                     registro.etiquetas?.map(e => (
 
 
                                         <span
-
                                             className="tag"
-
                                             key={e.id}
-
                                         >
 
-
                                             {e.nombre}
-
 
                                         </span>
 
 
                                     ))
 
-
                                 }
 
 
                             </div>
-
-
 
 
 
@@ -557,18 +894,15 @@ function Rastreador() {
 
                                 -
 
-                                {
 
+                                {
                                     formatoHora(
                                         registro.horaFin
                                     )
-
                                 }
 
 
                             </div>
-
-
 
 
 
@@ -581,7 +915,6 @@ function Rastreador() {
                                     formatoTiempo(
                                         registro.tiempo
                                     )
-
                                 }
 
 
@@ -589,31 +922,22 @@ function Rastreador() {
 
 
 
-
-
-
-
                             <div className="registro-actions">
 
 
-                                <button>
-
+                                <button
+                                    onClick={() => continuarRegistro(registro)}
+                                >
                                     ▶
-
                                 </button>
 
 
                                 <button>
-
                                     ⋮
-
                                 </button>
 
 
                             </div>
-
-
-
 
 
 
@@ -632,15 +956,14 @@ function Rastreador() {
 
 
 
-
         </div>
 
 
     );
 
 
-}
 
+}
 
 
 export default Rastreador;

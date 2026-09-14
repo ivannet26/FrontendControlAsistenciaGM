@@ -392,3 +392,24 @@
     background:#c62828;
 
 }
+.tarea-activa{
+    display:flex;
+    align-items:center;
+    gap: 2px;
+    width:auto;
+    max-width:400px;
+    overflow:hidden;
+    padding:0;
+    margin: -10px;
+}
+.tarea-separador{
+    margin:0 4px;
+    padding:0;
+}
+
+.tarea-nombre,
+.tarea-proyecto{
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
