@@ -162,11 +162,17 @@ function ProjectSelector({
         <div className="project-selector" ref={projectRef}>
 
             <button
-                className="project-btn"
-                onClick={() => setMostrarProyectos(!mostrarProyectos)}
-            >
-                {proyecto ? truncar(proyecto.nombre) : "+ Proyecto"}
-            </button>
+    className="project-btn"
+    style={{
+        color: proyecto?.color || "#10a5f5"
+    }}
+    onClick={() => setMostrarProyectos(!mostrarProyectos)}
+>
+    {proyecto 
+        ? truncar(proyecto.nombre) 
+        : "+ Proyecto"
+    }
+</button>
 
 
             {mostrarProyectos && (

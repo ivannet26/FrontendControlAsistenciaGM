@@ -5,12 +5,12 @@ import "./EncargadosPopover.css";
 
 
 function EncargadosPopover({
-    tareaId,                        // 👈 NUEVO
+    tareaId,                        
     miembrosAsignados = [],
     todosLosMiembros = [],
     grupos = [],
-    onAsignar,                      // 👈 NUEVO
-    onDesasignar                    // 👈 NUEVO
+    onAsignar,                    
+    onDesasignar                    
 }) {
 
     const [abierto, setAbierto] = useState(false);

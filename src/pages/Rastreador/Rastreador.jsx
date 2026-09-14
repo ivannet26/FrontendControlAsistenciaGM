@@ -813,42 +813,48 @@ const continuarRegistro = (registro)=>{
 
                             <div className="registro-proyecto">
 
-
-                                <span className="punto"></span>
-
-
-                                <span>
-
-
-                                    {
-                                        registro.proyecto?.nombre ||
-                                        "Sin proyecto"
-                                    }
+    <span
+        className="punto"
+        style={{
+            backgroundColor:
+                registro.proyecto?.color || "#10b981"
+        }}
+    >
+    </span>
 
 
+    <span
+        style={{
+            color:
+                registro.proyecto?.color || "#10b981"
+        }}
+    >
 
-                                    {
-
-                                        registro.tarea &&
-
-                                        <span className="registro-tarea">
-
-                                            {" - "}
-
-                                            {
-                                                registro.tarea.nombre
-                                            }
-
-                                        </span>
-
-                                    }
+        {
+            registro.proyecto?.nombre ||
+            "Sin proyecto"
+        }
 
 
+        {
+            registro.tarea &&
 
-                                </span>
+            <span className="registro-tarea">
+
+                {" - "}
+
+                {
+                    registro.tarea.nombre
+                }
+
+            </span>
+
+        }
 
 
-                            </div>
+    </span>
+
+</div>
 
 
 

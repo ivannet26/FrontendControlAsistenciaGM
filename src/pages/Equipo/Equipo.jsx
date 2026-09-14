@@ -7,6 +7,9 @@ import GruposTable from "../../components/EquipoComp/GrupoComp/GruposTable";
 import GruposFiltros from "../../components/EquipoComp/GrupoComp/GruposFiltros";
 import ModalGrupo from "../../components/EquipoComp/GrupoComp/ModalGrupo";
 import "../../components/EquipoComp/Equipo.css";
+import LoadingOverlay from "../../components/Loading/LoadingOverlay";
+
+
 
 import {
     obtenerMiembros,
@@ -14,9 +17,9 @@ import {
     crearMiembroAPI,
     editarMiembroAPI,
     eliminarMiembroAPI,
-    crearGrupoAPI,          // 👈 NUEVO
-    editarGrupoAPI,         // 👈 NUEVO
-    eliminarGrupoAPI        // 👈 NUEVO
+    crearGrupoAPI,          
+    editarGrupoAPI,        
+    eliminarGrupoAPI       
 } from "../../services/equipoService";
 
 
@@ -41,49 +44,57 @@ function Equipo() {
 
     const [miembros, setMiembros] = useState([]);
     const [grupos, setGrupos] = useState([]);
-
-
-    useEffect(() => {
-        cargarMiembros();
-        cargarGrupos();
-    }, []);
+    const [cargando, setCargando] = useState(false);
 
 
     const cargarMiembros = async () => {
-        try {
-            const data = await obtenerMiembros();
-            console.log("Miembros backend:", data);
+    try {
+        const data = await obtenerMiembros();
+        setMiembros(
+            data.map(m => ({
+                id: m.id,
+                usuario_id: m.usuario_id,
+                nombre: m.nombre_usuario,
+                correo: m.email_usuario,
+                grupo_id: m.grupo_id,
+                grupo: m.nombre_grupo || "Sin grupo",
+                rol: m.tipo_usuario,
+                estado: m.estado,
+                tiene_clave_temp: m.tiene_clave_temp,
+                clave_temp_mascara: m.clave_temp_mascara,
+                etiquetas: m.etiquetas || []
+            }))
+        );
+    } catch (error) {
+        console.error("Error cargando miembros", error);
+    }
+};
 
-            setMiembros(
-                data.map(m => ({
-                    id: m.id,
-                    usuario_id: m.usuario_id,
-                    nombre: m.nombre_usuario,
-                    correo: m.email_usuario,
-                    grupo_id: m.grupo_id,
-                    grupo: m.nombre_grupo || "Sin grupo",
-                    rol: m.tipo_usuario,
-                    estado: m.estado,
-                    tiene_clave_temp: m.tiene_clave_temp,
-                    clave_temp_mascara: m.clave_temp_mascara,
-                    etiquetas: m.etiquetas || []
-                }))
-            );
+const cargarGrupos = async () => {
+    try {
+        const data = await obtenerGrupos();
+        setGrupos(data);
+    } catch (error) {
+        console.error("Error cargando grupos", error);
+    }
+};
+useEffect(() => {
+    const cargarTodo = async () => {
+        setCargando(true);
+        try {
+            await Promise.all([
+                cargarMiembros(),
+                cargarGrupos()
+            ]);
         } catch (error) {
-            console.error("Error cargando miembros", error);
+            console.error("Error en carga inicial:", error);
+        } finally {
+            setCargando(false);   // 👈 SIEMPRE
         }
     };
 
-
-    const cargarGrupos = async () => {
-        try {
-            const data = await obtenerGrupos();
-            setGrupos(data);
-        } catch (error) {
-            console.error("Error cargando grupos", error);
-        }
-    };
-
+    cargarTodo();
+}, []);
 
     // FILTROS DE MIEMBROS
 
@@ -186,8 +197,9 @@ function Equipo() {
 
 
     return (
+        
         <div className="equipo-container">
-
+          
             <div className="equipo-top">
                 <h1>Equipo</h1>
             </div>
@@ -341,6 +353,7 @@ function Equipo() {
 
             {/* ================ MODAL GRUPO ================ */}
             {
+
                 mostrarModalGrupo &&
                 <ModalGrupo
                     cerrar={() => {
@@ -384,6 +397,7 @@ function Equipo() {
                     }}
                 />
             }
+              <LoadingOverlay visible={cargando} />
 
         </div>
     );

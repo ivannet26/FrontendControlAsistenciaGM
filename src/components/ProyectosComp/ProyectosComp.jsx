@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import ProyectoTable from "./ProyectoTable";
 import ProyectoFiltros from "./ProyectoFiltros";
 import ModalProyecto from "./ModalProyecto";
-import LoadingOverlay from "../Loading/LoadingOverlay";   // 👈 OVERLAY
+import LoadingOverlay from "../Loading/LoadingOverlay";   
 
 import {
     obtenerProyectos,
@@ -163,7 +163,7 @@ function ProyectosComp() {
     return (
         <div className="proyectos-container">
 
-            {/* ✅ OVERLAY: aparece ENCIMA, no reemplaza */}
+           
             <LoadingOverlay visible={cargando} />
 
             <div className="proyectos-contenedor">
