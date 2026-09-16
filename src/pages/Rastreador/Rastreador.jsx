@@ -1,574 +1,345 @@
 import "./Rastreador.css";
 
-import {
-    useState,
-    useEffect
-} from "react";
+import { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 
 import TimerBar from "../../components/RastreadorComp/TimerBar/TimerBar";
 
-import {
-    obtenerEtiquetas
-} from "../../services/etiquetaService";
+import { obtenerEtiquetas } from "../../services/etiquetaService";
 
+import {
+    iniciarTiempoAPI,
+    detenerTiempoAPI,
+    obtenerHistorialTiemposAPI,
+    eliminarTiempoAPI
+} from "../../services/tareasService";
 
 
 function Rastreador() {
 
-
     const [actividad, setActividad] = useState("");
-
     const [activo, setActivo] = useState(false);
-
     const [proyecto, setProyecto] = useState(null);
-
     const [tarea, setTarea] = useState(null);
-
     const [segundos, setSegundos] = useState(0);
-
     const [horaInicio, setHoraInicio] = useState(null);
-
     const [bloqueado, setBloqueado] = useState(false);
 
+    const [menuAbierto, setMenuAbierto] = useState(null);
+    const [menuPos, setMenuPos] = useState({ top: 0, right: 0 });
+    const menuRef = useRef(null);
 
-
-    const [registros, setRegistros] = useState(() => {
-
-        const datos = localStorage.getItem(
-            "rastreador_registros"
-        );
-
-        return datos
-            ? JSON.parse(datos)
-            : [];
-
-    });
-
-
-
+    const [registros, setRegistros] = useState([]);
     const [etiquetas, setEtiquetas] = useState([]);
+    const [etiquetasSeleccionadas, setEtiquetasSeleccionadas] = useState([]);
 
 
+    // =====================================
+    // CARGAR AL MONTAR
+    // =====================================
 
-    const [
-        etiquetasSeleccionadas,
-        setEtiquetasSeleccionadas
-    ] = useState([]);
-
-
-const continuarRegistro = (registro)=>{
-
-
-    setActividad(
-        registro.actividad
-    );
+    useEffect(() => {
+        cargarHistorial();
+        cargarEtiquetas();
+        recuperarActividadActiva();
+    }, []);
 
 
-    setProyecto(
-        registro.proyecto
-    );
+    // =====================================
+    // CERRAR MENÚ AL HACER CLIC AFUERA
+    // =====================================
+
+    useEffect(() => {
+        const cerrarMenu = (e) => {
+            if (menuRef.current && !menuRef.current.contains(e.target)) {
+                setMenuAbierto(null);
+            }
+        };
+
+        document.addEventListener("mousedown", cerrarMenu);
+        return () => document.removeEventListener("mousedown", cerrarMenu);
+    }, []);
 
 
-    setTarea(
-        registro.tarea
-    );
+    // =====================================
+    // CARGAR HISTORIAL
+    // =====================================
+
+    const cargarHistorial = async () => {
+        try {
+            const data = await obtenerHistorialTiemposAPI();
+
+            const transformados = data.map(r => ({
+                id: r.id,
+                actividad: r.descripcion || "",
+                proyecto: {
+                    id: r.proyecto_id,
+                    nombre: r.nombre_proyecto || "Sin proyecto",
+                    color: r.color_proyecto || "#10b981"
+                },
+                tarea: r.tarea_id
+                    ? { id: r.tarea_id, nombre: r.titulo_tarea || "" }
+                    : null,
+                etiquetas: [],
+                horaInicio: r.inicio,
+                horaFin: r.fin,
+                tiempo: r.duracion_segundos || 0,
+                fecha: r.inicio
+            }));
+
+            setRegistros(transformados);
+        } catch (error) {
+            console.error("Error cargando historial", error);
+        }
+    };
 
 
-    setEtiquetasSeleccionadas(
-        registro.etiquetas || []
-    );
+    const cargarEtiquetas = async () => {
+        try {
+            const data = await obtenerEtiquetas();
+            setEtiquetas(data);
+        } catch (error) {
+            console.error("Error cargando etiquetas", error);
+        }
+    };
 
-
-
-    const inicio = new Date();
-
-
-
-    setHoraInicio(
-        inicio
-    );
-
-
-    setSegundos(
-        registro.tiempo
-    );
-
-
-    setActivo(true);
-
-
-    setBloqueado(true);
-
-
-
-    localStorage.setItem(
-
-        "actividad_activa",
-
-        JSON.stringify({
-
-            actividad:
-                registro.actividad,
-
-
-            proyecto:
-                registro.proyecto,
-
-
-            tarea:
-                registro.tarea,
-
-
-            etiquetas:
-                registro.etiquetas,
-
-
-            horaInicio:
-                inicio.toISOString()
-
-        })
-
-    );
-
-
-};
 
     // =====================================
     // RECUPERAR ACTIVIDAD ACTIVA
     // =====================================
 
-    useEffect(() => {
+    const recuperarActividadActiva = () => {
+        const guardado = localStorage.getItem("actividad_activa");
 
+        if (!guardado) return;
 
-        const guardado = localStorage.getItem(
-            "actividad_activa"
-        );
+        const data = JSON.parse(guardado);
 
+        setActividad(data.actividad || "");
+        setProyecto(data.proyecto || null);
+        setTarea(data.tarea || null);
+        setEtiquetasSeleccionadas(data.etiquetas || []);
 
-        if (guardado) {
+        const inicio = new Date(data.horaInicio);
+        setHoraInicio(inicio);
 
+        const diferencia = Math.floor((new Date() - inicio) / 1000);
+        setSegundos(diferencia);
 
-            const data = JSON.parse(
-                guardado
-            );
-
-
-
-            setActividad(
-                data.actividad
-            );
-
-
-            setProyecto(
-                data.proyecto
-            );
-
-
-            setTarea(
-                data.tarea
-            );
-
-
-            setEtiquetasSeleccionadas(
-                data.etiquetas || []
-            );
-
-
-
-            const inicio = new Date(
-                data.horaInicio
-            );
-
-
-            setHoraInicio(
-                inicio
-            );
-
-
-
-            const diferencia = Math.floor(
-                (new Date() - inicio) / 1000
-            );
-
-
-            setSegundos(
-                diferencia
-            );
-
-
-
-            setActivo(true);
-
-            setBloqueado(true);
-
-
-        }
-
-
-    }, []);
-
-
-
-
-
-    // =====================================
-    // CARGAR ETIQUETAS
-    // =====================================
-
-    useEffect(() => {
-
-        cargarEtiquetas();
-
-    }, []);
-
-
-
-    const cargarEtiquetas = async () => {
-
-
-        try {
-
-
-            const data = await obtenerEtiquetas();
-
-            setEtiquetas(data);
-
-
-        }
-        catch (error) {
-
-            console.error(
-                "Error cargando etiquetas",
-                error
-            );
-
-        }
-
-
+        setActivo(true);
+        setBloqueado(true);
     };
 
 
-
-
-
-
     // =====================================
-    // CONTADOR REAL
+    // CONTADOR (cada segundo)
     // =====================================
 
     useEffect(() => {
-
-
-        if (!activo || !horaInicio)
-            return;
-
-
+        if (!activo || !horaInicio) return;
 
         const intervalo = setInterval(() => {
-
-
             const ahora = new Date();
-
-
-
             const diferencia = Math.floor(
                 (ahora - new Date(horaInicio)) / 1000
             );
-
-
-
-            setSegundos(
-                diferencia
-            );
-
-
+            setSegundos(diferencia);
         }, 1000);
 
-
-
         return () => clearInterval(intervalo);
-
-
-
-    }, [
-        activo,
-        horaInicio
-    ]);
-
-
-
-
-
-
-
+    }, [activo, horaInicio]);
 
 
     // =====================================
     // INICIAR TIMER
     // =====================================
 
-    const iniciarTiempo = () => {
-
-
+    const iniciarTiempo = async () => {
 
         if (!actividad.trim()) {
-
-            alert(
-                "Ingrese actividad"
-            );
-
+            alert("Ingrese actividad");
             return;
-
         }
-
-
 
         if (!proyecto) {
-
-
-            alert(
-                "Seleccione proyecto"
-            );
-
-
+            alert("Seleccione proyecto");
             return;
-
         }
-
-
-
 
         if (!tarea) {
-
-
-            alert(
-                "Seleccione una tarea"
-            );
-
-
+            alert("Seleccione una tarea");
             return;
-
         }
 
+        try {
+            const registro = await iniciarTiempoAPI({
+                proyecto_id: proyecto.id,
+                tarea_id: tarea.id,
+                descripcion: actividad
+            });
 
+            const inicio = new Date(registro.inicio);
 
+            setHoraInicio(inicio);
+            setSegundos(0);
+            setActivo(true);
+            setBloqueado(true);
 
-        const inicio = new Date();
+            localStorage.setItem(
+                "actividad_activa",
+                JSON.stringify({
+                    registro_id: registro.id,
+                    actividad,
+                    proyecto,
+                    tarea,
+                    etiquetas: etiquetasSeleccionadas,
+                    horaInicio: inicio.toISOString()
+                })
+            );
 
-
-
-        setHoraInicio(
-            inicio
-        );
-
-
-        setSegundos(0);
-
-
-        setActivo(true);
-
-
-        setBloqueado(true);
-
-
-
-
-        localStorage.setItem(
-
-            "actividad_activa",
-
-            JSON.stringify({
-
-                actividad,
-
-                proyecto,
-
-                tarea,
-
-                etiquetas:
-                    etiquetasSeleccionadas,
-
-
-                horaInicio:
-                    inicio.toISOString()
-
-            })
-
-        );
-
-
+        } catch (error) {
+            console.error("Error iniciando tiempo", error);
+            alert(
+                error.response?.data?.detail ||
+                "No se pudo iniciar el temporizador"
+            );
+        }
     };
-
-
-
-
-
-
-
 
 
     // =====================================
     // DETENER TIMER
     // =====================================
 
-    const detenerTiempo = () => {
-
-
+    const detenerTiempo = async () => {
 
         const confirmar = window.confirm(
-
             "¿Está seguro que desea terminar esta actividad?"
-
         );
 
+        if (!confirmar) return;
 
+        try {
+            await detenerTiempoAPI();
+            await cargarHistorial();
 
-        if (!confirmar) {
+            localStorage.removeItem("actividad_activa");
 
-            return;
+            setActivo(false);
+            setBloqueado(false);
+            setSegundos(0);
+            setHoraInicio(null);
+            setActividad("");
+            setProyecto(null);
+            setTarea(null);
+            setEtiquetasSeleccionadas([]);
 
+        } catch (error) {
+            console.error("Error deteniendo tiempo", error);
+            alert(
+                error.response?.data?.detail ||
+                "No se pudo detener el temporizador"
+            );
         }
-
-
-
-
-        const horaFin = new Date();
-
-
-
-
-
-        const nuevoRegistro = {
-
-
-            id: Date.now(),
-
-
-            actividad,
-
-
-            proyecto,
-
-
-            tarea,
-
-
-            etiquetas:
-                etiquetasSeleccionadas,
-
-
-
-            horaInicio:
-                horaInicio?.toISOString(),
-
-
-
-            horaFin:
-                horaFin.toISOString(),
-
-
-
-            tiempo:
-                segundos,
-
-
-
-            fecha:
-                new Date().toISOString()
-
-
-        };
-
-
-
-
-
-        const nuevosRegistros = [
-
-            ...registros,
-
-            nuevoRegistro
-
-        ];
-
-
-
-
-
-        setRegistros(
-            nuevosRegistros
-        );
-
-
-
-
-
-        localStorage.setItem(
-
-            "rastreador_registros",
-
-            JSON.stringify(
-                nuevosRegistros
-            )
-
-        );
-
-
-
-
-
-
-
-        // eliminar actividad activa
-
-        localStorage.removeItem(
-            "actividad_activa"
-        );
-
-
-
-
-
-
-
-        // limpiar
-
-
-        setActivo(false);
-
-
-        setBloqueado(false);
-
-
-        setSegundos(0);
-
-
-        setHoraInicio(null);
-
-
-
-        setActividad("");
-
-
-        setProyecto(null);
-
-
-        setTarea(null);
-
-
-
-        setEtiquetasSeleccionadas([]);
-
-
-
     };
 
 
+    // =====================================
+    // CONTINUAR UN REGISTRO
+    // =====================================
+
+    const continuarRegistro = async (registro) => {
+
+        if (activo) {
+            alert("Ya tienes un temporizador activo");
+            return;
+        }
+
+        try {
+            const nuevo = await iniciarTiempoAPI({
+                proyecto_id: registro.proyecto.id,
+                tarea_id: registro.tarea?.id || null,
+                descripcion: registro.actividad
+            });
+
+            const inicio = new Date(nuevo.inicio);
+
+            setActividad(registro.actividad);
+            setProyecto(registro.proyecto);
+            setTarea(registro.tarea);
+            setEtiquetasSeleccionadas(registro.etiquetas || []);
+
+            setHoraInicio(inicio);
+            setSegundos(0);
+            setActivo(true);
+            setBloqueado(true);
+
+            localStorage.setItem(
+                "actividad_activa",
+                JSON.stringify({
+                    registro_id: nuevo.id,
+                    actividad: registro.actividad,
+                    proyecto: registro.proyecto,
+                    tarea: registro.tarea,
+                    etiquetas: registro.etiquetas || [],
+                    horaInicio: inicio.toISOString()
+                })
+            );
+
+        } catch (error) {
+            console.error("Error continuando registro", error);
+            alert(
+                error.response?.data?.detail ||
+                "No se pudo continuar el registro"
+            );
+        }
+    };
 
 
+    // =====================================
+    // ELIMINAR REGISTRO
+    // =====================================
+
+    const eliminarRegistro = async (registroId) => {
+
+        const confirmar = window.confirm(
+            "¿Eliminar esta actividad? Esta acción no se puede deshacer."
+        );
+
+        if (!confirmar) return;
+
+        try {
+            await eliminarTiempoAPI(registroId);
+
+            setRegistros(prev => prev.filter(r => r.id !== registroId));
+            setMenuAbierto(null);
+
+        } catch (error) {
+            console.error("Error eliminando registro", error);
+            alert(
+                error.response?.data?.detail ||
+                "No se pudo eliminar la actividad"
+            );
+        }
+    };
 
 
+    // =====================================
+    // ABRIR MENÚ
+    // =====================================
 
+    const abrirMenu = (e, id) => {
+        e.stopPropagation();
+
+        const rect = e.currentTarget.getBoundingClientRect();
+
+        setMenuPos({
+            top: rect.bottom + 4,
+            right: window.innerWidth - rect.right
+        });
+
+        setMenuAbierto(menuAbierto === id ? null : id);
+    };
 
 
     // =====================================
@@ -576,42 +347,16 @@ const continuarRegistro = (registro)=>{
     // =====================================
 
     const formatoTiempo = (seg) => {
-
-
-        const h = Math.floor(
-            seg / 3600
-        );
-
-
-        const m = Math.floor(
-            (seg % 3600) / 60
-        );
-
-
+        const h = Math.floor(seg / 3600);
+        const m = Math.floor((seg % 3600) / 60);
         const s = seg % 60;
 
-
-
         return (
-
-            String(h).padStart(2, "0")
-            +
-            ":"
-            +
-            String(m).padStart(2, "0")
-            +
-            ":"
-            +
+            String(h).padStart(2, "0") + ":" +
+            String(m).padStart(2, "0") + ":" +
             String(s).padStart(2, "0")
-
         );
-
-
     };
-
-
-
-
 
 
     // =====================================
@@ -619,356 +364,156 @@ const continuarRegistro = (registro)=>{
     // =====================================
 
     const formatoHora = (fecha) => {
+        if (!fecha) return "";
 
-
-        if (!fecha)
-            return "";
-
-
-
-        return new Date(fecha)
-            .toLocaleTimeString(
-                [],
-                {
-
-                    hour: "2-digit",
-
-                    minute: "2-digit"
-
-                }
-            );
-
-
+        return new Date(fecha).toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit"
+        });
     };
 
 
-
-
-
-
-
     const totalTiempo = registros.reduce(
-
-        (total, r) =>
-
-            total + r.tiempo,
-
+        (total, r) => total + (r.tiempo || 0),
         0
-
     );
 
 
-
-
-
-
-
-
     return (
-
         <div className="tracker-page">
 
-
-
             <TimerBar
-
-
                 actividad={actividad}
-
                 setActividad={setActividad}
 
-
-
                 activo={activo}
-
                 setActivo={setActivo}
 
-
-
                 segundos={segundos}
-
                 setSegundos={setSegundos}
 
-
-
                 proyecto={proyecto}
-
                 setProyecto={setProyecto}
 
-
-
                 tarea={tarea}
-
                 setTarea={setTarea}
-
-
 
                 etiquetas={etiquetas}
 
+                etiquetasSeleccionadas={etiquetasSeleccionadas}
+                setEtiquetasSeleccionadas={setEtiquetasSeleccionadas}
 
+                iniciarTiempo={iniciarTiempo}
+                detenerTiempo={detenerTiempo}
 
-                etiquetasSeleccionadas={
-                    etiquetasSeleccionadas
-                }
-
-
-
-                setEtiquetasSeleccionadas={
-                    setEtiquetasSeleccionadas
-                }
-
-
-
-                iniciarTiempo={
-                    iniciarTiempo
-                }
-
-
-
-                detenerTiempo={
-                    detenerTiempo
-                }
-
-
-
-                bloqueado={
-                    bloqueado
-                }
-
-
+                bloqueado={bloqueado}
             />
-
-
-
-
-
-
-
 
 
             <div className="registro-container">
 
-
                 <div className="registro-header">
-
-
-                    <span>
-                        Hoy
-                    </span>
-
-
+                    <span>Hoy</span>
 
                     <div className="registro-total">
-
-
-                        <span>
-                            Total:
-                        </span>
-
-
-                        <strong>
-
-                            {
-                                formatoTiempo(totalTiempo)
-                            }
-
-                        </strong>
-
-
+                        <span>Total:</span>
+                        <strong>{formatoTiempo(totalTiempo)}</strong>
                     </div>
-
-
                 </div>
 
 
-
-
-
-
-                {
-
-                    registros.map(registro => (
-
-
-                        <div
-
-                            className="registro-row"
-
-                            key={registro.id}
-
-                        >
-
-
-
-                            <div className="registro-actividad">
-
-                                {
-                                    registro.actividad
-                                }
-
-                            </div>
-
-
-
-
-                            <div className="registro-proyecto">
-
-    <span
-        className="punto"
-        style={{
-            backgroundColor:
-                registro.proyecto?.color || "#10b981"
-        }}
-    >
-    </span>
-
-
-    <span
-        style={{
-            color:
-                registro.proyecto?.color || "#10b981"
-        }}
-    >
-
-        {
-            registro.proyecto?.nombre ||
-            "Sin proyecto"
-        }
-
-
-        {
-            registro.tarea &&
-
-            <span className="registro-tarea">
-
-                {" - "}
-
-                {
-                    registro.tarea.nombre
-                }
-
-            </span>
-
-        }
-
-
-    </span>
-
-</div>
-
-
-
-
-
-                            <div className="registro-tags">
-
-
-                                {
-                                    registro.etiquetas?.map(e => (
-
-
-                                        <span
-                                            className="tag"
-                                            key={e.id}
-                                        >
-
-                                            {e.nombre}
-
-                                        </span>
-
-
-                                    ))
-
-                                }
-
-
-                            </div>
-
-
-
-
-
-                            <div className="registro-hora">
-
-
-                                {
-                                    formatoHora(
-                                        registro.horaInicio
-                                    )
-                                }
-
-
-                                -
-
-
-                                {
-                                    formatoHora(
-                                        registro.horaFin
-                                    )
-                                }
-
-
-                            </div>
-
-
-
-
-
-                            <div className="registro-tiempo">
-
-
-                                {
-                                    formatoTiempo(
-                                        registro.tiempo
-                                    )
-                                }
-
-
-                            </div>
-
-
-
-                            <div className="registro-actions">
-
-
-                                <button
-                                    onClick={() => continuarRegistro(registro)}
-                                >
-                                    ▶
-                                </button>
-
-
-                                <button>
-                                    ⋮
-                                </button>
-
-
-                            </div>
-
-
+                {registros.map(registro => (
+                    <div className="registro-row" key={registro.id}>
+
+                        <div className="registro-actividad">
+                            {registro.actividad}
+                        </div>
+
+                        <div className="registro-proyecto">
+
+                            <span
+                                className="punto"
+                                style={{
+                                    backgroundColor:
+                                        registro.proyecto?.color || "#10b981"
+                                }}
+                            />
+
+                            <span
+                                style={{
+                                    color:
+                                        registro.proyecto?.color || "#10b981"
+                                }}
+                            >
+                                {registro.proyecto?.nombre || "Sin proyecto"}
+
+                                {registro.tarea && (
+                                    <span className="registro-tarea">
+                                        {" - "}
+                                        {registro.tarea.nombre}
+                                    </span>
+                                )}
+                            </span>
 
                         </div>
 
+                        <div className="registro-tags">
+                            {registro.etiquetas?.map(e => (
+                                <span className="tag" key={e.id}>
+                                    {e.nombre}
+                                </span>
+                            ))}
+                        </div>
 
-                    ))
+                        <div className="registro-hora">
+                            {formatoHora(registro.horaInicio)}
+                            {" - "}
+                            {formatoHora(registro.horaFin)}
+                        </div>
 
+                        <div className="registro-tiempo">
+                            {formatoTiempo(registro.tiempo)}
+                        </div>
 
-                }
+                        <div className="registro-actions">
+                            <button onClick={() => continuarRegistro(registro)}>
+                                ▶
+                            </button>
+                            <button onClick={(e) => abrirMenu(e, registro.id)}>
+                                ⋮
+                            </button>
+                        </div>
 
-
-
+                    </div>
+                ))}
 
             </div>
 
 
+            {/* MENÚ CONTEXTUAL (fuera del map, una sola vez) */}
+            {menuAbierto && createPortal(
+                <div
+                    className="menu-registro-portal"
+                    ref={menuRef}
+                    style={{
+                        position: "fixed",
+                        top: menuPos.top,
+                        right: menuPos.right,
+                        zIndex: 9999999
+                    }}
+                >
+                    <button
+                        onClick={() => eliminarRegistro(menuAbierto)}
+                        className="menu-item-eliminar"
+                    >
+                        Eliminar
+                    </button>
+                </div>,
+                document.body
+            )}
 
         </div>
-
-
     );
-
-
-
 }
 
 

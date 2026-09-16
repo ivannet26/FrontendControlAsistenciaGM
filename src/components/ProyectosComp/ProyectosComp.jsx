@@ -69,6 +69,8 @@ function ProyectosComp() {
                     estado: p.estado,
                     color: p.color || "#10b981",
                     archivado: p.archivado,
+                    horas_registradas: p.horas_registradas ?? 0,  
+                    segundos_registrados: p.segundos_registrados ?? 0, 
                     favorito: false
                 }))
             );
@@ -235,7 +237,8 @@ function ProyectosComp() {
                                                     cliente: actualizado.nombre_cliente || "Sin cliente",
                                                     estado: actualizado.estado,
                                                     color: actualizado.color || "#10b981",
-                                                    archivado: actualizado.archivado
+                                                    archivado: actualizado.archivado,
+                                                    horas_registradas: actualizado.horas_registradas ?? p.horas_registradas ?? 0,  // ✅ NUEVO
                                                   }
                                                 : p
                                         )
@@ -260,6 +263,7 @@ function ProyectosComp() {
                                             estado: creado.estado,
                                             color: creado.color || "#10b981",
                                             archivado: creado.archivado,
+                                            horas_registradas: creado.horas_registradas ?? 0,  
                                             favorito: false
                                         }
                                     ]);

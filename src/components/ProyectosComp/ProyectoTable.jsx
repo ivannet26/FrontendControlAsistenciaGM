@@ -52,14 +52,41 @@ function ProyectoTable({
     };
 
 
+    
+    const formatearHoras = (proyecto) => {
+    // Preferir segundos exactos si están disponibles
+    let totalSegundos;
+
+    if (proyecto.segundos_registrados != null) {
+        totalSegundos = proyecto.segundos_registrados;
+    } else {
+        // Fallback: convertir horas a segundos (con redondeo)
+        totalSegundos = Math.round((proyecto.horas_registradas || 0) * 3600);
+    }
+
+    if (totalSegundos === 0) return "0m";
+
+    const h = Math.floor(totalSegundos / 3600);
+    const m = Math.floor((totalSegundos % 3600) / 60);
+    const s = totalSegundos % 60;
+
+    if (h > 0) return m > 0 ? `${h}h ${m}m` : `${h}h`;
+    if (m > 0) return s > 0 ? `${m}m ${s}s` : `${m}m`;
+    return `${s}s`;
+};
+
+
+
+
     const proyectoMenu = proyectos.find(p => p.id === menuAbierto);
 
 
     return (
         <div className="tabla-container">
             <div className="tabla-header-tareas">
-                    <span>Proyectos</span>
-                </div>
+                <span>Proyectos</span>
+            </div>
+
             <table>
                 <thead>
                     <tr>
@@ -97,7 +124,8 @@ function ProyectoTable({
 
                             <td>{proyecto.cliente}</td>
 
-                            <td>{proyecto.horas || "0.00h"}</td>
+                          
+                            <td>{formatearHoras(proyecto)}</td>
 
                             <td>{proyecto.progreso || "—"}</td>
 
