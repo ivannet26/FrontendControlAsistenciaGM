@@ -1003,3 +1003,43 @@
     
     color: white;
 }
+/* =========================
+   BLOQUES DE SEMANA Y DÍA
+========================= */
+
+.semana-bloque {
+    margin-top: 25px;
+}
+
+.semana-header {
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    background: #0a1218;
+    color: #9aa8b3;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    border: 1px solid #263943;
+    border-bottom: none;
+}
+
+.semana-total {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.semana-total strong {
+    color: #10a5f5;
+    font-size: 14px;
+}
+
+.semana-bloque .registro-container {
+    border-top: none;
+    margin-top: 0;
+    margin-bottom: 15px;
+}

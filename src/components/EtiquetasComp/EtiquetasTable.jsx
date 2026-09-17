@@ -38,8 +38,22 @@ function EtiquetasTable({
 
         const rect = e.currentTarget.getBoundingClientRect();
 
+        // Altura estimada del menú según cuántas opciones tenga
+        // (Activo = 1 opción, Archivado = 2 opciones)
+        const etiquetaActual = etiquetas.find(x => x.id === id);
+        const numOpciones = etiquetaActual?.estado === "Activo" ? 1 : 2;
+        const alturaMenu = numOpciones * 40 + 16; // 40px por botón + padding
+
+        // Espacio disponible debajo del botón
+        const espacioAbajo = window.innerHeight - rect.bottom;
+
+        // Si no cabe, abrimos hacia arriba
+        const abrirHaciaArriba = espacioAbajo < alturaMenu;
+
         setMenuPos({
-            top: rect.bottom + 4,
+            top: abrirHaciaArriba
+                ? rect.top - alturaMenu - 4
+                : rect.bottom + 4,
             right: window.innerWidth - rect.right
         });
 
