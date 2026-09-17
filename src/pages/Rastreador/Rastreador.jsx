@@ -15,6 +15,66 @@ import {
 } from "../../services/tareasService";
 
 
+// =====================================
+// HELPERS DE FECHA (fuera del componente)
+// =====================================
+
+// Genera un "key" tipo "2026-09-16" en HORA LOCAL
+const fechaKey = (fecha) => {
+    const d = new Date(fecha);
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const dia = String(d.getDate()).padStart(2, "0");
+    return `${y}-${m}-${dia}`;
+};
+
+// Devuelve el lunes de la semana de una fecha (para agrupar por semana)
+const lunesDeSemana = (fecha) => {
+    const d = new Date(fecha);
+    const dia = d.getDay(); // 0=domingo, 1=lunes...
+    const diff = dia === 0 ? -6 : 1 - dia;
+    d.setDate(d.getDate() + diff);
+    d.setHours(0, 0, 0, 0);
+    return d;
+};
+
+// Formato bonito: "Hoy", "Ayer" o "lun, 16 sep"
+const formatearFechaGrupo = (fechaKeyStr) => {
+    const hoy = new Date();
+    const ayer = new Date();
+    ayer.setDate(hoy.getDate() - 1);
+
+    if (fechaKeyStr === fechaKey(hoy)) return "Hoy";
+    if (fechaKeyStr === fechaKey(ayer)) return "Ayer";
+
+    // Interpretar la fecha como local
+    const [y, m, d] = fechaKeyStr.split("-").map(Number);
+    const fecha = new Date(y, m - 1, d);
+
+    return fecha.toLocaleDateString("es-ES", {
+        weekday: "short",
+        day: "numeric",
+        month: "short"
+    });
+};
+
+// Formato semana: "Esta semana", "La semana pasada", "Semana del X"
+const formatearSemanaGrupo = (lunes) => {
+    const hoy = new Date();
+    const lunesActual = lunesDeSemana(hoy);
+    const lunesAnterior = new Date(lunesActual);
+    lunesAnterior.setDate(lunesActual.getDate() - 7);
+
+    if (lunes.getTime() === lunesActual.getTime()) return "Esta semana";
+    if (lunes.getTime() === lunesAnterior.getTime()) return "La semana pasada";
+
+    return lunes.toLocaleDateString("es-ES", {
+        day: "numeric",
+        month: "long"
+    });
+};
+
+
 function Rastreador() {
 
     const [actividad, setActividad] = useState("");
@@ -379,6 +439,46 @@ function Rastreador() {
     );
 
 
+    // =====================================
+    // AGRUPAR REGISTROS POR SEMANA Y DÍA
+    // =====================================
+
+    const registrosAgrupados = (() => {
+        const semanas = {};
+
+        registros.forEach((r) => {
+            const fecha = new Date(r.horaInicio);
+            const lunes = lunesDeSemana(fecha);
+            const semanaKey = fechaKey(lunes);
+
+            if (!semanas[semanaKey]) {
+                semanas[semanaKey] = {
+                    lunes,
+                    total: 0,
+                    dias: {}
+                };
+            }
+
+            const diaKey = fechaKey(fecha);
+
+            if (!semanas[semanaKey].dias[diaKey]) {
+                semanas[semanaKey].dias[diaKey] = {
+                    fecha,
+                    total: 0,
+                    registros: []
+                };
+            }
+
+            semanas[semanaKey].dias[diaKey].registros.push(r);
+            semanas[semanaKey].dias[diaKey].total += r.tiempo || 0;
+            semanas[semanaKey].total += r.tiempo || 0;
+        });
+
+        // Ordenar semanas de más reciente a más antigua
+        return Object.values(semanas).sort((a, b) => b.lunes - a.lunes);
+    })();
+
+
     return (
         <div className="tracker-page">
 
@@ -410,87 +510,111 @@ function Rastreador() {
             />
 
 
-            <div className="registro-container">
+            {/* =====================================
+                REGISTROS AGRUPADOS POR SEMANA Y DÍA
+            ===================================== */}
 
-                <div className="registro-header">
-                    <span>Hoy</span>
+            {registrosAgrupados.map((semana) => (
+                <div key={fechaKey(semana.lunes)} className="semana-bloque">
 
-                    <div className="registro-total">
-                        <span>Total:</span>
-                        <strong>{formatoTiempo(totalTiempo)}</strong>
+                    {/* HEADER DE SEMANA */}
+                    <div className="semana-header">
+                        <span>{formatearSemanaGrupo(semana.lunes)}</span>
+                        <div className="semana-total">
+                            <span>Total semanal:</span>
+                            <strong>{formatoTiempo(semana.total)}</strong>
+                        </div>
                     </div>
+
+
+                    {/* DÍAS DE LA SEMANA */}
+                    {Object.entries(semana.dias)
+                        .sort(([a], [b]) => b.localeCompare(a))
+                        .map(([diaKey, dia]) => (
+                            <div key={diaKey} className="registro-container">
+
+                                {/* HEADER DEL DÍA */}
+                                <div className="registro-header">
+                                    <span>{formatearFechaGrupo(diaKey)}</span>
+                                    <div className="registro-total">
+                                        <span>Total:</span>
+                                        <strong>{formatoTiempo(dia.total)}</strong>
+                                    </div>
+                                </div>
+
+
+                                {/* REGISTROS DEL DÍA */}
+                                {dia.registros.map(registro => (
+                                    <div className="registro-row" key={registro.id}>
+
+                                        <div className="registro-actividad">
+                                            {registro.actividad}
+                                        </div>
+
+                                        <div className="registro-proyecto">
+                                            <span
+                                                className="punto"
+                                                style={{
+                                                    backgroundColor:
+                                                        registro.proyecto?.color || "#10b981"
+                                                }}
+                                            />
+                                            <span
+                                                style={{
+                                                    color:
+                                                        registro.proyecto?.color || "#10b981"
+                                                }}
+                                            >
+                                                {registro.proyecto?.nombre || "Sin proyecto"}
+
+                                                {registro.tarea && (
+                                                    <span className="registro-tarea">
+                                                        {" - "}
+                                                        {registro.tarea.nombre}
+                                                    </span>
+                                                )}
+                                            </span>
+                                        </div>
+
+                                        <div className="registro-tags">
+                                            {registro.etiquetas?.map(e => (
+                                                <span className="tag" key={e.id}>
+                                                    {e.nombre}
+                                                </span>
+                                            ))}
+                                        </div>
+
+                                        <div className="registro-hora">
+                                            {formatoHora(registro.horaInicio)}
+                                            {" - "}
+                                            {formatoHora(registro.horaFin)}
+                                        </div>
+
+                                        <div className="registro-tiempo">
+                                            {formatoTiempo(registro.tiempo)}
+                                        </div>
+
+                                        <div className="registro-actions">
+                                            <button onClick={() => continuarRegistro(registro)}>
+                                                ▶
+                                            </button>
+                                            <button onClick={(e) => abrirMenu(e, registro.id)}>
+                                                ⋮
+                                            </button>
+                                        </div>
+
+                                    </div>
+                                ))}
+
+                            </div>
+                        ))
+                    }
+
                 </div>
+            ))}
 
 
-                {registros.map(registro => (
-                    <div className="registro-row" key={registro.id}>
-
-                        <div className="registro-actividad">
-                            {registro.actividad}
-                        </div>
-
-                        <div className="registro-proyecto">
-
-                            <span
-                                className="punto"
-                                style={{
-                                    backgroundColor:
-                                        registro.proyecto?.color || "#10b981"
-                                }}
-                            />
-
-                            <span
-                                style={{
-                                    color:
-                                        registro.proyecto?.color || "#10b981"
-                                }}
-                            >
-                                {registro.proyecto?.nombre || "Sin proyecto"}
-
-                                {registro.tarea && (
-                                    <span className="registro-tarea">
-                                        {" - "}
-                                        {registro.tarea.nombre}
-                                    </span>
-                                )}
-                            </span>
-
-                        </div>
-
-                        <div className="registro-tags">
-                            {registro.etiquetas?.map(e => (
-                                <span className="tag" key={e.id}>
-                                    {e.nombre}
-                                </span>
-                            ))}
-                        </div>
-
-                        <div className="registro-hora">
-                            {formatoHora(registro.horaInicio)}
-                            {" - "}
-                            {formatoHora(registro.horaFin)}
-                        </div>
-
-                        <div className="registro-tiempo">
-                            {formatoTiempo(registro.tiempo)}
-                        </div>
-
-                        <div className="registro-actions">
-                            <button onClick={() => continuarRegistro(registro)}>
-                                ▶
-                            </button>
-                            <button onClick={(e) => abrirMenu(e, registro.id)}>
-                                ⋮
-                            </button>
-                        </div>
-
-                    </div>
-                ))}
-
-            </div>
-
-
-            {/* MENÚ CONTEXTUAL (fuera del map, una sola vez) */}
+            {/* MENÚ CONTEXTUAL */}
             {menuAbierto && createPortal(
                 <div
                     className="menu-registro-portal"
