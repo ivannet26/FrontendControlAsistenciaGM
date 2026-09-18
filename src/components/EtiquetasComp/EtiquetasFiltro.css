@@ -1,90 +1,215 @@
-.filtro-dropdown{
+/* ============================================================
+   CONTENEDOR PRINCIPAL
+   ============================================================ */
 
-    position:relative;
-
+.etiquetas-container {
+    width: 100%;
+    max-width: 100%;
+    padding: 8px;
+    box-sizing: border-box;
+    margin: 0 auto;
+    overflow-x: hidden;
 }
 
+/* ============================================================
+   TÍTULO
+   ============================================================ */
 
-.filtro-btn{
-
-
-    height:55px;
-
-    padding:0 20px;
-
-    background:transparent;
-
-    border:none;
-
-    border-right:1px solid #344650;
-
-    color:#d3dde3;
-
-    font-size:14px;
-
-    cursor:pointer;
-
-
+.etiquetas-top {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    width: 100%;
+    box-sizing: border-box;
 }
 
-
-
-.dropdown-panel{
-
-
-    position:absolute;
-
-    top:58px;
-
-    left:0;
-
-    width:190px;
-
-    background:#101b22;
-
-    border:1px solid #344650;
-
-    z-index:1000;
-
+.etiquetas-top h1 {
+    color: #d9e1e5;
+    font-size: 28px;
+    font-weight: 400;
+    margin: 9px;
 }
 
+/* ============================================================
+   CONTENEDOR INTERNO
+   ============================================================ */
 
+.etiquetas-contenedor {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
 
-.dropdown-panel label{
+    background: #101b22;
+    border: 1px solid #263740;
 
+    padding: 19px;
 
-    display:flex;
+    margin: 0 auto;
 
-    align-items:center;
-
-    gap:10px;
-
-    padding:12px 15px;
-
-    color:#d3dde3;
-
-    font-size:14px;
-
-    cursor:pointer;
-
-
+    overflow: visible;
 }
 
+/* ============================================================
+   FILTROS
+   ============================================================ */
 
+.etiquetas-filtros {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
 
-.dropdown-panel label:hover{
+    background: #111d24;
+    border: 1px solid #273943;
 
-    background:#1d303a;
+    margin-bottom: 30px;
+    margin-left: 0;
+    margin-right: 0;
 
+    display: flex;
+    align-items: center;
+    flex-wrap: nowrap;
+
+    gap: 0;
+
+    overflow: visible;
+    min-width: 0;
+
+    position: relative;
+    left: 0;
+    right: auto;
+    transform: none;
 }
 
+/* ============================================================
+   TABLA
+   ============================================================ */
 
-.dropdown-panel input{
+.etiquetas-tabla-container {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
 
-    width:14px;
+    background: #101b22;
+    border: 1px solid #263740;
 
-    height:14px;
+    overflow-x: auto;
+    overflow-y: visible;
 
-    accent-color:#10a5f5;
+    margin: 0;
 
+    position: relative;
+    z-index: 1;
+}
+
+.etiquetas-tabla-container table {
+    width: 100%;
+    min-width: 0;
+    border-collapse: collapse;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media (max-width: 900px) {
+    .etiquetas-container {
+        padding: 8px;
+    }
+
+    .etiquetas-contenedor {
+        padding: 14px;
+    }
+}
+
+@media (max-width: 700px) {
+    .etiquetas-container {
+        padding: 6px;
+    }
+
+    .etiquetas-contenedor {
+        padding: 10px;
+    }
+
+    .etiquetas-top h1 {
+        font-size: 22px;
+        margin: 8px 0;
+    }
+}
+
+@media (max-width: 500px) {
+    .etiquetas-container {
+        padding: 4px;
+    }
+
+    .etiquetas-contenedor {
+        padding: 8px;
+    }
+
+    .etiquetas-top h1 {
+        font-size: 20px;
+        margin: 6px 0;
+    }
+}
+
+@media (max-width: 380px) {
+    .etiquetas-contenedor {
+        padding: 6px;
+    }
+
+    .etiquetas-top h1 {
+        font-size: 18px;
+    }
+}
+.etiquetas-buscador {
+    flex: 1 1 auto;      /* ← controla si crece o se encoge */
+    min-width: 0;        /* ← ancho mínimo */
+    max-width: 100%;     /* ← ancho máximo */
+}
+/* ---------- BUSCADOR BASE ---------- */
+
+.etiquetas-buscador {
+    flex: 1 1 auto;
+    min-width: 0;
+    max-width: 400px;   /* 👈 AJUSTA AQUÍ en desktop */
+
+    height: 36px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    background: #162630;
+    border: 1px solid #344650;
+
+    padding: 0 10px;
+
+    box-sizing: border-box;
+    overflow: hidden;
+
+    color: #ffffff;
+}
+
+/* ---------- MÓVIL ---------- */
+
+@media (max-width: 900px) {
+    .etiquetas-buscador {
+        max-width: 320px;   /* 👈 AJUSTA */
+    }
+}
+
+@media (max-width: 700px) {
+    .filtros-izquierda {
+        display: none;
+    }
+}
+
+@media (max-width: 600px) {
+    .etiquetas-buscador {
+        max-width: 160px;   /* 👈 AJUSTA */
+    }
+}
+
+@media (max-width: 500px) {
+    .etiquetas-buscador {
+        max-width: 135px;   /* 👈 AJUSTA */
+    }
 }

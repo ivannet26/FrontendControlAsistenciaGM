@@ -66,3 +66,62 @@
     margin-top: 4px;
     padding-top: 9px !important;
 }
+/* ============================================================
+   EXPORTAR RESPONSIVE
+   ============================================================ */
+
+.boton-exportar-container {
+
+    flex-shrink: 0;
+
+}
+
+
+.boton-exportar {
+
+    white-space: nowrap;
+
+}
+
+
+
+/* =========================
+   MÓVIL
+========================= */
+
+
+@media(max-width:700px){
+
+
+    .boton-exportar {
+
+        height:34px;
+
+        padding:0 10px;
+
+        font-size:11px;
+
+        gap:4px;
+
+    }
+
+
+    .menu-exportar {
+
+        min-width:160px;
+
+        right:0;
+
+    }
+
+
+    .menu-exportar button {
+
+        padding:8px 10px;
+
+        font-size:12px;
+
+    }
+
+
+}

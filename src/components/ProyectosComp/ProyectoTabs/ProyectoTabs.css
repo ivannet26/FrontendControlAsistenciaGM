@@ -25,4 +25,87 @@
 .tab-btn.activo {
     background: #162630;
     color: white;
+}@media(max-width:500px){
+
+
+.encargados-popover {
+
+    width:280px;
+
+    max-width:90vw;
+
+}
+
+
+.encargados-btn {
+
+    max-width:150px;
+
+}
+
+
+}/* =========================
+   TABS RESPONSIVE
+========================= */
+
+.proyecto-tabs {
+
+    display:flex;
+
+    width:100%;
+
+    overflow-x:auto;
+
+    overflow-y:hidden;
+
+}
+
+
+.tab-btn {
+
+    flex-shrink:0;
+
+    white-space:nowrap;
+
+}
+
+
+/* Scroll horizontal */
+
+.proyecto-tabs::-webkit-scrollbar {
+
+    height:6px;
+
+}
+
+
+.proyecto-tabs::-webkit-scrollbar-thumb {
+
+    background:#344650;
+
+}
+
+
+.proyecto-tabs::-webkit-scrollbar-track {
+
+    background:#101b22;
+
+}
+
+
+
+/* MÓVIL */
+
+@media(max-width:700px){
+
+
+    .tab-btn {
+
+        padding:12px 18px;
+
+        font-size:12px;
+
+    }
+
+
 }

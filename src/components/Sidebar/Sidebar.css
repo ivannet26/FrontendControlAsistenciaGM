@@ -1,35 +1,185 @@
+/* ============================================================
+   SIDEBAR CONTAINER
+   ============================================================ */
+
 .sidebar-container {
   position: relative;
   height: 100vh;
+  flex-shrink: 0;
 }
+
 .ps-menu-root {
-    padding-top: 10px !important;
+  padding-top: 10px !important;
 }
-.sidebar-header {
-  height: 65px;
+
+/* ============================================================
+   TRANSICIONES SUAVES
+   ============================================================ */
+
+.ps-sidebar-root {
+  transition: width 0.4s ease, min-width 0.4s ease !important;
+}
+
+.ps-sidebar-container {
+  transition: width 0.4s ease !important;
+}
+
+/* ============================================================
+   ITEMS DEL MENÚ (base)
+   ============================================================ */
+
+.ps-menu-button {
+  height: 40px !important;
+  padding-left: 18px !important;
+  padding-right: 14px !important;
+
+  border-left: none !important;
 
   display: flex;
   align-items: center;
 
-  padding: 0 20px;
-
-  color: #ffffff;
+  transition:
+    padding 0.3s ease,
+    background-color 0.2s ease,
+    color 0.2s ease !important;
 }
 
-.sidebar-title {
-  font-family: "Segoe UI", Arial, sans-serif;
-  font-size: 18px;
-  font-weight: 500;
+.ps-menu-icon {
+  min-width: 32px !important;
+  margin-right: 6px !important;
 
-  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+
+  transition: margin 0.3s ease, color 0.2s ease !important;
 }
 
+.ps-menu-label {
+  font-size: 13px !important;
+  letter-spacing: 0.5px;
+  transition: opacity 0.3s ease !important;
+}
 
-/* BOTON CONTRAER / EXPANDIR */
+/* ============================================================
+   COLOR BASE (gris claro)
+   ============================================================ */
+
+.ps-sidebar-container .ps-menu-button,
+.ps-sidebar-container .ps-menu-button .ps-menu-label,
+.ps-sidebar-container .ps-menu-button .ps-menu-icon,
+.ps-sidebar-container .ps-menu-button .ps-menu-icon svg,
+.ps-sidebar-container .ps-menu-button svg,
+.ps-sidebar-container .ps-menu-button svg * {
+  color: #a9bcc7 !important;
+  stroke: #a9bcc7 !important;
+  fill: none !important;
+  -webkit-text-fill-color: #a9bcc7 !important;
+}
+
+/* ============================================================
+   HOVER
+   ============================================================ */
+
+.ps-sidebar-container .ps-menu-button:hover {
+  background-color: #1a2a32 !important;
+}
+
+.ps-sidebar-container .ps-menu-button:hover,
+.ps-sidebar-container .ps-menu-button:hover .ps-menu-label,
+.ps-sidebar-container .ps-menu-button:hover .ps-menu-icon,
+.ps-sidebar-container .ps-menu-button:hover svg,
+.ps-sidebar-container .ps-menu-button:hover svg * {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+/* ============================================================
+   ITEM ACTIVO
+   ============================================================ */
+
+.ps-sidebar-container .ps-menu-button.ps-active,
+.ps-sidebar-container .ps-menu-button[aria-current="page"],
+.ps-sidebar-container .ps-menu-button[aria-current="true"] {
+  background-color: #2a3a42 !important;
+}
+
+.ps-sidebar-container .ps-menu-button.ps-active .ps-menu-label,
+.ps-sidebar-container .ps-menu-button.ps-active .ps-menu-icon,
+.ps-sidebar-container .ps-menu-button.ps-active .ps-menu-icon svg,
+.ps-sidebar-container .ps-menu-button.ps-active svg,
+.ps-sidebar-container .ps-menu-button.ps-active svg *,
+.ps-sidebar-container .ps-menu-button[aria-current="page"] .ps-menu-label,
+.ps-sidebar-container .ps-menu-button[aria-current="page"] svg,
+.ps-sidebar-container .ps-menu-button[aria-current="page"] svg * {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+/* ============================================================
+   ✨ SIDEBAR COLAPSADO — CENTRAR ÍCONOS
+   ============================================================ */
+
+.ps-collapsed .ps-menu-button {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  justify-content: center !important;
+}
+
+.ps-collapsed .ps-menu-icon {
+  min-width: 0 !important;
+  margin-right: 0 !important;
+
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ps-collapsed .ps-menu-label {
+  display: none !important;
+}
+
+/* Mantener el ícono grande y centrado */
+.ps-collapsed .ps-menu-icon svg {
+  width: 22px;
+  height: 22px;
+}
+
+/* ============================================================
+   SECCIONES
+   ============================================================ */
+
+.menu-section {
+  margin-top: 14px;
+  margin-bottom: 6px;
+  padding-left: 18px;
+
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: #6f8391;
+  text-transform: uppercase;
+
+  transition: opacity 0.2s ease, padding 0.3s ease;
+}
+
+.ps-collapsed .menu-section {
+  opacity: 0;
+  height: 0;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+/* ============================================================
+   BOTÓN CONTRAER
+   ============================================================ */
 
 .sidebar-toggle {
   position: absolute;
-
   top: 40%;
   right: -5px;
 
@@ -41,7 +191,6 @@
   justify-content: center;
 
   padding: 0;
-
   border: none;
   border-radius: 2px;
 
@@ -49,12 +198,9 @@
   color: #8fa4ae;
 
   cursor: pointer;
-
   z-index: 20;
 
-  transition:
-    background-color 0.2s ease,
-    color 0.2s ease;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 .sidebar-toggle:hover {
@@ -62,124 +208,92 @@
   color: #ffffff;
 }
 
-/*LOGO*/
-.sidebar-header {
-  height: 65px;
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media (max-width: 1200px) and (min-width: 769px) {
+  .sidebar-container { width: 60px; }
+}
+
+@media (max-width: 768px) {
+
+  .sidebar-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 999;
+    width: 0;
+  }
+
+  .sidebar-container .ps-sidebar-root {
+    position: fixed;
+    top: 60px;
+    left: 0;
+    bottom: 0;
+    width: 220px;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.5);
+    z-index: 999;
+  }
+
+  .sidebar-container.sidebar-movil-abierto .ps-sidebar-root {
+    transform: translateX(0);
+  }
+
+  .sidebar-toggle { display: none; }
+
+  .sidebar-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 998;
+    animation: fadeIn 0.2s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+}
+
+/* ============================================================
+   BOTÓN FLOTANTE MÓVIL
+   ============================================================ */
+
+.sidebar-toggle-movil {
+  position: fixed;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+
+  width: 22px;
+  height: 40px;
+
+  background: #1b2a32;
+  border: none;
+  border-radius: 0 4px 4px 0;
+
+  color: #8fa4ae;
+  font-size: 14px;
+  font-weight: 400;
+
+  cursor: pointer;
+  z-index: 1000;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  padding: 0 12px;
+  transition: left 0.25s ease, background 0.15s, color 0.15s;
 }
 
-.sidebar-logo {
-  width: 170px;
-  max-width: 100%;
-  height: auto;
-
-  object-fit: contain;
-
-  transition: width 0.2s ease;
+.sidebar-toggle-movil:hover {
+  background: #263840;
+  color: #ffffff;
 }
 
-.sidebar-logo.collapsed {
-  width: 42px;
-}
-.menu-section {
-  margin-top: 22px;
-  margin-bottom: 10px;
-
-  padding-left: 20px;
-
-  font-size: 13px;
-  font-weight: 500;
-
-  letter-spacing: 0.5px;
-
-  color: #8fa4ae;
-}
-
-/* Reducir espacio general de los items */
-.ps-menu-button {
-    height: 42px !important;
-    padding-left: 12px !important;
-}
-
-
-/* Reducir separación entre icono y texto */
-.ps-menu-icon {
-    min-width: 25px !important;
-    margin-right: 3px !important;
-}
-
-
-/* Texto del menú */
-.ps-menu-label {
-    font-size: 14px !important;
-    letter-spacing: -0.4px;
-}
-.informes-panel {
-
-    position: fixed;
-
-    left: 200px; /* ancho de tu sidebar */
-
-    top: 203px; /* altura donde está INFORMES */
-
-    width: 150px;
-
-    background:#111c22;
-
-    z-index:999;
-
-    padding:10px 0;
-
-    border-left:1px solid #263943;
-
-}
-
-
-
-.informes-item {
-
-    height:40px;
-
-    display:flex;
-
-    align-items:center;
-
-    padding-left:20px;
-
-    color:#a9bcc7;
-
-    font-size:14px;
-
-}
-
-
-.informes-title {
-
-    padding:12px 20px 8px;
-
-    color:#8ea0af;
-
-    font-size:12px;
-
-}
-
-.informes-item:hover {
-
-    background:#24343d;
-
-    color:white;
-
-}
-
-
-
-.informes-item.active {
-
-    background:#24343d;
-
+.sidebar-container.sidebar-movil-abierto .sidebar-toggle-movil {
+  left: 220px;
 }

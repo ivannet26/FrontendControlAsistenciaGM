@@ -22,195 +22,526 @@ function ProyectoTable({
 
 
     useEffect(() => {
+
         const cerrarMenu = (e) => {
-            if (menuRef.current && !menuRef.current.contains(e.target)) {
+
+            if(menuRef.current && !menuRef.current.contains(e.target)){
+
                 setMenuAbierto(null);
+
             }
+
         };
 
+
         document.addEventListener("mousedown", cerrarMenu);
-        return () => document.removeEventListener("mousedown", cerrarMenu);
+
+        return () =>
+            document.removeEventListener("mousedown", cerrarMenu);
+
+
     }, []);
 
 
-    const cambiarFavorito = (id) => {
-        setFavoritos(prev => ({ ...prev, [id]: !prev[id] }));
+
+    const cambiarFavorito = (id)=>{
+
+        setFavoritos(prev=>({
+            ...prev,
+            [id]: !prev[id]
+        }));
+
     };
 
 
-    const abrirMenu = (e, id) => {
+
+    const abrirMenu = (e,id)=>{
+
         e.stopPropagation();
 
         const rect = e.currentTarget.getBoundingClientRect();
 
+
         setMenuPos({
+
             top: rect.bottom + 4,
+
             right: window.innerWidth - rect.right
+
         });
 
-        setMenuAbierto(menuAbierto === id ? null : id);
+
+        setMenuAbierto(
+            menuAbierto === id ? null : id
+        );
+
     };
 
 
-    
-    const formatearHoras = (proyecto) => {
-    // Preferir segundos exactos si están disponibles
-    let totalSegundos;
-
-    if (proyecto.segundos_registrados != null) {
-        totalSegundos = proyecto.segundos_registrados;
-    } else {
-        // Fallback: convertir horas a segundos (con redondeo)
-        totalSegundos = Math.round((proyecto.horas_registradas || 0) * 3600);
-    }
-
-    if (totalSegundos === 0) return "0m";
-
-    const h = Math.floor(totalSegundos / 3600);
-    const m = Math.floor((totalSegundos % 3600) / 60);
-    const s = totalSegundos % 60;
-
-    if (h > 0) return m > 0 ? `${h}h ${m}m` : `${h}h`;
-    if (m > 0) return s > 0 ? `${m}m ${s}s` : `${m}m`;
-    return `${s}s`;
-};
 
 
 
+    const formatearHoras = (proyecto)=>{
 
-    const proyectoMenu = proyectos.find(p => p.id === menuAbierto);
+
+        let totalSegundos;
+
+
+        if(proyecto.segundos_registrados != null){
+
+            totalSegundos = proyecto.segundos_registrados;
+
+        }else{
+
+            totalSegundos = Math.round(
+                (proyecto.horas_registradas || 0) * 3600
+            );
+
+        }
+
+
+        if(totalSegundos === 0) return "0m";
+
+
+        const h = Math.floor(totalSegundos / 3600);
+
+        const m = Math.floor(
+            (totalSegundos % 3600) / 60
+        );
+
+        const s = totalSegundos % 60;
+
+
+
+        if(h > 0)
+
+            return m > 0
+            ? `${h}h ${m}m`
+            : `${h}h`;
+
+
+        if(m > 0)
+
+            return s > 0
+            ? `${m}m ${s}s`
+            : `${m}m`;
+
+
+        return `${s}s`;
+
+    };
+
+
+
+
+
+    const proyectoMenu =
+        proyectos.find(
+            p => p.id === menuAbierto
+        );
+
+
 
 
     return (
+
         <div className="tabla-container">
+
+
             <div className="tabla-header-tareas">
-                <span>Proyectos</span>
+
+                <span>
+                    Proyectos
+                </span>
+
             </div>
 
-            <table>
-                <thead>
-                    <tr>
-                        <th><input type="checkbox" /></th>
-                        <th>NOMBRE ⇅</th>
-                        <th>CLIENTE ⇅</th>
-                        <th>REGISTRADO ⇅</th>
-                        <th>PROGRESO ⇅</th>
-                        <th>ACCESO</th>
-                        <th className="col-acciones"></th>
-                    </tr>
-                </thead>
 
-                <tbody>
-                    {proyectos.map((proyecto) => (
+
+            {/* SOLO SE AGREGA ESTE CONTENEDOR */}
+
+            <div className="tabla-scroll">
+
+
+                <table>
+
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                <input type="checkbox"/>
+                            </th>
+
+
+                            <th>
+                                NOMBRE ⇅
+                            </th>
+
+
+                            <th>
+                                CLIENTE ⇅
+                            </th>
+
+
+                            <th>
+                                REGISTRADO ⇅
+                            </th>
+
+
+                            <th>
+                                PROGRESO ⇅
+                            </th>
+
+
+                            <th>
+                                ACCESO
+                            </th>
+
+
+                            <th className="col-acciones">
+
+                            </th>
+
+
+                        </tr>
+
+                    </thead>
+
+
+
+                    <tbody>
+
+
+                    {
+
+                    proyectos.map((proyecto)=>(
+
+
                         <tr
-                            key={proyecto.id}
-                            className={proyecto.archivado ? "fila-archivada" : ""}
+
+                        key={proyecto.id}
+
+                        className={
+                            proyecto.archivado
+                            ?
+                            "fila-archivada"
+                            :
+                            ""
+                        }
+
                         >
-                            <td><input type="checkbox" /></td>
+
+
 
                             <td>
-                                <span
-                                    className="nombre-proyecto"
-                                    onClick={() => navigate(`/app/proyectos/${proyecto.id}`)}
-                                    style={{ cursor: "pointer", display: "inline-flex", alignItems: "center" }}
-                                >
-                                    <span
-                                        className="punto"
-                                        style={{ background: proyecto.color || "#10b981" }}
-                                    />
-                                    {proyecto.nombre}
-                                </span>
+
+                                <input type="checkbox"/>
+
                             </td>
 
-                            <td>{proyecto.cliente}</td>
 
-                          
-                            <td>{formatearHoras(proyecto)}</td>
 
-                            <td>{proyecto.progreso || "—"}</td>
 
-                            <td>{proyecto.acceso || "Público"}</td>
+                            <td>
+
+
+                                <span
+
+                                className="nombre-proyecto"
+
+                                onClick={()=>
+                                    navigate(
+                                    `/app/proyectos/${proyecto.id}`
+                                    )
+                                }
+
+                                style={{
+                                    cursor:"pointer",
+                                    display:"inline-flex",
+                                    alignItems:"center"
+                                }}
+
+                                >
+
+
+                                    <span
+
+                                    className="punto"
+
+                                    style={{
+                                        background:
+                                        proyecto.color ||
+                                        "#10b981"
+                                    }}
+
+                                    />
+
+
+                                    {proyecto.nombre}
+
+
+                                </span>
+
+
+                            </td>
+
+
+
+
+
+                            <td>
+
+                                {proyecto.cliente}
+
+                            </td>
+
+
+
+
+                            <td>
+
+                                {formatearHoras(proyecto)}
+
+                            </td>
+
+
+
+
+                            <td>
+
+                                {proyecto.progreso || "—"}
+
+                            </td>
+
+
+
+
+                            <td>
+
+                                {proyecto.acceso || "Público"}
+
+                            </td>
+
+
+
 
                             <td className="col-acciones">
+
+
                                 <div className="acciones">
 
+
                                     <Star
-                                        size={20}
-                                        className={favoritos[proyecto.id] ? "star activo" : "star"}
-                                        onClick={() => cambiarFavorito(proyecto.id)}
+
+                                    size={20}
+
+                                    className={
+                                        favoritos[proyecto.id]
+                                        ?
+                                        "star activo"
+                                        :
+                                        "star"
+                                    }
+
+                                    onClick={()=>
+                                        cambiarFavorito(
+                                            proyecto.id
+                                        )
+                                    }
+
                                     />
+
+
 
                                     <MoreVertical
-                                        size={20}
-                                        className="menu-icon"
-                                        onClick={(e) => abrirMenu(e, proyecto.id)}
+
+                                    size={20}
+
+                                    className="menu-icon"
+
+                                    onClick={(e)=>
+                                        abrirMenu(
+                                            e,
+                                            proyecto.id
+                                        )
+                                    }
+
                                     />
+
+
                                 </div>
+
+
                             </td>
+
+
+
                         </tr>
-                    ))}
-                </tbody>
-            </table>
 
 
-            {menuAbierto && proyectoMenu && createPortal(
+                    ))
+
+                    }
+
+
+                    </tbody>
+
+
+                </table>
+
+
+            </div>
+
+
+
+
+
+            {
+            menuAbierto &&
+            proyectoMenu &&
+            createPortal(
+
 
                 <div
-                    className="menu-opciones-portal"
-                    ref={menuRef}
-                    style={{
-                        position: "fixed",
-                        top: menuPos.top,
-                        right: menuPos.right,
-                        zIndex: 9999999
-                    }}
+
+                className="menu-opciones-portal"
+
+                ref={menuRef}
+
+                style={{
+
+                    position:"fixed",
+
+                    top:menuPos.top,
+
+                    right:menuPos.right,
+
+                    zIndex:9999999
+
+                }}
+
                 >
+
+
+
                     <button
-                        onClick={() => {
-                            editarProyecto(proyectoMenu);
-                            setMenuAbierto(null);
-                        }}
+
+                    onClick={()=>{
+
+                        editarProyecto(proyectoMenu);
+
+                        setMenuAbierto(null);
+
+                    }}
+
                     >
+
                         Editar
+
                     </button>
 
-                    {!proyectoMenu.archivado ? (
-                        <button
-                            onClick={() => {
-                                archivarProyecto(proyectoMenu.id);
-                                setMenuAbierto(null);
-                            }}
-                        >
-                            Archivar
-                        </button>
-                    ) : (
-                        <>
-                            <button
-                                onClick={() => {
-                                    restaurarProyecto(proyectoMenu.id);
-                                    setMenuAbierto(null);
-                                }}
-                            >
-                                Restaurar
-                            </button>
 
-                            <button
-                                onClick={() => {
-                                    eliminarProyecto(proyectoMenu.id);
-                                    setMenuAbierto(null);
-                                }}
-                            >
-                                Eliminar
-                            </button>
+
+
+
+                    {
+
+                    !proyectoMenu.archivado ?
+
+                    (
+
+                        <button
+
+                        onClick={()=>{
+
+                            archivarProyecto(
+                                proyectoMenu.id
+                            );
+
+                            setMenuAbierto(null);
+
+                        }}
+
+                        >
+
+                            Archivar
+
+                        </button>
+
+
+                    )
+
+                    :
+
+                    (
+
+                        <>
+
+
+                        <button
+
+                        onClick={()=>{
+
+                            restaurarProyecto(
+                                proyectoMenu.id
+                            );
+
+                            setMenuAbierto(null);
+
+                        }}
+
+                        >
+
+                            Restaurar
+
+                        </button>
+
+
+
+                        <button
+
+                        onClick={()=>{
+
+                            eliminarProyecto(
+                                proyectoMenu.id
+                            );
+
+                            setMenuAbierto(null);
+
+                        }}
+
+                        >
+
+                            Eliminar
+
+                        </button>
+
+
                         </>
-                    )}
+
+                    )
+
+                    }
+
+
+
                 </div>,
 
+
                 document.body
-            )}
+
+            )
+            }
+
+
 
         </div>
+
     );
+
 }
+
 
 export default ProyectoTable;

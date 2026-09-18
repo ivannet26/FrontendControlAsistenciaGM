@@ -526,3 +526,163 @@
     box-sizing: border-box;
     position: relative;  
 }
+/* =========================
+   TABLA RESPONSIVE
+========================= */
+
+
+.tabla-scroll{
+
+    width:100%;
+
+    overflow-x:auto;
+
+    overflow-y:hidden;
+
+}
+
+
+
+.tabla-scroll table{
+
+    min-width:900px;
+
+    width:100%;
+
+}
+
+
+
+/* scrollbar */
+
+.tabla-scroll::-webkit-scrollbar{
+
+    height:8px;
+
+}
+
+
+.tabla-scroll::-webkit-scrollbar-thumb{
+
+    background:#344650;
+
+}
+
+
+.tabla-scroll::-webkit-scrollbar-track{
+
+    background:#101b22;
+
+}
+
+
+
+/* =========================
+   FILTROS RESPONSIVE
+========================= */
+
+
+@media(max-width:700px){
+
+
+.filtros-container{
+
+    overflow-x:auto;
+
+    flex-wrap:nowrap;
+
+    gap:8px;
+
+    padding:8px;
+
+}
+
+
+
+.filtro-titulo{
+
+    flex-shrink:0;
+
+}
+
+
+
+.filtros-container select{
+
+    flex-shrink:0;
+
+    height:38px;
+
+    padding:8px;
+
+    font-size:12px;
+
+}
+
+
+
+.buscador{
+
+    min-width:180px;
+
+    flex-shrink:0;
+
+}
+
+
+
+.buscador input{
+
+    font-size:12px;
+
+}
+
+
+
+.filtros-container button{
+
+    flex-shrink:0;
+
+    padding:8px 10px;
+
+    font-size:11px;
+
+}
+
+
+}
+
+
+
+/* =========================
+   MODAL RESPONSIVE
+========================= */
+
+
+@media(max-width:500px){
+
+
+.modal-proyecto{
+
+    width:90%;
+
+}
+
+
+
+.modal-footer{
+
+    flex-direction:column;
+
+}
+
+
+
+.modal-footer button{
+
+    width:100%;
+
+}
+
+
+}

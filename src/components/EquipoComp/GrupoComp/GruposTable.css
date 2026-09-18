@@ -214,3 +214,48 @@
     color: #5f6f7a;
     font-size: 14px;
 }
+/* =========================
+   TABLA RESPONSIVE
+========================= */
+
+
+.tabla-scroll{
+
+    width:100%;
+
+    overflow-x:auto;
+
+}
+
+
+.grupos-tabla-container table{
+
+    width:100%;
+
+    min-width:700px;
+
+    border-collapse:collapse;
+
+}
+
+
+
+.tabla-scroll::-webkit-scrollbar{
+
+    height:8px;
+
+}
+
+
+.tabla-scroll::-webkit-scrollbar-thumb{
+
+    background:#344650;
+
+}
+
+
+.tabla-scroll::-webkit-scrollbar-track{
+
+    background:#101b22;
+
+}

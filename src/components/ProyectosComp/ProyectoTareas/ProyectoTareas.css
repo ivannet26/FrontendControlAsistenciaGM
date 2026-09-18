@@ -268,3 +268,131 @@
     color: white;
     border-color: #10a5f5;
 }
+/* =========================
+   TABLA RESPONSIVE
+========================= */
+
+
+.tabla-scroll-tareas {
+
+    width:100%;
+
+    overflow-x:auto;
+
+    overflow-y:hidden;
+
+}
+
+
+
+.tabla-scroll-tareas table {
+
+    width:100%;
+
+    min-width:650px;
+
+}
+
+
+
+/* Scroll */
+
+.tabla-scroll-tareas::-webkit-scrollbar {
+
+    height:8px;
+
+}
+
+
+.tabla-scroll-tareas::-webkit-scrollbar-thumb {
+
+    background:#344650;
+
+}
+
+
+.tabla-scroll-tareas::-webkit-scrollbar-track {
+
+    background:#101b22;
+
+}
+/* =========================
+   TOOLBAR RESPONSIVE
+========================= */
+
+
+@media(max-width:700px){
+
+
+.tareas-toolbar {
+
+    overflow-x:auto;
+
+    flex-wrap:nowrap;
+
+    gap:8px;
+
+    padding:8px;
+
+    height:auto;
+
+}
+
+
+
+.filtro-tareas {
+
+    height:40px;
+
+    padding:0 10px;
+
+    font-size:12px;
+
+    flex-shrink:0;
+
+}
+
+
+
+.buscador-tareas {
+
+    width:180px;
+
+    height:38px;
+
+    margin-left:0;
+
+    flex-shrink:0;
+
+}
+
+
+
+.tareas-toolbar-der {
+
+    margin-left:0;
+
+    padding-right:0;
+
+    flex-shrink:0;
+
+}
+
+
+
+.input-nueva-tarea {
+
+    width:180px;
+
+}
+
+
+
+.btn-anadir-tarea {
+
+    padding:0 15px;
+
+}
+
+
+}

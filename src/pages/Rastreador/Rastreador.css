@@ -1043,3 +1043,365 @@
     margin-top: 0;
     margin-bottom: 15px;
 }
+/* ============================================================
+   RESPONSIVE RASTREADOR MOBILE
+   Mantener barra horizontal con scroll
+============================================================ */
+/* ============================================================
+   RESPONSIVE RASTREADOR MOBILE
+   Scroll horizontal + paneles visibles
+============================================================ */
+
+@media(max-width:768px){
+
+
+    /* =========================
+       BARRA PRINCIPAL
+    ========================= */
+
+    .tracker-header{
+
+        height:60px;
+
+        width:100%;
+
+        display:flex;
+
+        flex-wrap:nowrap;
+
+        align-items:center;
+
+        overflow-x:auto;
+
+        overflow-y:visible;
+
+        gap:10px;
+
+        padding:10px;
+
+        position:relative;
+
+        white-space:nowrap;
+
+        box-sizing:border-box;
+
+    }
+
+
+
+    .tracker-header::-webkit-scrollbar{
+
+        height:4px;
+
+    }
+
+
+
+    .tracker-header::-webkit-scrollbar-thumb{
+
+        background:#10a5f5;
+
+        border-radius:10px;
+
+    }
+
+
+
+    .tracker-header::-webkit-scrollbar-track{
+
+        background:#111c22;
+
+    }
+
+
+
+    /* =========================
+       INPUT ACTIVIDAD
+    ========================= */
+
+    .tracker-header input{
+
+        flex:0 0 220px;
+
+        width:220px;
+
+        height:40px;
+
+    }
+
+
+
+    /* =========================
+       SELECTOR PROYECTO
+    ========================= */
+
+    .project-selector{
+
+        flex-shrink:0;
+
+        position:relative;
+
+        z-index:3000;
+
+    }
+
+
+
+    .project-btn{
+
+        flex-shrink:0;
+
+        height:40px;
+
+        padding:0 10px;
+
+    }
+
+
+
+    /* =========================
+       TAREA ACTIVA
+    ========================= */
+
+    .tarea-activa{
+
+        flex-shrink:0;
+
+        max-width:180px;
+
+        overflow:hidden;
+
+        text-overflow:ellipsis;
+
+        white-space:nowrap;
+
+    }
+
+
+
+    /* =========================
+       ETIQUETAS
+    ========================= */
+
+    .zona-etiquetas{
+
+        flex-shrink:0;
+
+        position:relative;
+
+        z-index:3000;
+
+    }
+
+
+
+    .etiquetas-activas{
+
+        max-width:200px;
+
+        overflow:hidden;
+
+        display:flex;
+
+        align-items:center;
+
+        gap:5px;
+
+    }
+
+
+
+    .etiqueta-activa{
+
+        flex-shrink:0;
+
+    }
+
+
+
+    .etiqueta-selector{
+
+        flex-shrink:0;
+
+        position:relative;
+
+    }
+
+
+
+    .etiqueta-btn{
+
+        flex-shrink:0;
+
+        width:40px;
+
+        height:40px;
+
+    }
+
+
+
+
+    /* =========================
+       TIMER
+    ========================= */
+
+    .timer{
+
+        flex-shrink:0;
+
+        min-width:90px;
+
+        font-size:17px;
+
+    }
+
+
+
+
+    /* =========================
+       BOTONES
+    ========================= */
+
+    .start-btn,
+    .stop-btn{
+
+        flex-shrink:0;
+
+        height:40px;
+
+        padding:0 18px;
+
+    }
+
+
+
+
+
+    /* =========================
+       PANEL PROYECTOS
+    ========================= */
+
+    .project-panel{
+
+        position:fixed !important;
+
+        top:70px;
+
+        left:10px;
+
+        right:10px;
+
+        width:auto;
+
+        max-width:365px;
+
+        max-height:70vh;
+
+        overflow:hidden;
+
+        z-index:9999;
+
+    }
+
+
+
+    .project-list{
+
+        max-height:55vh;
+
+        overflow-y:auto;
+
+        overflow-x:hidden;
+
+    }
+
+
+
+
+    /* =========================
+       PANEL ETIQUETAS
+    ========================= */
+
+    .etiqueta-panel{
+
+        position:fixed !important;
+
+        top:70px;
+
+        left:10px;
+
+        right:10px;
+
+        width:auto;
+
+        max-width:330px;
+
+        max-height:70vh;
+
+        overflow:hidden;
+
+        z-index:9999;
+
+    }
+
+
+
+    .lista-etiquetas{
+
+        max-height:55vh;
+
+        overflow-y:auto;
+
+        overflow-x:hidden;
+
+    }
+
+
+
+
+
+    /* =========================
+       REGISTROS
+    ========================= */
+
+    .registro-container{
+
+        overflow-x:auto;
+
+    }
+
+
+
+    .registro-row{
+
+        min-width:850px;
+
+    }
+
+}
+
+
+
+/* ============================================================
+   AJUSTES GENERALES SELECTORES
+============================================================ */
+
+
+.project-selector,
+.etiqueta-selector{
+
+    flex-shrink:0;
+
+    position:relative;
+
+}
+
+
+
+.project-panel,
+.etiqueta-panel{
+
+    box-sizing:border-box;
+
+}

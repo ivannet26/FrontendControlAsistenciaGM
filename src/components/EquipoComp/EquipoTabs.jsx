@@ -19,12 +19,7 @@ function EquipoTabs({ tabActiva, setTabActiva }) {
                 GRUPOS
             </button>
 
-            <button
-                className={tabActiva === "RECORDATORIOS" ? "activo" : ""}
-                onClick={() => setTabActiva("RECORDATORIOS")}
-            >
-                RECORDATORIOS
-            </button>
+            
 
         </div>
     );

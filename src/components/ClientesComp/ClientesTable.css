@@ -232,4 +232,55 @@
     text-decoration: line-through;
     text-decoration-thickness: 1.5px;
     text-decoration-color: #aebcc5;
+}/* ============================================================
+   RESPONSIVE — Scroll horizontal en móvil
+   ============================================================ */
+
+@media (max-width: 900px) {
+
+    .clientes-tabla-container {
+        overflow-x: auto;
+        overflow-y: visible;
+
+        /* 🔑 Scroll suave */
+        -webkit-overflow-scrolling: touch;
+
+        /* 🔑 Scrollbar delgada y oscura */
+        scrollbar-width: thin;
+        scrollbar-color: #344650 #101b22;
+    }
+
+    .clientes-tabla-container::-webkit-scrollbar {
+        height: 8px;
+    }
+
+    .clientes-tabla-container::-webkit-scrollbar-track {
+        background: #101b22;
+    }
+
+    .clientes-tabla-container::-webkit-scrollbar-thumb {
+        background: #344650;
+        border-radius: 4px;
+    }
+
+    .clientes-tabla-container::-webkit-scrollbar-thumb:hover {
+        background: #4a5c66;
+    }
+
+    /* 🔑 La tabla mantiene su ancho mínimo */
+    .clientes-tabla-container table {
+        min-width: 720px;
+    }
+}
+
+@media (max-width: 700px) {
+    .clientes-tabla-container table {
+        min-width: 640px;
+    }
+}
+
+@media (max-width: 500px) {
+    .clientes-tabla-container table {
+        min-width: 580px;
+    }
 }

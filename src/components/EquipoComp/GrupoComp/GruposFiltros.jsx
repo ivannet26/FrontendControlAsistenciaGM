@@ -1,7 +1,6 @@
 import { Search } from "lucide-react";
-import "../Equipo.css";                  // 👈 sube un nivel
-import "./GruposFiltros.css";            // 👈 su propio CSS
-
+import "../Equipo.css";
+import "./GruposFiltros.css";
 
 function GruposFiltros({
     busqueda,
@@ -16,12 +15,14 @@ function GruposFiltros({
 
             <div className="equipo-buscador">
                 <Search size={18} />
+
                 <input
                     placeholder="Buscar por nombre de grupo..."
                     value={busqueda}
-                    onChange={(e) => setBusqueda(e.target.value)}
+                    onChange={(e)=>setBusqueda(e.target.value)}
                 />
             </div>
+
 
             <div className="grupos-toolbar-der">
 
@@ -29,11 +30,12 @@ function GruposFiltros({
                     className="input-nuevo-grupo"
                     placeholder="Añadir nuevo grupo"
                     value={nuevoGrupo}
-                    onChange={(e) => setNuevoGrupo(e.target.value)}
-                    onKeyDown={(e) => {
-                        if (e.key === "Enter") onCrear();
+                    onChange={(e)=>setNuevoGrupo(e.target.value)}
+                    onKeyDown={(e)=>{
+                        if(e.key==="Enter") onCrear();
                     }}
                 />
+
 
                 <button
                     className="btn-anadir-grupo"

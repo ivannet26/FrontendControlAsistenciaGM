@@ -492,3 +492,125 @@
     background: #24343d;
     color: white;
 }
+/* ============================================================
+   RESPONSIVE — TABLA CON SCROLL HORIZONTAL
+   ============================================================ */
+
+@media (max-width: 900px) {
+
+    .miembros-tabla-container {
+        overflow-x: auto;
+        overflow-y: visible;
+
+        -webkit-overflow-scrolling: touch;
+
+        scrollbar-width: thin;
+        scrollbar-color: #344650 #101b22;
+    }
+
+    .miembros-tabla-container::-webkit-scrollbar {
+        height: 8px;
+    }
+
+    .miembros-tabla-container::-webkit-scrollbar-track {
+        background: #101b22;
+    }
+
+    .miembros-tabla-container::-webkit-scrollbar-thumb {
+        background: #344650;
+        border-radius: 4px;
+    }
+
+    .miembros-tabla-container::-webkit-scrollbar-thumb:hover {
+        background: #4a5c66;
+    }
+
+    /* 🔑 Mantiene el orden y estructura */
+    .miembros-tabla-container table {
+        min-width: 820px;
+    }
+}
+
+@media (max-width: 700px) {
+    .miembros-tabla-container table {
+        min-width: 720px;
+    }
+}
+
+@media (max-width: 500px) {
+    .miembros-tabla-container table {
+        min-width: 660px;
+    }
+}
+
+
+/* ============================================================
+   RESPONSIVE — OCULTAR FILTRO EN MÓVIL
+   ============================================================ */
+
+@media (max-width: 700px) {
+
+    .equipo-filtros .filtros-izquierda {
+        display: none;
+    }
+
+    .equipo-filtros .filtros-derecha {
+        flex: 1 1 auto;
+        width: 100%;
+        padding: 0 10px;
+        gap: 8px;
+    }
+
+    .equipo-buscador {
+        width: 100%;
+        max-width: 100%;
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+}
+
+@media (max-width: 500px) {
+
+    .equipo-filtros {
+        height: 48px;
+    }
+
+    .equipo-buscador {
+        height: 36px;
+        padding: 0 10px;
+        gap: 8px;
+    }
+
+    .equipo-buscador input {
+        font-size: 12.5px;
+    }
+
+    .equipo-filtros .aplicar-btn {
+        padding: 0 10px;
+        font-size: 11px;
+        height: 36px;
+    }
+}
+
+@media (max-width: 380px) {
+
+    .equipo-filtros {
+        height: 44px;
+    }
+
+    .equipo-buscador {
+        height: 34px;
+        padding: 0 8px;
+        gap: 6px;
+    }
+
+    .equipo-buscador input {
+        font-size: 12px;
+    }
+
+    .equipo-filtros .aplicar-btn {
+        padding: 0 8px;
+        font-size: 10px;
+        height: 34px;
+    }
+}

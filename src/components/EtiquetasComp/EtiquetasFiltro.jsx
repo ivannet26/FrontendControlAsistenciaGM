@@ -379,13 +379,13 @@ function EtiquetasFiltro({
 
 
 
-                <button className="aplicar-btn">
+                {/*<button className="aplicar-btn">
 
 
                     APLICAR FILTRO
 
 
-                </button>
+                </button>*/ }
 
 
 

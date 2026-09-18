@@ -3,59 +3,206 @@
 ========================= */
 
 .grupos-toolbar {
-    width: 100%;
-    height: 55px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: #111d24;
-    border: 1px solid #273943;
-    padding: 0 15px;
-    margin-bottom: 20px;
-    box-sizing: border-box;
-    gap: 15px;
+
+    width:100%;
+    min-height:55px;
+
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+
+    background:#111d24;
+    border:1px solid #273943;
+
+    padding:0 15px;
+
+    box-sizing:border-box;
+
+    gap:15px;
+
 }
 
-.grupos-toolbar-der {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-left: auto;
+
+/* BUSCADOR */
+
+.equipo-buscador {
+
+    height:40px;
+
+    display:flex;
+    align-items:center;
+
+    gap:8px;
+
+    background:#162630;
+
+    border:1px solid #344650;
+
+    padding:0 12px;
+
+    flex:1;
+
+    min-width:0;
+
 }
 
-.input-nuevo-grupo {
-    height: 40px;
-    width: 260px;
-    background: #162630;
-    border: 1px solid #344650;
-    color: white;
-    padding: 0 12px;
-    outline: none;
-    font-size: 14px;
-    border-radius: 3px;
+
+.equipo-buscador svg{
+
+    color:#7a8a96;
+
+    flex-shrink:0;
+
 }
 
-.input-nuevo-grupo::placeholder {
-    color: #5f6f7a;
+
+.equipo-buscador input{
+
+    width:100%;
+
+    background:transparent;
+
+    border:none;
+
+    outline:none;
+
+    color:white;
+
+    font-size:14px;
+
 }
 
-.input-nuevo-grupo:focus {
-    border-color: #10a5f5;
+
+.equipo-buscador input::placeholder{
+
+    color:#5f6f7a;
+
 }
 
-.btn-anadir-grupo {
-    height: 40px;
-    background: #10a5f5;
-    border: none;
-    color: white;
-    padding: 0 22px;
-    cursor: pointer;
-    font-size: 13px;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-    border-radius: 3px;
+
+
+/* DERECHA */
+
+
+.grupos-toolbar-der{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:10px;
+
+    flex-shrink:0;
+
 }
 
-.btn-anadir-grupo:hover {
-    background: #078ed5;
+
+
+.input-nuevo-grupo{
+
+    height:40px;
+
+    width:260px;
+
+    background:#162630;
+
+    border:1px solid #344650;
+
+    color:white;
+
+    padding:0 12px;
+
+    outline:none;
+
+    font-size:14px;
+
+}
+
+
+
+.input-nuevo-grupo::placeholder{
+
+    color:#5f6f7a;
+
+}
+
+
+
+.btn-anadir-grupo{
+
+    height:40px;
+
+    background:#10a5f5;
+
+    border:none;
+
+    color:white;
+
+    padding:0 22px;
+
+    cursor:pointer;
+
+    font-size:13px;
+
+    font-weight:600;
+
+}
+
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+
+@media(max-width:700px){
+
+
+    .grupos-toolbar{
+
+        flex-direction:column;
+
+        align-items:stretch;
+
+        gap:10px;
+
+        padding:12px;
+
+    }
+
+
+    .equipo-buscador{
+
+        width:100%;
+
+        order:1;
+
+    }
+
+
+    .grupos-toolbar-der{
+
+        width:100%;
+
+        order:2;
+
+    }
+
+
+    .input-nuevo-grupo{
+
+        width:100%;
+
+        flex:1;
+
+        min-width:0;
+
+    }
+
+
+    .btn-anadir-grupo{
+
+        padding:0 15px;
+
+    }
+
 }

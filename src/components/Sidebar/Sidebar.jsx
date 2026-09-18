@@ -1,21 +1,17 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import {
     Sidebar as ProSidebar,
     Menu,
-    SubMenu,
     MenuItem,
 } from "react-pro-sidebar";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 import {
     Clock3,
-    CalendarDays,
     CalendarCheck,
     LayoutDashboard,
     ChartNoAxesColumnIncreasing,
-    FolderKanban,
     Users,
-    Settings,
     ChevronsLeft,
     ChevronsRight,
     CircleUserRound,
@@ -27,135 +23,199 @@ import {
 
 import "./Sidebar.css";
 
+
+// Hook para detectar el ancho de pantalla
+function useWindowWidth() {
+    const [width, setWidth] = useState(window.innerWidth);
+    useEffect(() => {
+        const handleResize = () => setWidth(window.innerWidth);
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
+    return width;
+}
+
+
+// 
+const estilosBase = {
+    button: {
+        backgroundColor: "transparent",
+        color: "#a9bcc7",
+        height: "32px",              // 
+        paddingLeft: "18px",
+        "&:hover": {
+            backgroundColor: "#1a2a32",
+            color: "#ffffff",
+        },
+    },
+    icon: {
+        color: "#a9bcc7",
+    },
+    label: {
+        color: "inherit",
+        fontSize: "11px",            // 
+        letterSpacing: "0.5px",
+    },
+};
+
+// 
+const estilosActivo = {
+    button: {
+        backgroundColor: "#2a3a42",
+        color: "#ffffff",
+        height: "38px",
+        paddingLeft: "18px",
+        "&:hover": {
+            backgroundColor: "#2a3a42",
+            color: "#ffffff",
+        },
+    },
+    icon: {
+        color: "#ffffff",
+    },
+    label: {
+        color: "#ffffff",
+        fontSize: "11px",            // 
+        letterSpacing: "0.5px",
+    },
+};
+
+
 function Sidebar({ usuario }) {
-    const [collapsed, setCollapsed] = useState(false);
+
+    const width = useWindowWidth();
+    const esTablet = width <= 1200 && width > 768;
+    const esMovil = width <= 768;
+
+    const [collapsed, setCollapsed] = useState(esTablet);
     const [mostrarMas, setMostrarMas] = useState(false);
-   /* const [informesOpen, setInformesOpen] = useState(false);*/
+    const [movilAbierto, setMovilAbierto] = useState(false);
+
     const rol = usuario?.rol;
     const navigate = useNavigate();
-    const informesRef = useRef(null);
+    const location = useLocation();
+
+    // Auto-colapsar en tablet
     useEffect(() => {
-
-        const cerrarMenu = (e) => {
-
-            if (
-                informesRef.current &&
-                !informesRef.current.contains(e.target)
-            ) {
-
-                setInformesOpen(false);
-
-            }
-
-        };
+        if (esTablet) setCollapsed(true);
+        else if (!esMovil) setCollapsed(false);
+    }, [esTablet, esMovil]);
 
 
-        document.addEventListener(
-            "mousedown",
-            cerrarMenu
-        );
+    // Detectar si una ruta está activa
+    const esActivo = (ruta) => location.pathname === ruta;
+
+    // Devuelve los estilos según si el item está activo
+    const estilos = (ruta) => esActivo(ruta) ? estilosActivo : estilosBase;
 
 
-        return () => {
-
-            document.removeEventListener(
-                "mousedown",
-                cerrarMenu
-            );
-
-        };
+    const irA = (ruta) => {
+        navigate(ruta);
+        if (esMovil) setMovilAbierto(false);
+    };
 
 
-    }, []);
     return (
-        <div className="sidebar-container">
+        <div className={`sidebar-container ${esMovil && movilAbierto ? "sidebar-movil-abierto" : ""}`}>
+
+            {/* Overlay móvil */}
+            {esMovil && movilAbierto && (
+                <div
+                    className="sidebar-overlay"
+                    onClick={() => setMovilAbierto(false)}
+                />
+            )}
 
             <ProSidebar
-                collapsed={collapsed}
-                width="200px"
-                collapsedWidth="60px"
+                collapsed={esMovil ? false : collapsed}
+                width="180px"
+                collapsedWidth="52px"
                 backgroundColor="#111c22"
                 rootStyles={{
                     height: "100vh",
                     borderRight: "none",
+                    transition: "width 1.3s ease",
                 }}
             >
+                <Menu>
 
-
-                <Menu
-                    menuItemStyles={{
-                        button: {
-                            color: "#a9bcc7",
-                            fontSize: "19px",
-                            paddingLeft: "20px",
-
-                            "&:hover": {
-                                backgroundColor: "#24343d",
-                                color: "#ffffff",
-                            },
-                        },
-                    }}
-                >
-
-                    {/* MODULOS PARA TODOS */}
+                    {/* RASTREADOR */}
                     <MenuItem
-                        icon={<Clock3 size={20} />}
-                        onClick={() => navigate("/app/rastreador")}
+                        icon={<Clock3 size={22} />}              // 
+                        onClick={() => irA("/app/rastreador")}
+                        menuItemStyles={estilos("/app/rastreador")}
                     >
                         RASTREADOR
                     </MenuItem>
-                    {!collapsed && (
-                        <div className="menu-section">
-                            ANALIZAR
-                        </div>
+
+                    {!collapsed && !esMovil && (
+                        <div className="menu-section">ANALIZAR</div>
                     )}
+                    {esMovil && (
+                        <div className="menu-section">ANALIZAR</div>
+                    )}
+
+                    {/* PANEL */}
                     <MenuItem
-                        icon={<LayoutDashboard size={20} />}
-                        onClick={() => navigate("/app/panel")}
+                        icon={<LayoutDashboard size={22} />}     // 
+                        onClick={() => irA("/app/panel")}
+                        menuItemStyles={estilos("/app/panel")}
                     >
                         PANEL
                     </MenuItem>
 
+                    {/* INFORMES */}
                     <MenuItem
-                        icon={<ChartNoAxesColumnIncreasing size={19} />}
-                        onClick={() => navigate("/app/informes")}
+                        icon={<ChartNoAxesColumnIncreasing size={22} />}   // 
+                        onClick={() => irA("/app/informes")}
+                        menuItemStyles={estilos("/app/informes")}
                     >
                         INFORMES
                     </MenuItem>
 
-
-                    {!collapsed && (
-                        <div className="menu-section">
-                            GESTIONAR
-                        </div>
+                    {!collapsed && !esMovil && (
+                        <div className="menu-section">GESTIONAR</div>
                     )}
+                    {esMovil && (
+                        <div className="menu-section">GESTIONAR</div>
+                    )}
+
+                    {/* PROYECTOS */}
                     <MenuItem
-                        icon={<LayoutDashboard size={20} />}
-                        onClick={() => navigate("/app/proyectos")}
+                        icon={<LayoutDashboard size={22} />}     // 
+                        onClick={() => irA("/app/proyectos")}
+                        menuItemStyles={estilos("/app/proyectos")}
                     >
                         PROYECTOS
                     </MenuItem>
 
-                    <MenuItem 
-                        icon={<Users size={20} />}
-                        onClick={() => navigate("/app/equipo")}
+                    {/* EQUIPO */}
+                    <MenuItem
+                        icon={<Users size={22} />}               // 
+                        onClick={() => irA("/app/equipo")}
+                        menuItemStyles={estilos("/app/equipo")}
                     >
                         EQUIPO
                     </MenuItem>
 
-                    <MenuItem 
-                        icon={<CircleUserRound size={20} />}
-                             onClick={() => navigate("/app/clientes")}
+                    {/* CLIENTES */}
+                    <MenuItem
+                        icon={<CircleUserRound size={22} />}     // 
+                        onClick={() => irA("/app/clientes")}
+                        menuItemStyles={estilos("/app/clientes")}
                     >
                         CLIENTES
                     </MenuItem>
-                    <MenuItem 
-                        icon={<Tag size={20} />}
-                             onClick={() => navigate("/app/etiquetas")}
+
+                    {/* ETIQUETAS */}
+                    <MenuItem
+                        icon={<Tag size={22} />}                 // 
+                        onClick={() => irA("/app/etiquetas")}
+                        menuItemStyles={estilos("/app/etiquetas")}
                     >
                         ETIQUETAS
                     </MenuItem>
-                    
+
 
                     {/* SOLO ADMIN */}
                     {rol === "ADMINISTRADOR" && (
@@ -163,38 +223,26 @@ function Sidebar({ usuario }) {
                             <MenuItem
                                 icon={
                                     mostrarMas
-                                        ? <ChevronUp size={18} />
-                                        : <ChevronDown size={18} />
+                                        ? <ChevronUp size={20} />     // 
+                                        : <ChevronDown size={20} />   // 
                                 }
                                 onClick={() => setMostrarMas(!mostrarMas)}
+                                menuItemStyles={estilosBase}
                             >
                                 {mostrarMas ? "MOSTRAR MENOS" : "MOSTRAR MÁS"}
                             </MenuItem>
                             {mostrarMas && (
                                 <>
-                                    {/*<MenuItem icon={<LayoutDashboard size={19} />}>
-                                        QUIOSCOS
-                                    </MenuItem>
-
-                                    <MenuItem icon={<FolderKanban size={19} />}>
-                                        PLAN
-                                    </MenuItem>
-                                    
-                                    <MenuItem icon={<ChartNoAxesColumnIncreasing size={19} />}>
-                                        GASTOS
-                                    </MenuItem>
-
-                                    <MenuItem icon={<Clock3 size={19} />}>
-                                        BAJAS
-                                    </MenuItem>
-
-                                    <MenuItem icon={<ChartNoAxesColumnIncreasing size={19} />}>
-                                        ACTIVIDAD
-                                    </MenuItem>*/ }
-                                    <MenuItem icon={<CalendarCheck size={19} />}>
+                                    <MenuItem
+                                        icon={<CalendarCheck size={20} />}    // 0
+                                        menuItemStyles={estilosBase}
+                                    >
                                         APROBACIONES
                                     </MenuItem>
-                                    <MenuItem icon={<FileText size={19} />}>
+                                    <MenuItem
+                                        icon={<FileText size={20} />}         // 
+                                        menuItemStyles={estilosBase}
+                                    >
                                         FACTURAS
                                     </MenuItem>
                                 </>
@@ -204,75 +252,29 @@ function Sidebar({ usuario }) {
 
                 </Menu>
 
-                {/* BOTON PARA CONTRAER */}
-                <button
-                    type="button"
-                    className="sidebar-toggle"
-                    onClick={() => setCollapsed(!collapsed)}
-                >
-                    {collapsed ? (
-                        <ChevronsRight size={16} />
-                    ) : (
-                        <ChevronsLeft size={16} />
-                    )}
-                </button>
-
+                {/* BOTÓN CONTRAER */}
+                {!esMovil && (
+                    <button
+                        type="button"
+                        className="sidebar-toggle"
+                        onClick={() => setCollapsed(!collapsed)}
+                    >
+                        {collapsed ? <ChevronsRight size={14} /> : <ChevronsLeft size={14} />}
+                    </button>
+                )}
             </ProSidebar>
-            {/*{informesOpen && (
 
-                <div
-                    className="informes-panel"
-                    ref={informesRef}
+            {/* BOTÓN FLOTANTE MÓVIL */}
+            {esMovil && (
+                <button
+                    className="sidebar-toggle-movil"
+                    onClick={() => setMovilAbierto(!movilAbierto)}
+                    aria-label="Abrir menú"
                 >
+                    {movilAbierto ? "‹‹" : "››"}
+                </button>
+            )}
 
-                    <div className="informes-title">
-                        TIEMPO
-                    </div>
-
-                    <div className="informes-item active">
-                        Resumido
-                    </div>
-
-                    <div className="informes-item">
-                        Detallado
-                    </div>
-
-                    <div className="informes-item">
-                        Semanal
-                    </div>
-
-                    <div className="informes-item">
-                        Compartido
-                    </div>
-
-
-                    <div className="informes-title">
-                        EQUIPO
-                    </div>
-
-
-                    <div className="informes-item">
-                        Asistencia
-                    </div>
-
-                    <div className="informes-item">
-                        Asignaciones
-                    </div>
-
-
-                    <div className="informes-title">
-                        GASTO
-                    </div>
-
-
-                    <div className="informes-item">
-                        Detallado
-                    </div>
-
-
-                </div>
-
-            )}*/}
         </div>
     );
 }

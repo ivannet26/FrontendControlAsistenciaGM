@@ -64,87 +64,175 @@ function GruposTable({
 
 
     return (
-        <div className="grupos-tabla-container">
 
-            <div className="tabla-header">
-                <span>Grupos</span>
-                <button>Exportar ▾</button>
-            </div>
+<div className="grupos-tabla-container">
 
-            <table>
-                <thead>
-                    <tr>
-                        <th
-                            className="th-ordenable"
-                            onClick={() => cambiarOrden("nombre")}
+
+    <div className="tabla-header">
+
+        <span>Grupos</span>
+
+        <button>
+            Exportar ▾
+        </button>
+
+    </div>
+
+
+    <div className="tabla-scroll">
+
+
+        <table>
+
+
+            <thead>
+
+                <tr>
+
+                    <th
+                    className="th-ordenable"
+                    onClick={()=>cambiarOrden("nombre")}
+                    >
+
+                        <span>NOMBRE</span>
+
+                        {iconoOrden("nombre")}
+
+                    </th>
+
+
+                    <th
+                    className="th-ordenable"
+                    onClick={()=>cambiarOrden("acceso")}
+                    >
+
+                        <span>ACCESO</span>
+
+                        {iconoOrden("acceso")}
+
+                    </th>
+
+
+                    <th className="col-acciones-grupo">
+
+                    </th>
+
+
+                </tr>
+
+            </thead>
+
+
+
+            <tbody>
+
+
+            {
+            gruposOrdenados.length===0 ?
+
+            (
+
+            <tr>
+
+                <td colSpan="3">
+
+                    No hay grupos creados
+
+                </td>
+
+            </tr>
+
+            )
+
+            :
+
+            gruposOrdenados.map((grupo)=>(
+
+            <tr key={grupo.id}>
+
+
+                <td>
+
+                    <span className="grupo-nombre">
+
+                        {grupo.nombre}
+
+                    </span>
+
+                </td>
+
+
+                <td>
+
+                    <span className="grupo-miembros">
+
+                    {
+                    grupo.miembros &&
+                    grupo.miembros.length>0
+                    ?
+                    grupo.miembros.join(", ")
+                    :
+                    "Sin miembros"
+                    }
+
+                    </span>
+
+                </td>
+
+
+                <td className="col-acciones-grupo">
+
+
+                    <div className="grupo-acciones">
+
+
+                        <button
+                        className="btn-icono"
+                        onClick={()=>editarGrupo(grupo)}
                         >
-                            <span>NOMBRE</span>
-                            {iconoOrden("nombre")}
-                        </th>
 
-                        <th
-                            className="th-ordenable"
-                            onClick={() => cambiarOrden("acceso")}
+                            <Pencil size={16}/>
+
+                        </button>
+
+
+
+                        <button
+                        className="btn-icono"
+                        onClick={()=>eliminarGrupo(grupo.id)}
                         >
-                            <span>ACCESO</span>
-                            {iconoOrden("acceso")}
-                        </th>
 
-                        <th className="col-acciones-grupo"></th>
-                    </tr>
-                </thead>
+                            <X size={18}/>
 
-                <tbody>
-                    {gruposOrdenados.length === 0 ? (
-                        <tr>
-                            <td colSpan="3" style={{ textAlign: "center", padding: 30 }}>
-                                No hay grupos creados
-                            </td>
-                        </tr>
-                    ) : (
-                        gruposOrdenados.map((grupo) => (
-                            <tr key={grupo.id}>
-                                <td>
-                                    <span className="grupo-nombre">
-                                        {grupo.nombre}
-                                    </span>
-                                </td>
+                        </button>
 
-                                <td>
-                                    <span className="grupo-miembros">
-                                        {grupo.miembros && grupo.miembros.length > 0
-                                            ? grupo.miembros.join(", ")
-                                            : "Sin miembros"}
-                                    </span>
-                                </td>
 
-                                <td className="col-acciones-grupo">
-                                    <div className="grupo-acciones">
-                                        <button
-                                            className="btn-icono"
-                                            onClick={() => editarGrupo(grupo)}
-                                            title="Editar grupo"
-                                        >
-                                            <Pencil size={16} />
-                                        </button>
+                    </div>
 
-                                        <button
-                                            className="btn-icono"
-                                            onClick={() => eliminarGrupo(grupo.id)}
-                                            title="Eliminar grupo"
-                                        >
-                                            <X size={18} />
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        ))
-                    )}
-                </tbody>
-            </table>
 
-        </div>
-    );
+                </td>
+
+
+            </tr>
+
+
+            ))
+
+            }
+
+
+            </tbody>
+
+
+        </table>
+
+
+    </div>
+
+
+</div>
+
+);
 }
 
 export default GruposTable;
