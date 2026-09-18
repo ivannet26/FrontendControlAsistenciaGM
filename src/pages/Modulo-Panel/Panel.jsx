@@ -7,6 +7,7 @@ import PanelGraficoBarras from "../../components/PanelComp/PanelGraficoBarras";
 import PanelDonut from "../../components/PanelComp/PanelDonut";
 import PanelTopActividades from "../../components/PanelComp/PanelTopActividades";
 import PanelActividadEquipo from "../../components/PanelComp/PanelActividadEquipo";
+import LoadingOverlay from "../../components/Loading/LoadingOverlay";
 
 import {
     obtenerResumenTiempo,
@@ -44,6 +45,11 @@ const calcularRangoSemana = (offsetSemanas) => {
     };
 };
 
+// Timeout helper
+const timeout = (ms) => new Promise((_, reject) =>
+    setTimeout(() => reject(new Error("Tiempo de espera agotado")), ms)
+);
+
 
 // ============================================================
 // COMPONENTE
@@ -61,21 +67,14 @@ function Panel() {
     const [error, setError] = useState(null);
 
 
-    // ============================================================
-    // CARGA INICIAL + AUTO-REFRESH cada 30 segundos
-    // ============================================================
     useEffect(() => {
-
-        // Cargar inmediatamente
         cargarTodo();
 
-        // Intervalo de actualización
         const intervalo = setInterval(() => {
-            cargarTodo(true);  // ← true = modo "silencioso" (sin loader)
-        }, 30000);  // 30 segundos
+            cargarTodo(true);
+        }, 30000);
 
         return () => clearInterval(intervalo);
-
     }, [offsetSemana, usuarioFiltro]);
 
 
@@ -86,30 +85,38 @@ function Panel() {
         try {
             const { fecha_inicio, fecha_fin } = calcularRangoSemana(offsetSemana);
 
-            // Siempre cargamos el resumen
-            const res = await obtenerResumenTiempo({
-                fecha_inicio,
-                fecha_fin,
-                usuario_filtro: usuarioFiltro
-            });
+            // Cargar resumen con timeout
+            const res = await Promise.race([
+                obtenerResumenTiempo({
+                    fecha_inicio,
+                    fecha_fin,
+                    usuario_filtro: usuarioFiltro
+                }),
+                timeout(15000)
+            ]);
             setDatos(res);
 
-            // Si es "equipo", cargamos también la actividad de cada uno
+            // Cargar equipo SOLO si el filtro es "equipo"
             if (usuarioFiltro === "equipo") {
-                const resEquipo = await obtenerActividadEquipo({
-                    fecha_inicio,
-                    fecha_fin
-                });
-                setEquipo(resEquipo);
+                try {
+                    const resEquipo = await Promise.race([
+                        obtenerActividadEquipo({ fecha_inicio, fecha_fin }),
+                        timeout(15000)
+                    ]);
+                    setEquipo(resEquipo);
+                } catch (errEquipo) {
+                    console.error("Error cargando equipo:", errEquipo);
+                    setEquipo(null);   // no rompemos la página
+                }
             } else {
                 setEquipo(null);
             }
 
         } catch (err) {
             console.error("Error cargando panel:", err);
-            setError(err.message);
+            setError(err.message || "Error al cargar");
         } finally {
-            if (!silencioso) setCargando(false);
+            setCargando(false);   // ← SIEMPRE se ejecuta
         }
     };
 
@@ -124,14 +131,6 @@ function Panel() {
     // RENDER
     // ============================================================
 
-    if (cargando) {
-        return (
-            <div className="panel-page">
-                <div className="panel-loading">Cargando panel...</div>
-            </div>
-        );
-    }
-
     if (error) {
         return (
             <div className="panel-page">
@@ -140,7 +139,7 @@ function Panel() {
         );
     }
 
-    if (!datos) {
+    if (!datos && !cargando) {
         return (
             <div className="panel-page">
                 <div className="panel-error">Sin datos disponibles</div>
@@ -152,44 +151,54 @@ function Panel() {
     return (
         <div className="panel-page">
 
-            <PanelFiltros
-                labelSemana={datos.label_semana}
-                usuarioFiltro={usuarioFiltro}
-                setUsuarioFiltro={setUsuarioFiltro}
-                onAnterior={semanaAnterior}
-                onSiguiente={semanaSiguiente}
-                puedeAvanzar={offsetSemana < 0}
+            {/* 👇 OVERLAY DE CARGA */}
+            <LoadingOverlay
+                visible={cargando}
+                texto="Cargando"
+                subtexto="Por favor espere"
             />
 
-            <div className="panel-layout">
-
-                <div className="panel-main">
-
-                    <PanelKpis
-                        tiempoTotal={datos.tiempo_total}
-                        tiempoHoy={datos.tiempo_hoy}
-                        proyectoPrincipal={datos.proyecto_principal}
-                        clientePrincipal={datos.cliente_principal || "—"}
+            {datos && (
+                <>
+                    <PanelFiltros
+                        labelSemana={datos.label_semana}
+                        usuarioFiltro={usuarioFiltro}
+                        setUsuarioFiltro={setUsuarioFiltro}
+                        onAnterior={semanaAnterior}
+                        onSiguiente={semanaSiguiente}
+                        puedeAvanzar={offsetSemana < 0}
                     />
 
-                    <PanelGraficoBarras datos={datos.por_dia} />
+                    <div className="panel-layout">
 
-                    <PanelDonut
-                        datos={datos.por_proyecto}
-                        total={datos.tiempo_total}
-                    />
+                        <div className="panel-main">
 
-                </div>
+                            <PanelKpis
+                                tiempoTotal={datos.tiempo_total}
+                                tiempoHoy={datos.tiempo_hoy}
+                                proyectoPrincipal={datos.proyecto_principal}
+                                clientePrincipal={datos.cliente_principal || "—"}
+                            />
 
-                <div className="panel-side">
-                    <PanelTopActividades actividades={datos.top_actividades} />
-                </div>
+                            <PanelGraficoBarras datos={datos.por_dia} />
 
-            </div>
+                            <PanelDonut
+                                datos={datos.por_proyecto}
+                                total={datos.tiempo_total}
+                            />
 
-            {/* Contenedor de equipo SOLO cuando el filtro es "equipo" */}
-            {usuarioFiltro === "equipo" && equipo && (
-                <PanelActividadEquipo miembros={equipo.miembros} />
+                        </div>
+
+                        <div className="panel-side">
+                            <PanelTopActividades actividades={datos.top_actividades} />
+                        </div>
+
+                    </div>
+
+                    {usuarioFiltro === "equipo" && equipo && (
+                        <PanelActividadEquipo miembros={equipo.miembros} />
+                    )}
+                </>
             )}
 
         </div>

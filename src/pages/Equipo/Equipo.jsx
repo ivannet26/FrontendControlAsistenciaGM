@@ -26,14 +26,14 @@ import {
 function Equipo() {
 
     const [mostrarModal, setMostrarModal] = useState(false);
-    const [mostrarModalGrupo, setMostrarModalGrupo] = useState(false);   // 👈 NUEVO
+    const [mostrarModalGrupo, setMostrarModalGrupo] = useState(false);   
 
     const [busqueda, setBusqueda] = useState("");
-    const [busquedaGrupo, setBusquedaGrupo] = useState("");              // 👈 NUEVO
-    const [nuevoGrupo, setNuevoGrupo] = useState("");                    // 👈 NUEVO
+    const [busquedaGrupo, setBusquedaGrupo] = useState("");              
+    const [nuevoGrupo, setNuevoGrupo] = useState("");                    
 
     const [miembroEditar, setMiembroEditar] = useState(null);
-    const [grupoEditar, setGrupoEditar] = useState(null);                // 👈 NUEVO
+    const [grupoEditar, setGrupoEditar] = useState(null);                
 
     const [rolFiltro, setRolFiltro] = useState("Todos");
     const [grupoFiltro, setGrupoFiltro] = useState("Todos");

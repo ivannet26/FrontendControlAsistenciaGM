@@ -21,6 +21,7 @@ import Equipo from "./pages/Equipo/Equipo.jsx";
 import Clientes from "./pages/Clientes/Clientes.jsx";
 import Etiquetas from "./pages/Etiquetas/Etiquetas.jsx";
 import InformesPage from "./pages/Informes/InformesPage.jsx";
+
 function App() {
 
   return (
@@ -29,24 +30,20 @@ function App() {
 
       <Routes>
 
-
         <Route
           path="/"
           element={<Navigate to="/login" replace />}
         />
-
 
         <Route
           path="/login"
           element={<Login />}
         />
 
-
         <Route
           path="/registro"
           element={<Register />}
         />
-
 
         {/* LAYOUT PRINCIPAL */}
 
@@ -54,43 +51,59 @@ function App() {
           path="/app"
           element={<LayoutPrincipal />}
         >
+          
+          <Route
+            index
+            element={<Navigate to="/app/rastreador" replace />}
+          />
 
           <Route
             path="rastreador"
             element={<Rastreador />}
           />
-          
+
           <Route
             path="panel"
             element={<Panel />}
           />
+
           <Route
             path="informes"
             element={<InformesPage />}
           />
-          
+
           <Route
             path="proyectos"
             element={<Proyectos />}
           />
+
           <Route
             path="proyectos/:id"
             element={<DetalleProyecto />}
           />
+
           <Route
             path="equipo"
             element={<Equipo />}
           />
+
           <Route
             path="clientes"
             element={<Clientes />}
           />
+
           <Route
             path="etiquetas"
             element={<Etiquetas />}
           />
+
         </Route>
-      
+
+        
+        <Route
+          path="*"
+          element={<Navigate to="/app/rastreador" replace />}
+        />
 
       </Routes>
 
@@ -99,6 +112,5 @@ function App() {
   );
 
 }
-
 
 export default App;
