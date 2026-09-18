@@ -1,6 +1,7 @@
 // src/components/InformesComp/InformeSemanal.jsx
 import { useEffect, useState } from "react";
 import { obtenerDatosInforme } from "../../services/informesService";
+import { Calendar, ChevronLeft, ChevronRight } from "lucide-react";
 import BotonExportar from "./BotonExportar";
 import FiltrosInforme from "./FiltrosInforme";
 import "./InformeSemanal.css";
@@ -48,10 +49,7 @@ const InformeSemanal = () => {
 
     const formatearFecha = (iso) => {
         const [y, m, d] = iso.split("-");
-        const fecha = new Date(y, m - 1, d);
-        const meses = ["ene", "feb", "mar", "abr", "may", "jun",
-            "jul", "ago", "sep", "oct", "nov", "dic"];
-        return `${meses[fecha.getMonth()]}. ${fecha.getDate()}, ${fecha.getFullYear()}`;
+        return `${d}/${m}/${y}`;
     };
 
     const formatear = (seg) => {
@@ -67,7 +65,7 @@ const InformeSemanal = () => {
 
     const totalSegundos = datos?.tiempo_total || 0;
 
-    // ✅ MISMA PALETA QUE EL PANEL
+    //  MISMA PALETA QUE EL PANEL
     const colores = [
         "#10a5f5", // azul (principal)
         "#10a878", // verde
@@ -87,11 +85,16 @@ const InformeSemanal = () => {
 
                 <div className="panel-actions">
                     <div className="panel-date-selector">
-                        <button onClick={() => cambiarSemana(-1)}>‹</button>
+                        <button onClick={() => cambiarSemana(-1)}>
+                            <ChevronLeft size={16} />
+                        </button>
                         <span>
-                            📅 {formatearFecha(fechaDesde)} - {formatearFecha(fechaHasta)}
+                            <Calendar size={14} />
+                            {formatearFecha(fechaDesde)} - {formatearFecha(fechaHasta)}
                         </span>
-                        <button onClick={() => cambiarSemana(1)}>›</button>
+                        <button onClick={() => cambiarSemana(1)}>
+                            <ChevronRight size={16} />
+                        </button>
                     </div>
 
                     <BotonExportar

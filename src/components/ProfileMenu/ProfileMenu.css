@@ -1,149 +1,183 @@
-.profile-menu{
+/* ============================================================
+   PROFILE MENU - Estilo formal
+   ============================================================ */
 
-    position:absolute;
+.profile-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    width: 260px;
 
-    right:10px;
+    border-radius: 0;
 
-    top:55px;
+    background: #0f1a20;
+    border: 1px solid #24343d;
 
-    width:300px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55);
 
-    background:#111c22;
+    z-index: 9999;
 
-    border-radius:10px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 
-    overflow:hidden;
-
-    color:#b8c7d1;
-
-    z-index:1000;
-
+    animation: profileSlideDown 0.15s ease-out;
 }
 
-
-.profile-header{
-
-    text-align:center;
-
-    padding:20px;
-
+@keyframes profileSlideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
+/* ---------- CABECERA ---------- */
 
-.avatar-big{
+.profile-menu-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
 
-    width:65px;
-    height:65px;
+    padding: 14px 16px;
 
-    margin:auto;
-
-    background:#00a88f;
-
-    border-radius:8px;
-
-    display:flex;
-
-    align-items:center;
-    justify-content:center;
-
-    font-size:35px;
-
-    color:white;
-
+    background: #0b1419;
+    border-bottom: 1px solid #24343d;
 }
 
+.profile-menu-avatar {
+    width: 40px;
+    height: 40px;
 
+    border-radius: 8px;
 
-.profile-header h3{
+    background: #08a88a;
+    border: none;
 
-    color:white;
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff;
 
-    margin:12px 0 5px;
-
-}
-
-
-.profile-header p {
-
-    color: #9aaab5;
-
+    font-family: inherit;
     font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    line-height: 1;
 
-    font-weight: 400;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
-    margin-top: 5px;
-
+    flex-shrink: 0;
 }
 
-
-
-.account-btn{
-
-    width:85%;
-
-    margin:0 auto 15px;
-
-    display:block;
-
-    background:#344550;
-
-    color:white;
-
-    border:none;
-
-    padding:12px;
-
-    border-radius:7px;
-
-    font-weight:bold;
-
+.profile-menu-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+    flex: 1;
 }
 
-
-
-.profile-option{
-
-    display:flex;
-
-    align-items:center;
-
-    gap:15px;
-
-    padding:15px 22px;
-
-    border-top:1px solid #26343d;
-
-    cursor:pointer;
-
-}
-
-
-
-.profile-option:hover{
-
-    background:#24343d;
-
-    color:white;
-
-}
-
-
-
-.logout{
-
-    color:#d6dfe5;
-
-}
-.profile-name {
-
-    color: #ffffff;
-
-    font-size: 17px;
-
+.profile-menu-info strong {
+    color: #d9e1e5;
+    font-size: 13px;
     font-weight: 500;
 
-    margin-top: 12px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
 
-    text-align: center;
+.profile-menu-info span {
+    color: #6f8391;
+    font-size: 11.5px;
 
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* ---------- ROL ---------- */
+
+.profile-menu-rol {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    padding: 7px 16px;
+
+    background: #0b1419;
+    border-bottom: 1px solid #24343d;
+
+    color: #7a8a96;
+    font-size: 10.5px;
+    font-weight: 500;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+}
+
+/* ---------- DIVISOR ---------- */
+
+.profile-menu-divider {
+    height: 1px;
+    background: #24343d;
+}
+
+/* ---------- ITEMS ---------- */
+
+.profile-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    width: 100%;
+
+    padding: 11px 16px;
+
+    background: transparent;
+    border: none;
+
+    color: #c5d1d8;
+    font-size: 13px;
+    font-family: inherit;
+    font-weight: 400;
+
+    text-align: left;
+    cursor: pointer;
+
+    transition: background 0.15s;
+}
+
+.profile-menu-item:hover {
+    background: #16242c;
+    color: #ffffff;
+}
+
+.profile-menu-item svg {
+    color: #6f8391;
+    flex-shrink: 0;
+}
+
+.profile-menu-item:hover svg {
+    color: #c5d1d8;
+}
+
+/* ---------- CERRAR SESIÓN ---------- */
+
+.profile-menu-danger {
+    color: #c5d1d8;
+}
+
+.profile-menu-danger svg {
+    color: #6f8391;
+}
+
+.profile-menu-danger:hover {
+    background: #16242c;
+    color: #ffffff;
+}
+
+.profile-menu-danger:hover svg {
+    color: #c5d1d8;
 }

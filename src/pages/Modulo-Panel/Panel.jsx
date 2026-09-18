@@ -66,6 +66,9 @@ function Panel() {
     const [cargando, setCargando] = useState(true);
     const [error, setError] = useState(null);
 
+    
+    const rangoActual = calcularRangoSemana(offsetSemana);
+
 
     useEffect(() => {
         cargarTodo();
@@ -151,7 +154,7 @@ function Panel() {
     return (
         <div className="panel-page">
 
-            {/* 👇 OVERLAY DE CARGA */}
+            {/* OVERLAY DE CARGA */}
             <LoadingOverlay
                 visible={cargando}
                 texto="Cargando"
@@ -167,6 +170,8 @@ function Panel() {
                         onAnterior={semanaAnterior}
                         onSiguiente={semanaSiguiente}
                         puedeAvanzar={offsetSemana < 0}
+                        fechaInicio={rangoActual.fecha_inicio}
+                        fechaFin={rangoActual.fecha_fin}
                     />
 
                     <div className="panel-layout">

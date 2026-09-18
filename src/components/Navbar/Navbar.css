@@ -1,3 +1,7 @@
+/* ============================================================
+   NAVBAR PRINCIPAL
+   ============================================================ */
+
 .navbar-principal {
   width: 100%;
   height: 60px;
@@ -9,13 +13,15 @@
   padding: 0 20px;
 
   background-color: #0f1a20;
-
   border-bottom: 1px solid #24343d;
 
   box-sizing: border-box;
-
   flex-shrink: 0;
+
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
+
+/* ---------- LOGO ---------- */
 
 .navbar-logo {
   display: flex;
@@ -28,54 +34,49 @@
   object-fit: contain;
 }
 
+/* ---------- INFO ---------- */
+
 .navbar-info {
   display: flex;
   align-items: center;
   gap: 14px;
 
-  font-family: "Inter", sans-serif;
   font-size: 14px;
-
   color: #c5d1d8;
 }
 
+/* ---------- AVATAR ---------- */
+
 .navbar-avatar {
+  width: 40px;
+  height: 40px;
 
-    width: 35px;
-    height: 35px;
+  border-radius: 8px;
 
-    border-radius: 10px;
+  background: #08a88a;
+  border: none;
 
-    border: none;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff;
 
-    background: #08a88a;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  line-height: 1;
 
-    color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
-    font-size: 16px;
-
-    font-weight: 600;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    cursor: pointer;
-
-    transition: 0.2s ease;
-
+  cursor: pointer;
+  transition: 0.2s ease;
 }
-
 
 .navbar-avatar:hover {
-
-    background: #079477;
-
+  background: #079477;
 }
-.profile-container{
 
-    position:relative;
-
+.profile-container {
+  position: relative;
 }
