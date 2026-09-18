@@ -30,7 +30,7 @@ import "./Sidebar.css";
 function Sidebar({ usuario }) {
     const [collapsed, setCollapsed] = useState(false);
     const [mostrarMas, setMostrarMas] = useState(false);
-    const [informesOpen, setInformesOpen] = useState(false);
+   /* const [informesOpen, setInformesOpen] = useState(false);*/
     const rol = usuario?.rol;
     const navigate = useNavigate();
     const informesRef = useRef(null);
@@ -118,7 +118,7 @@ function Sidebar({ usuario }) {
 
                     <MenuItem
                         icon={<ChartNoAxesColumnIncreasing size={19} />}
-                        onClick={() => setInformesOpen(!informesOpen)}
+                        onClick={() => navigate("/app/informes")}
                     >
                         INFORMES
                     </MenuItem>
@@ -218,7 +218,7 @@ function Sidebar({ usuario }) {
                 </button>
 
             </ProSidebar>
-            {informesOpen && (
+            {/*{informesOpen && (
 
                 <div
                     className="informes-panel"
@@ -272,7 +272,7 @@ function Sidebar({ usuario }) {
 
                 </div>
 
-            )}
+            )}*/}
         </div>
     );
 }
