@@ -20,6 +20,7 @@ import DetalleProyecto from "./pages/Proyectos/DetalleProyecto/DetalleProyecto.j
 import Equipo from "./pages/Equipo/Equipo.jsx";
 import Clientes from "./pages/Clientes/Clientes.jsx";
 import Etiquetas from "./pages/Etiquetas/Etiquetas.jsx";
+import InformesPage from "./pages/Informes/InformesPage.jsx";
 function App() {
 
   return (
@@ -62,6 +63,10 @@ function App() {
           <Route
             path="panel"
             element={<Panel />}
+          />
+          <Route
+            path="informes"
+            element={<InformesPage />}
           />
           
           <Route

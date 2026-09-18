@@ -1,0 +1,98 @@
+/* ============================================================
+   BARRA DE FILTROS (estilo panel)
+   ============================================================ */
+
+.filtros-informe {
+    background: #101b22;
+    border: 1px solid #263740;
+    padding: 10px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.filtros-fila {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.filtro {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.filtro label {
+    color: #9eacb5;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 4px 6px;
+}
+
+.filtro select,
+.filtro input {
+    height: 30px;
+    padding: 0 10px;
+    background: #111d24;
+    border: 1px solid #344650;
+    color: #d3dde3;
+    font-size: 12px;
+    outline: none;
+    box-sizing: border-box;
+}
+
+.filtro select:focus,
+.filtro input:focus {
+    border-color: #10a5f5;
+}
+
+.filtro select option {
+    background: #101b22;
+    color: #d3dde3;
+}
+
+.filtro input::placeholder {
+    color: #6b7d88;
+}
+
+.filtros-acciones {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-aplicar {
+    height: 32px;
+    padding: 0 16px;
+    background: #10a5f5;
+    border: 1px solid #10a5f5;
+    color: white;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    transition: background 0.15s;
+}
+
+.btn-aplicar:hover {
+    background: #1eb5ff;
+}
+
+.btn-limpiar {
+    height: 32px;
+    padding: 0 12px;
+    background: transparent;
+    border: 1px solid #344650;
+    color: #aebcc5;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.btn-limpiar:hover {
+    background: #162630;
+    color: #d3dde3;
+}

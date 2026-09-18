@@ -1,0 +1,68 @@
+/* ============================================================
+   BOTÓN EXPORTAR (estilo panel)
+   ============================================================ */
+
+.boton-exportar-container {
+    position: relative;
+    display: inline-block;
+}
+
+.boton-exportar {
+    height: 38px;
+    padding: 0 15px;
+    background: #111d24;
+    border: 1px solid #344650;
+    color: #dbe4ee;
+    cursor: pointer;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.15s;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.boton-exportar:hover {
+    background: #162630;
+}
+
+.boton-exportar:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.menu-exportar {
+    position: absolute;
+    top: calc(100% + 4px);
+    right: 0;
+    min-width: 200px;
+    background: #101b22;
+    border: 1px solid #344650;
+    z-index: 9999;
+    padding: 4px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.7);
+}
+
+.menu-exportar button {
+    width: 100%;
+    background: none;
+    border: none;
+    color: #d3dde3;
+    text-align: left;
+    padding: 9px 12px;
+    cursor: pointer;
+    font-size: 13px;
+    border-radius: 3px;
+}
+
+.menu-exportar button:hover {
+    background: #24343d;
+    color: white;
+}
+
+.menu-exportar-ultimo {
+    border-top: 1px solid #263740;
+    margin-top: 4px;
+    padding-top: 9px !important;
+}
