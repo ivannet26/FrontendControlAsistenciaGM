@@ -639,23 +639,10 @@
 
 
 }
-/* CONTENEDOR PRINCIPAL */
 
-.registro-container{
-
-    width:100%;
-
-    margin-top:25px;
-
-    background:#111c22;
-
-    border:1px solid #263943;
-
-}
-
-/* =========================
-   CONTENEDOR REGISTROS
-========================= */
+/* ============================================================
+   REGISTROS
+============================================================ */
 
 .registro-container{
 
@@ -669,12 +656,14 @@
 
     box-sizing:border-box;
 
+    overflow:hidden;
+
 }
 
 
-/* =========================
+/* ============================================================
    CABECERA FECHA
-========================= */
+============================================================ */
 
 .registro-header{
 
@@ -692,8 +681,9 @@
 
     color:#9aa8b3;
 
-}
+    font-size:13px;
 
+}
 
 
 .registro-total{
@@ -707,7 +697,6 @@
 }
 
 
-
 .registro-total strong{
 
     color:white;
@@ -718,9 +707,9 @@
 
 
 
-/* =========================
+/* ============================================================
    FILA REGISTRO
-========================= */
+============================================================ */
 
 .registro-row{
 
@@ -743,9 +732,8 @@
 }
 
 
-/* =========================
-   ACTIVIDAD
-========================= */
+
+/* ACTIVIDAD */
 
 .registro-actividad{
 
@@ -761,9 +749,7 @@
 
 
 
-/* =========================
-   PROYECTO - TAREA
-========================= */
+/* PROYECTO */
 
 .registro-proyecto{
 
@@ -782,10 +768,8 @@
     font-size:14px;
 
     white-space:nowrap;
-    
 
 }
-
 
 
 .punto{
@@ -804,9 +788,7 @@
 
 
 
-/* =========================
-   ESPACIO + ETIQUETAS
-========================= */
+/* ETIQUETAS */
 
 .registro-tags{
 
@@ -846,9 +828,7 @@
 
 
 
-/* =========================
-   FECHA
-========================= */
+/* HORA */
 
 .registro-hora{
 
@@ -866,9 +846,7 @@
 
 
 
-/* =========================
-   TIEMPO
-========================= */
+/* TIEMPO */
 
 .registro-tiempo{
 
@@ -888,9 +866,7 @@
 
 
 
-/* =========================
-   ICONOS EXTREMO DERECHO
-========================= */
+/* ACCIONES */
 
 .registro-actions{
 
@@ -911,7 +887,6 @@
 }
 
 
-
 .registro-actions button{
 
     background:none;
@@ -935,473 +910,118 @@
 
 
 
+/* ============================================================
+   BLOQUES SEMANA
+============================================================ */
 
-.registro-actions button{
+.semana-bloque{
 
+    width:100%;
 
-    background:none;
+    height:auto;
 
-
-    border:none;
-
-
-    color:#8ea0af;
-
-
-    font-size:20px;
-
-
-    cursor:pointer;
-
+    margin-top:25px;
 
 }
 
 
 
-.registro-actions button:hover{
+.semana-header{
 
+    height:40px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    padding:0 20px;
+
+    background:#0a1218;
+
+    color:#9aa8b3;
+
+    font-size:13px;
+
+    font-weight:600;
+
+    border:1px solid #263943;
+
+    border-bottom:none;
+
+}
+
+
+.semana-total{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:10px;
+
+}
+
+
+.semana-total strong{
 
     color:#10a5f5;
 
+    font-size:14px;
 
 }
-/* =========================
-   MENÚ CONTEXTUAL DE REGISTRO
-========================= */
 
-.menu-registro-portal {
-    position: fixed;
-    min-width: 140px;
-    background: #16242c;
-    border: 1px solid #344650;
-    border-radius: 4px;
-    padding: 4px;
-    box-shadow:
-        0 10px 30px rgba(0, 0, 0, 0.9),
-        0 0 0 1px rgba(0, 0, 0, 0.5);
+
+
+.semana-bloque .registro-container{
+
+    margin-top:0;
+
+    margin-bottom:15px;
+
+    border-top:none;
+
 }
 
-.menu-registro-portal button {
-    width: 100%;
-    padding: 10px 12px;
-    background: none;
-    border: none;
-    color: #d3dde3;
-    text-align: left;
-    cursor: pointer;
-    border-radius: 3px;
-    font-size: 14px;
-    display: block;
-}
 
-.menu-registro-portal button:hover {
-    background: #24343d;
-    color: white;
-}
 
-.menu-registro-portal .menu-item-eliminar:hover {
-    
-    color: white;
-}
-/* =========================
-   BLOQUES DE SEMANA Y DÍA
-========================= */
-
-.semana-bloque {
-    margin-top: 25px;
-}
-
-.semana-header {
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 20px;
-    background: #0a1218;
-    color: #9aa8b3;
-    font-size: 13px;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-    border: 1px solid #263943;
-    border-bottom: none;
-}
-
-.semana-total {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.semana-total strong {
-    color: #10a5f5;
-    font-size: 14px;
-}
-
-.semana-bloque .registro-container {
-    border-top: none;
-    margin-top: 0;
-    margin-bottom: 15px;
-}
 /* ============================================================
-   RESPONSIVE RASTREADOR MOBILE
-   Mantener barra horizontal con scroll
+   MOBILE
 ============================================================ */
-/* ============================================================
-   RESPONSIVE RASTREADOR MOBILE
-   Scroll horizontal + paneles visibles
-============================================================ */
-
 @media(max-width:768px){
 
-
-    /* =========================
-       BARRA PRINCIPAL
-    ========================= */
-
-    .tracker-header{
-
-        height:60px;
-
+    .semana-bloque{
         width:100%;
-
-        display:flex;
-
-        flex-wrap:nowrap;
-
-        align-items:center;
-
-        overflow-x:auto;
-
-        overflow-y:visible;
-
-        gap:10px;
-
-        padding:10px;
-
-        position:relative;
-
-        white-space:nowrap;
-
-        box-sizing:border-box;
-
+        height:auto;
+        overflow:visible;
     }
-
-
-
-    .tracker-header::-webkit-scrollbar{
-
-        height:4px;
-
-    }
-
-
-
-    .tracker-header::-webkit-scrollbar-thumb{
-
-        background:#10a5f5;
-
-        border-radius:10px;
-
-    }
-
-
-
-    .tracker-header::-webkit-scrollbar-track{
-
-        background:#111c22;
-
-    }
-
-
-
-    /* =========================
-       INPUT ACTIVIDAD
-    ========================= */
-
-    .tracker-header input{
-
-        flex:0 0 220px;
-
-        width:220px;
-
-        height:40px;
-
-    }
-
-
-
-    /* =========================
-       SELECTOR PROYECTO
-    ========================= */
-
-    .project-selector{
-
-        flex-shrink:0;
-
-        position:relative;
-
-        z-index:3000;
-
-    }
-
-
-
-    .project-btn{
-
-        flex-shrink:0;
-
-        height:40px;
-
-        padding:0 10px;
-
-    }
-
-
-
-    /* =========================
-       TAREA ACTIVA
-    ========================= */
-
-    .tarea-activa{
-
-        flex-shrink:0;
-
-        max-width:180px;
-
-        overflow:hidden;
-
-        text-overflow:ellipsis;
-
-        white-space:nowrap;
-
-    }
-
-
-
-    /* =========================
-       ETIQUETAS
-    ========================= */
-
-    .zona-etiquetas{
-
-        flex-shrink:0;
-
-        position:relative;
-
-        z-index:3000;
-
-    }
-
-
-
-    .etiquetas-activas{
-
-        max-width:200px;
-
-        overflow:hidden;
-
-        display:flex;
-
-        align-items:center;
-
-        gap:5px;
-
-    }
-
-
-
-    .etiqueta-activa{
-
-        flex-shrink:0;
-
-    }
-
-
-
-    .etiqueta-selector{
-
-        flex-shrink:0;
-
-        position:relative;
-
-    }
-
-
-
-    .etiqueta-btn{
-
-        flex-shrink:0;
-
-        width:40px;
-
-        height:40px;
-
-    }
-
-
-
-
-    /* =========================
-       TIMER
-    ========================= */
-
-    .timer{
-
-        flex-shrink:0;
-
-        min-width:90px;
-
-        font-size:17px;
-
-    }
-
-
-
-
-    /* =========================
-       BOTONES
-    ========================= */
-
-    .start-btn,
-    .stop-btn{
-
-        flex-shrink:0;
-
-        height:40px;
-
-        padding:0 18px;
-
-    }
-
-
-
-
-
-    /* =========================
-       PANEL PROYECTOS
-    ========================= */
-
-    .project-panel{
-
-        position:fixed !important;
-
-        top:70px;
-
-        left:10px;
-
-        right:10px;
-
-        width:auto;
-
-        max-width:365px;
-
-        max-height:70vh;
-
-        overflow:hidden;
-
-        z-index:9999;
-
-    }
-
-
-
-    .project-list{
-
-        max-height:55vh;
-
-        overflow-y:auto;
-
-        overflow-x:hidden;
-
-    }
-
-
-
-
-    /* =========================
-       PANEL ETIQUETAS
-    ========================= */
-
-    .etiqueta-panel{
-
-        position:fixed !important;
-
-        top:70px;
-
-        left:10px;
-
-        right:10px;
-
-        width:auto;
-
-        max-width:330px;
-
-        max-height:70vh;
-
-        overflow:hidden;
-
-        z-index:9999;
-
-    }
-
-
-
-    .lista-etiquetas{
-
-        max-height:55vh;
-
-        overflow-y:auto;
-
-        overflow-x:hidden;
-
-    }
-
-
-
-
-
-    /* =========================
-       REGISTROS
-    ========================= */
 
     .registro-container{
-
+        width:100%;
+        background:#17242c; /* mismo color que las filas */
         overflow-x:auto;
-
+        overflow-y:hidden;
     }
-
-
 
     .registro-row{
-
+        width:850px;
         min-width:850px;
-
+        height:60px;
+        background:transparent; /* para que se vea el fondo del contenedor */
     }
 
-}
+    .registro-container::-webkit-scrollbar{
+        height:5px;
+    }
 
+    .registro-container::-webkit-scrollbar-thumb{
+        background:#10a5f5;
+        border-radius:10px;
+    }
 
-
-/* ============================================================
-   AJUSTES GENERALES SELECTORES
-============================================================ */
-
-
-.project-selector,
-.etiqueta-selector{
-
-    flex-shrink:0;
-
-    position:relative;
-
-}
-
-
-
-.project-panel,
-.etiqueta-panel{
-
-    box-sizing:border-box;
-
+    /* Opcional: que el header de fecha también se desplace con fondo */
+    .registro-header{
+        min-width:850px; /* para que acompañe el scroll */
+    }
 }

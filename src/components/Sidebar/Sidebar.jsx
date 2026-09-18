@@ -217,8 +217,7 @@ function Sidebar({ usuario }) {
                     </MenuItem>
 
 
-                    {/* SOLO ADMIN */}
-                    {rol === "ADMINISTRADOR" && (
+                    {/* SOLO ADMIN {rol === "ADMINISTRADOR" && (
                         <>
                             <MenuItem
                                 icon={
@@ -248,7 +247,8 @@ function Sidebar({ usuario }) {
                                 </>
                             )}
                         </>
-                    )}
+                    )}*/}
+                    
 
                 </Menu>
 
