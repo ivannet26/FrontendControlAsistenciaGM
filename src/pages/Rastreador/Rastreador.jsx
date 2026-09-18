@@ -16,10 +16,9 @@ import {
 
 
 // =====================================
-// HELPERS DE FECHA (fuera del componente)
+// HELPERS DE FECHA
 // =====================================
 
-// Genera un "key" tipo "2026-09-16" en HORA LOCAL
 const fechaKey = (fecha) => {
     const d = new Date(fecha);
     const y = d.getFullYear();
@@ -28,17 +27,15 @@ const fechaKey = (fecha) => {
     return `${y}-${m}-${dia}`;
 };
 
-// Devuelve el lunes de la semana de una fecha (para agrupar por semana)
 const lunesDeSemana = (fecha) => {
     const d = new Date(fecha);
-    const dia = d.getDay(); // 0=domingo, 1=lunes...
+    const dia = d.getDay();
     const diff = dia === 0 ? -6 : 1 - dia;
     d.setDate(d.getDate() + diff);
     d.setHours(0, 0, 0, 0);
     return d;
 };
 
-// Formato bonito: "Hoy", "Ayer" o "lun, 16 sep"
 const formatearFechaGrupo = (fechaKeyStr) => {
     const hoy = new Date();
     const ayer = new Date();
@@ -47,7 +44,6 @@ const formatearFechaGrupo = (fechaKeyStr) => {
     if (fechaKeyStr === fechaKey(hoy)) return "Hoy";
     if (fechaKeyStr === fechaKey(ayer)) return "Ayer";
 
-    // Interpretar la fecha como local
     const [y, m, d] = fechaKeyStr.split("-").map(Number);
     const fecha = new Date(y, m - 1, d);
 
@@ -58,7 +54,6 @@ const formatearFechaGrupo = (fechaKeyStr) => {
     });
 };
 
-// Formato semana: "Esta semana", "La semana pasada", "Semana del X"
 const formatearSemanaGrupo = (lunes) => {
     const hoy = new Date();
     const lunesActual = lunesDeSemana(hoy);
@@ -283,24 +278,36 @@ function Rastreador() {
             await detenerTiempoAPI();
             await cargarHistorial();
 
-            localStorage.removeItem("actividad_activa");
-
-            setActivo(false);
-            setBloqueado(false);
-            setSegundos(0);
-            setHoraInicio(null);
-            setActividad("");
-            setProyecto(null);
-            setTarea(null);
-            setEtiquetasSeleccionadas([]);
-
         } catch (error) {
             console.error("Error deteniendo tiempo", error);
-            alert(
+
+            const mensajeError =
                 error.response?.data?.detail ||
-                "No se pudo detener el temporizador"
+                "No se pudo detener el temporizador";
+
+            // Si fue 404 (el backend ya no tenía el registro),
+            // limpiamos igual porque el estado local está desincronizado.
+            if (error.response?.status !== 404) {
+                alert(mensajeError);
+                return;
+            }
+
+            console.warn(
+                "El temporizador ya no existía en el servidor. Limpiando estado local."
             );
         }
+
+        // ⚠️ SIEMPRE limpiar el estado local
+        localStorage.removeItem("actividad_activa");
+
+        setActivo(false);
+        setBloqueado(false);
+        setSegundos(0);
+        setHoraInicio(null);
+        setActividad("");
+        setProyecto(null);
+        setTarea(null);
+        setEtiquetasSeleccionadas([]);
     };
 
 
@@ -474,7 +481,6 @@ function Rastreador() {
             semanas[semanaKey].total += r.tiempo || 0;
         });
 
-        // Ordenar semanas de más reciente a más antigua
         return Object.values(semanas).sort((a, b) => b.lunes - a.lunes);
     })();
 
@@ -510,14 +516,9 @@ function Rastreador() {
             />
 
 
-            {/* =====================================
-                REGISTROS AGRUPADOS POR SEMANA Y DÍA
-            ===================================== */}
-
             {registrosAgrupados.map((semana) => (
                 <div key={fechaKey(semana.lunes)} className="semana-bloque">
 
-                    {/* HEADER DE SEMANA */}
                     <div className="semana-header">
                         <span>{formatearSemanaGrupo(semana.lunes)}</span>
                         <div className="semana-total">
@@ -527,13 +528,11 @@ function Rastreador() {
                     </div>
 
 
-                    {/* DÍAS DE LA SEMANA */}
                     {Object.entries(semana.dias)
                         .sort(([a], [b]) => b.localeCompare(a))
                         .map(([diaKey, dia]) => (
                             <div key={diaKey} className="registro-container">
 
-                                {/* HEADER DEL DÍA */}
                                 <div className="registro-header">
                                     <span>{formatearFechaGrupo(diaKey)}</span>
                                     <div className="registro-total">
@@ -543,7 +542,6 @@ function Rastreador() {
                                 </div>
 
 
-                                {/* REGISTROS DEL DÍA */}
                                 {dia.registros.map(registro => (
                                     <div className="registro-row" key={registro.id}>
 
@@ -614,7 +612,6 @@ function Rastreador() {
             ))}
 
 
-            {/* MENÚ CONTEXTUAL */}
             {menuAbierto && createPortal(
                 <div
                     className="menu-registro-portal"
