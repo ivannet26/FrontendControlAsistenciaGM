@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import toast from "react-hot-toast";
 import EquipoTabs from "../../components/EquipoComp/EquipoTabs";
 import EquipoFiltros from "../../components/EquipoComp/EquipoFiltros";
 import EquipoTable from "../../components/EquipoComp/EquipoTable";
@@ -48,53 +49,56 @@ function Equipo() {
 
 
     const cargarMiembros = async () => {
-    try {
-        const data = await obtenerMiembros();
-        setMiembros(
-            data.map(m => ({
-                id: m.id,
-                usuario_id: m.usuario_id,
-                nombre: m.nombre_usuario,
-                correo: m.email_usuario,
-                grupo_id: m.grupo_id,
-                grupo: m.nombre_grupo || "Sin grupo",
-                rol: m.tipo_usuario,
-                estado: m.estado,
-                tiene_clave_temp: m.tiene_clave_temp,
-                clave_temp_mascara: m.clave_temp_mascara,
-                etiquetas: m.etiquetas || []
-            }))
-        );
-    } catch (error) {
-        console.error("Error cargando miembros", error);
-    }
-};
-
-const cargarGrupos = async () => {
-    try {
-        const data = await obtenerGrupos();
-        setGrupos(data);
-    } catch (error) {
-        console.error("Error cargando grupos", error);
-    }
-};
-useEffect(() => {
-    const cargarTodo = async () => {
-        setCargando(true);
         try {
-            await Promise.all([
-                cargarMiembros(),
-                cargarGrupos()
-            ]);
+            const data = await obtenerMiembros();
+            setMiembros(
+                data.map(m => ({
+                    id: m.id,
+                    usuario_id: m.usuario_id,
+                    nombre: m.nombre_usuario,
+                    correo: m.email_usuario,
+                    grupo_id: m.grupo_id,
+                    grupo: m.nombre_grupo || "Sin grupo",
+                    rol: m.tipo_usuario,
+                    estado: m.estado,
+                    tiene_clave_temp: m.tiene_clave_temp,
+                    clave_temp_mascara: m.clave_temp_mascara,
+                    etiquetas: m.etiquetas || []
+                }))
+            );
         } catch (error) {
-            console.error("Error en carga inicial:", error);
-        } finally {
-            setCargando(false);   // 👈 SIEMPRE
+            console.error("Error cargando miembros", error);
+            toast.error("No se pudieron cargar los miembros");
         }
     };
 
-    cargarTodo();
-}, []);
+    const cargarGrupos = async () => {
+        try {
+            const data = await obtenerGrupos();
+            setGrupos(data);
+        } catch (error) {
+            console.error("Error cargando grupos", error);
+            toast.error("No se pudieron cargar los grupos");
+        }
+    };
+
+    useEffect(() => {
+        const cargarTodo = async () => {
+            setCargando(true);
+            try {
+                await Promise.all([
+                    cargarMiembros(),
+                    cargarGrupos()
+                ]);
+            } catch (error) {
+                console.error("Error en carga inicial:", error);
+            } finally {
+                setCargando(false);
+            }
+        };
+
+        cargarTodo();
+    }, []);
 
     // FILTROS DE MIEMBROS
 
@@ -137,9 +141,10 @@ useEffect(() => {
         try {
             await eliminarMiembroAPI(id);
             setMiembros(prev => prev.filter(m => m.id !== id));
+            toast.success("Miembro eliminado");
         } catch (error) {
             console.error("Error eliminando miembro", error);
-            alert(error.response?.data?.detail || "No se pudo eliminar el miembro");
+            toast.error(error.response?.data?.detail || "No se pudo eliminar el miembro");
         }
     };
 
@@ -165,9 +170,10 @@ useEffect(() => {
 
             setGrupos(prev => [...prev, creado]);
             setNuevoGrupo("");
+            toast.success("Grupo creado");
         } catch (error) {
             console.error("Error creando grupo", error);
-            alert(error.response?.data?.detail || "No se pudo crear el grupo");
+            toast.error(error.response?.data?.detail || "No se pudo crear el grupo");
         }
     };
 
@@ -189,9 +195,10 @@ useEffect(() => {
             await eliminarGrupoAPI(id);
             setGrupos(prev => prev.filter(g => g.id !== id));
             cargarMiembros();
+            toast.success("Grupo eliminado");
         } catch (error) {
             console.error("Error eliminando grupo", error);
-            alert(error.response?.data?.detail || "No se pudo eliminar el grupo");
+            toast.error(error.response?.data?.detail || "No se pudo eliminar el grupo");
         }
     };
 
@@ -314,6 +321,9 @@ useEffect(() => {
                                             : m
                                     )
                                 );
+
+                                toast.success("Miembro actualizado");
+
                             } else {
                                 const creado = await crearMiembroAPI({
                                     usuario_id: nuevoMiembro.usuario_id,
@@ -339,13 +349,15 @@ useEffect(() => {
                                         etiquetas: creado.etiquetas || []
                                     }
                                 ]);
+
+                                toast.success("Miembro agregado");
                             }
 
                             setMostrarModal(false);
                             setMiembroEditar(null);
                         } catch (error) {
                             console.error("Error guardando miembro", error);
-                            alert(error.response?.data?.detail || "No se pudo guardar el miembro");
+                            toast.error(error.response?.data?.detail || "No se pudo guardar el miembro");
                         }
                     }}
                 />
@@ -379,6 +391,8 @@ useEffect(() => {
                                             : g
                                     )
                                 );
+
+                                toast.success("Grupo actualizado");
                             } else {
                                 const creado = await crearGrupoAPI({
                                     nombre: nuevoGrupo.nombre,
@@ -386,13 +400,14 @@ useEffect(() => {
                                 });
 
                                 setGrupos(prev => [...prev, creado]);
+                                toast.success("Grupo creado");
                             }
 
                             setMostrarModalGrupo(false);
                             setGrupoEditar(null);
                         } catch (error) {
                             console.error("Error guardando grupo", error);
-                            alert(error.response?.data?.detail || "No se pudo guardar el grupo");
+                            toast.error(error.response?.data?.detail || "No se pudo guardar el grupo");
                         }
                     }}
                 />

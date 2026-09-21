@@ -25,7 +25,7 @@ function EquipoTable({
                         <th>ROL</th>
                         <th>GRUPO</th>
                         <th>ESTADO</th>
-                        <th className="col-acciones"></th>
+                        <th className="equipo-col-acciones"></th>
                     </tr>
                 </thead>
 
@@ -60,7 +60,7 @@ function EquipoTable({
                                 </span>
                             </td>
 
-                            <td className="col-acciones">
+                            <td className="equipo-col-acciones">
                                 <EquipoAcciones
                                     miembro={miembro}
                                     eliminar={eliminarMiembro}

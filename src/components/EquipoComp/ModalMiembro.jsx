@@ -1,4 +1,5 @@
 import { useState } from "react";
+import toast from "react-hot-toast";
 import "./Equipo.css";
 
 
@@ -41,7 +42,7 @@ function ModalMiembro({
         } else {
             // Crear
             if (!usuarioId) {
-                alert("Debes ingresar el ID del usuario");
+                toast.error("Debes ingresar el ID del usuario");
                 return;
             }
 

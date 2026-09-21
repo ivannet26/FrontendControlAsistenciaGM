@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { MoreVertical, Pencil } from "lucide-react";
+import toast from "react-hot-toast";
 import "./ClientesTable.css";
 
 
@@ -33,7 +34,6 @@ function ClientesTable({
     }, []);
 
 
-    // ✅ Abrir menú con posición calculada
     const abrirMenu = (e, id) => {
         e.stopPropagation();
 
@@ -48,7 +48,6 @@ function ClientesTable({
     };
 
 
-    // ✅ Cliente del menú abierto
     const clienteMenu = clientes.find(c => c.id === menuAbierto);
 
 
@@ -128,7 +127,6 @@ function ClientesTable({
             </table>
 
 
-            {/* ✅ MENÚ RENDERIZADO EN EL BODY */}
             {menuAbierto && clienteMenu && createPortal(
 
                 <div
@@ -143,8 +141,13 @@ function ClientesTable({
                 >
                     {clienteMenu.estado === "Activo" ? (
                         <button
-                            onClick={() => {
-                                archivarCliente(clienteMenu.id);
+                            onClick={async () => {
+                                try {
+                                    await archivarCliente(clienteMenu.id);
+                                    toast.success("Cliente archivado");
+                                } catch (err) {
+                                    toast.error(err.message || "No se pudo archivar");
+                                }
                                 setMenuAbierto(null);
                             }}
                         >
@@ -153,8 +156,13 @@ function ClientesTable({
                     ) : (
                         <>
                             <button
-                                onClick={() => {
-                                    restaurarCliente(clienteMenu.id);
+                                onClick={async () => {
+                                    try {
+                                        await restaurarCliente(clienteMenu.id);
+                                        toast.success("Cliente restaurado");
+                                    } catch (err) {
+                                        toast.error(err.message || "No se pudo restaurar");
+                                    }
                                     setMenuAbierto(null);
                                 }}
                             >
@@ -162,8 +170,13 @@ function ClientesTable({
                             </button>
 
                             <button
-                                onClick={() => {
-                                    eliminarCliente(clienteMenu.id);
+                                onClick={async () => {
+                                    try {
+                                        await eliminarCliente(clienteMenu.id);
+                                        toast.success("Cliente eliminado");
+                                    } catch (err) {
+                                        toast.error(err.message || "No se pudo eliminar");
+                                    }
                                     setMenuAbierto(null);
                                 }}
                             >

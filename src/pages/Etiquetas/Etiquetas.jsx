@@ -1,4 +1,5 @@
 import { useState } from "react";
+import toast from "react-hot-toast";
 
 import EtiquetasFiltro from "../../components/EtiquetasComp/EtiquetasFiltro";
 
@@ -82,19 +83,11 @@ function Etiquetas() {
                 error
             );
 
+            toast.error("No se pudieron cargar las etiquetas");
+
         }
 
     };
-
-
-
-
-
-
-
-
-
-
 
 
     // FILTROS
@@ -142,13 +135,6 @@ function Etiquetas() {
     });
 
 
-
-
-
-
-
-
-
     // ARCHIVAR
     const archivarEtiqueta = async (id) => {
         try {
@@ -161,9 +147,12 @@ function Etiquetas() {
                         : e
                 )
             );
+
+            toast.success("Etiqueta archivada");
+
         } catch (error) {
             console.error("Error archivando etiqueta", error);
-            alert("No se pudo archivar la etiqueta");
+            toast.error("No se pudo archivar la etiqueta");
         }
     };
 
@@ -179,9 +168,12 @@ function Etiquetas() {
                         : e
                 )
             );
+
+            toast.success("Etiqueta restaurada");
+
         } catch (error) {
             console.error("Error restaurando etiqueta", error);
-            alert("No se pudo restaurar la etiqueta");
+            toast.error("No se pudo restaurar la etiqueta");
         }
     };
 
@@ -192,7 +184,7 @@ function Etiquetas() {
         if (!etiqueta) return;
 
         if (etiqueta.estado !== "Archivado") {
-            alert("Primero debes archivar la etiqueta");
+            toast.error("Primero debes archivar la etiqueta");
             return;
         }
 
@@ -202,17 +194,14 @@ function Etiquetas() {
             setEtiquetas(prev =>
                 prev.filter(e => e.id !== id)
             );
+
+            toast.success("Etiqueta eliminada");
+
         } catch (error) {
             console.error("Error eliminando etiqueta", error);
-            alert("No se pudo eliminar la etiqueta");
+            toast.error("No se pudo eliminar la etiqueta");
         }
     };
-
-
-
-
-
-
 
 
     // EDITAR
@@ -229,19 +218,10 @@ function Etiquetas() {
     };
 
 
-
-
-
-
-
-
-
     return (
 
 
         <div className="etiquetas-container">
-
-
 
 
 
@@ -260,13 +240,7 @@ function Etiquetas() {
 
 
 
-
-
-
-
-
             <div className="etiquetas-contenedor">
-
 
 
 
@@ -301,11 +275,6 @@ function Etiquetas() {
 
 
 
-
-
-
-
-
                 <EtiquetasFiltro
 
 
@@ -320,11 +289,6 @@ function Etiquetas() {
 
 
                 />
-
-
-
-
-
 
 
 
@@ -349,16 +313,7 @@ function Etiquetas() {
 
 
 
-
             </div>
-
-
-
-
-
-
-
-
 
 
 
@@ -379,7 +334,6 @@ function Etiquetas() {
 
                         setMostrarModal(false);
 
-
                         setEtiquetaEditar(null);
 
 
@@ -388,9 +342,7 @@ function Etiquetas() {
 
 
 
-
                     etiquetaEditar={etiquetaEditar}
-
 
 
 
@@ -428,6 +380,7 @@ function Etiquetas() {
                                     )
                                 );
 
+                                toast.success("Etiqueta actualizada");
 
                             }
 
@@ -453,6 +406,8 @@ function Etiquetas() {
                                     }
                                 ]);
 
+                                toast.success("Etiqueta creada");
+
                             }
 
 
@@ -474,6 +429,11 @@ function Etiquetas() {
                             );
 
 
+                            toast.error(
+                                error.response?.data?.detail ||
+                                "No se pudo guardar la etiqueta"
+                            );
+
                         }
 
 
@@ -485,7 +445,6 @@ function Etiquetas() {
 
                 />
 
-
             }
 
 
@@ -493,7 +452,6 @@ function Etiquetas() {
 
 
         </div>
-
 
     );
 

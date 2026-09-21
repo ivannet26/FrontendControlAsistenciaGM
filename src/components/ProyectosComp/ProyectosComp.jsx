@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import toast from "react-hot-toast";
 
 import ProyectoTable from "./ProyectoTable";
 import ProyectoFiltros from "./ProyectoFiltros";
@@ -76,6 +77,7 @@ function ProyectosComp() {
             );
         } catch (error) {
             console.error("Error cargando proyectos", error);
+            toast.error("No se pudieron cargar los proyectos");
         }
     };
 
@@ -86,6 +88,7 @@ function ProyectosComp() {
             setClientes(data);
         } catch (error) {
             console.error("Error cargando clientes", error);
+            toast.error("No se pudieron cargar los clientes");
         }
     };
 
@@ -119,9 +122,10 @@ function ProyectosComp() {
                         : p
                 )
             );
+            toast.success("Proyecto archivado");
         } catch (error) {
             console.error("Error archivando proyecto", error);
-            alert(error.response?.data?.detail || "No se pudo archivar");
+            toast.error(error.response?.data?.detail || "No se pudo archivar");
         }
     };
 
@@ -136,9 +140,10 @@ function ProyectosComp() {
                         : p
                 )
             );
+            toast.success("Proyecto restaurado");
         } catch (error) {
             console.error("Error restaurando proyecto", error);
-            alert(error.response?.data?.detail || "No se pudo restaurar");
+            toast.error(error.response?.data?.detail || "No se pudo restaurar");
         }
     };
 
@@ -149,9 +154,10 @@ function ProyectosComp() {
         try {
             await eliminarProyectoAPI(id);
             setProyectos(prev => prev.filter(p => p.id !== id));
+            toast.success("Proyecto eliminado");
         } catch (error) {
             console.error("Error eliminando proyecto", error);
-            alert(error.response?.data?.detail || "No se pudo eliminar");
+            toast.error(error.response?.data?.detail || "No se pudo eliminar");
         }
     };
 
@@ -238,11 +244,12 @@ function ProyectosComp() {
                                                     estado: actualizado.estado,
                                                     color: actualizado.color || "#10b981",
                                                     archivado: actualizado.archivado,
-                                                    horas_registradas: actualizado.horas_registradas ?? p.horas_registradas ?? 0,  // ✅ NUEVO
+                                                    horas_registradas: actualizado.horas_registradas ?? p.horas_registradas ?? 0,
                                                   }
                                                 : p
                                         )
                                     );
+                                    toast.success("Proyecto actualizado");
                                 } else {
                                     const creado = await crearProyectoAPI({
                                         nombre: nuevoProyecto.nombre,
@@ -267,13 +274,14 @@ function ProyectosComp() {
                                             favorito: false
                                         }
                                     ]);
+                                    toast.success("Proyecto creado");
                                 }
 
                                 setMostrarModal(false);
                                 setProyectoEditar(null);
                             } catch (error) {
                                 console.error("Error guardando proyecto", error);
-                                alert(error.response?.data?.detail || "No se pudo guardar el proyecto");
+                                toast.error(error.response?.data?.detail || "No se pudo guardar el proyecto");
                             }
                         }}
                     />

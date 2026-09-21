@@ -1,8 +1,10 @@
 import "./Register.css";
 import { useState } from "react";
+import toast from "react-hot-toast";
 import logoGM from "../../assets/logo-mg.png";
 import { useNavigate } from "react-router-dom";
 import { register } from "../../services/authService";
+
 function Register() {
     const [nombre, setNombre] = useState("");
     const [apellido, setApellido] = useState("");
@@ -11,88 +13,89 @@ function Register() {
     const [confirmPassword, setConfirmPassword] = useState("");
     const [error, setError] = useState("");
     const navigate = useNavigate();
+
     const handleSubmit = async (e) => {
 
-    e.preventDefault();
+        e.preventDefault();
 
 
-    if (
-        !nombre ||
-        !apellido ||
-        !correo ||
-        !password ||
-        !confirmPassword
-    ) {
+        if (
+            !nombre ||
+            !apellido ||
+            !correo ||
+            !password ||
+            !confirmPassword
+        ) {
 
-        setError("Complete todos los campos.");
+            setError("Complete todos los campos.");
 
-        return;
+            return;
 
-    }
-
-
-    if (password !== confirmPassword) {
-
-        setError("Las contraseñas no coinciden.");
-
-        return;
-
-    }
+        }
 
 
-    if (password.length < 6) {
+        if (password !== confirmPassword) {
 
-        setError("La contraseña debe tener mínimo 6 caracteres.");
+            setError("Las contraseñas no coinciden.");
 
-        return;
+            return;
 
-    }
+        }
 
 
-    const nuevoUsuario = {
+        if (password.length < 6) {
 
-        nombre,
+            setError("La contraseña debe tener mínimo 6 caracteres.");
 
-        apellido,
+            return;
 
-        email: correo,
+        }
 
-        password
+
+        const nuevoUsuario = {
+
+            nombre,
+
+            apellido,
+
+            email: correo,
+
+            password
+
+        };
+
+
+        try {
+
+
+            const respuesta = await register(nuevoUsuario);
+
+
+            console.log(
+                "Usuario registrado:",
+                respuesta
+            );
+
+
+            setError("");
+
+
+            toast.success("Registro correcto");
+
+
+            navigate("/login");
+
+
+        } catch(error) {
+
+
+            setError(error.message);
+
+
+        }
+
 
     };
-
-
-    try {
-
-
-        const respuesta = await register(nuevoUsuario);
-
-
-        console.log(
-            "Usuario registrado:",
-            respuesta
-        );
-
-
-        setError("");
-
-
-        alert("Registro correcto");
-
-
-        navigate("/login");
-
-
-    } catch(error) {
-
-
-        setError(error.message);
-
-
-    }
-
-
-};
 
     return (
         <div className="register-page">

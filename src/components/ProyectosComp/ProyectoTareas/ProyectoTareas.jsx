@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import toast from "react-hot-toast";
 
 import { MoreVertical } from "lucide-react";
 
@@ -77,6 +78,7 @@ function ProyectoTareas({ proyectoId }) {
                 error
             );
 
+            toast.error("No se pudieron cargar los datos");
 
         } finally {
 
@@ -120,6 +122,7 @@ function ProyectoTareas({ proyectoId }) {
 
             setNuevaTarea("");
 
+            toast.success("Tarea creada");
 
 
         }catch(error){
@@ -131,7 +134,7 @@ function ProyectoTareas({ proyectoId }) {
             );
 
 
-            alert(
+            toast.error(
                 error.response?.data?.detail ||
                 "No se pudo crear la tarea"
             );
@@ -162,6 +165,8 @@ function ProyectoTareas({ proyectoId }) {
                 prev.filter(t=>t.id !== id)
             );
 
+            toast.success("Tarea eliminada");
+
 
         }catch(error){
 
@@ -169,6 +174,11 @@ function ProyectoTareas({ proyectoId }) {
             console.error(
                 "Error eliminando tarea",
                 error
+            );
+
+            toast.error(
+                error.response?.data?.detail ||
+                "No se pudo eliminar la tarea"
             );
 
         }
@@ -226,6 +236,11 @@ function ProyectoTareas({ proyectoId }) {
             console.error(
                 "Error asignando miembro",
                 error
+            );
+
+            toast.error(
+                error.response?.data?.detail ||
+                "No se pudo asignar el miembro"
             );
 
         }
@@ -286,6 +301,11 @@ function ProyectoTareas({ proyectoId }) {
             console.error(
                 "Error desasignando miembro",
                 error
+            );
+
+            toast.error(
+                error.response?.data?.detail ||
+                "No se pudo desasignar el miembro"
             );
 
 

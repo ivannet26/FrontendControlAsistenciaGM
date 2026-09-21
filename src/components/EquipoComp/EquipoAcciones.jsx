@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { MoreVertical } from "lucide-react";
+import toast from "react-hot-toast";
 import "./Equipo.css";
 
 
@@ -45,6 +46,37 @@ function EquipoAcciones({
     };
 
 
+    const handleEditar = () => {
+        try {
+            editar(miembro);
+        } catch (err) {
+            toast.error(err?.message || "No se pudo abrir el editor");
+        }
+        setAbierto(false);
+    };
+
+
+    const handleEliminar = async () => {
+        const confirmar = window.confirm(
+            `¿Eliminar a ${miembro.nombre || "este miembro"}?`
+        );
+
+        if (!confirmar) {
+            setAbierto(false);
+            return;
+        }
+
+        try {
+            await eliminar(miembro.id);
+            toast.success("Miembro eliminado");
+        } catch (err) {
+            toast.error(err?.message || "No se pudo eliminar el miembro");
+        }
+
+        setAbierto(false);
+    };
+
+
     return (
         <div className="equipo-acciones">
 
@@ -66,30 +98,15 @@ function EquipoAcciones({
                         zIndex: 9999999
                     }}
                 >
-                    <button
-                        onClick={() => {
-                            editar(miembro);
-                            setAbierto(false);
-                        }}
-                    >
+                    <button onClick={handleEditar}>
                         Editar miembro
                     </button>
 
-                    <button
-                        onClick={() => {
-                            editar(miembro);
-                            setAbierto(false);
-                        }}
-                    >
+                    <button onClick={handleEditar}>
                         Cambiar rol / estado
                     </button>
 
-                    <button
-                        onClick={() => {
-                            eliminar(miembro.id);
-                            setAbierto(false);
-                        }}
-                    >
+                    <button onClick={handleEliminar}>
                         Eliminar miembro
                     </button>
                 </div>,

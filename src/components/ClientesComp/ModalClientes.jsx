@@ -1,4 +1,5 @@
 import { useState } from "react";
+import toast from "react-hot-toast";
 import "../ClientesComp/ModalClientes.css";
 
 
@@ -21,7 +22,7 @@ function ModalCliente({
     const guardarCliente = () => {
 
         if (!nombre.trim()) {
-            alert("El nombre es obligatorio");
+            toast.error("El nombre es obligatorio");
             return;
         }
 

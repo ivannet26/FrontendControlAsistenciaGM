@@ -1,4 +1,5 @@
 import { useState } from "react";
+import toast from "react-hot-toast";
 import "./Proyectos.css";
 
 
@@ -19,7 +20,7 @@ function ModalProyecto({
     const guardarProyecto = () => {
 
         if (!nombre.trim()) {
-            alert("El nombre es obligatorio");
+            toast.error("El nombre es obligatorio");
             return;
         }
 

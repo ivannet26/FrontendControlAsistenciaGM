@@ -1,4 +1,10 @@
+import { deslogearUsuario, reactivarUsuario } from '../../services/authService';
+import toast from "react-hot-toast";
+
 function PanelActividadEquipo({ miembros }) {
+    const usuarioLogueado = JSON.parse(localStorage.getItem('usuario') || '{}');
+    const esAdmin = ['ADMINISTRACION', 'ADMINISTRADOR', 'ADMIN']
+        .includes((usuarioLogueado?.rol || '').toUpperCase());
 
     const formatoTiempo = (seg) => {
         const h = Math.floor(seg / 3600);
@@ -6,6 +12,28 @@ function PanelActividadEquipo({ miembros }) {
         const s = seg % 60;
         return [h, m, s].map(n => String(n).padStart(2, "0")).join(":");
     };
+
+    async function handleDeslogear(usuarioId, nombre) {
+        if (!confirm(`¿Desconectar a ${nombre}?`)) return;
+        try {
+            const data = await deslogearUsuario(usuarioId);
+            toast.success(data.mensaje);
+            window.location.reload();
+        } catch (err) {
+            toast.error(err.message);
+        }
+    }
+
+    async function handleReactivar(usuarioId, nombre) {
+        if (!confirm(`¿Reactivar a ${nombre}?`)) return;
+        try {
+            const data = await reactivarUsuario(usuarioId);
+            toast.success(data.mensaje);
+            window.location.reload();
+        } catch (err) {
+            toast.error(err.message);
+        }
+    }
 
     return (
         <div className="equipo-container">
@@ -21,6 +49,7 @@ function PanelActividadEquipo({ miembros }) {
                 <div className="col-hora">HORA</div>
                 <div className="col-estado">ESTADO</div>
                 <div className="col-total">TOTAL HOY</div>
+                {esAdmin && <div className="col-acciones">ACCIONES</div>}
             </div>
 
             {/* Filas */}
@@ -101,6 +130,29 @@ function PanelActividadEquipo({ miembros }) {
                                 />
                             </div>
                         </div>
+
+                        {/* Botón condicional: Desconectar o Reactivar */}
+                        {esAdmin && !m.es_usuario_actual && (
+                            <div className="col-acciones">
+                                {m.activo === false ? (
+                                    <button
+                                        className="btn-reactivar"
+                                        onClick={() => handleReactivar(m.id, m.nombre)}
+                                        title="Reactivar la cuenta de este usuario"
+                                    >
+                                        Reactivar
+                                    </button>
+                                ) : (
+                                    <button
+                                        className="btn-desconectar"
+                                        onClick={() => handleDeslogear(m.id, m.nombre)}
+                                        title="Cerrar la sesión de este usuario"
+                                    >
+                                        Desconectar
+                                    </button>
+                                )}
+                            </div>
+                        )}
                     </div>
                 ))}
             </div>
