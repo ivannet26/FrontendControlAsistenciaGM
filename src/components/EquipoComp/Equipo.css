@@ -6,6 +6,7 @@
     width: 100%;
     padding: 8px;
     box-sizing: border-box;
+    overflow: visible;
 }
 
 
@@ -76,6 +77,7 @@
     margin-top: 20px;
     margin-bottom: 25px;
     position: relative;
+    overflow: visible;
 }
 
 .filtros-izquierda {
@@ -242,6 +244,7 @@
     width: 100%;
     border-collapse: collapse;
     table-layout: fixed;
+    overflow: visible;
 }
 
 .miembros-tabla-container thead {
@@ -342,6 +345,7 @@
     position: relative;
     display: flex;
     justify-content: center;
+    overflow: visible;
 }
 
 .menu-icon {
@@ -360,7 +364,7 @@
     width: 170px;
     background: #162630;
     border: 1px solid #344650;
-    z-index: 1000;
+    z-index: 9999999;
     padding: 5px;
 }
 
@@ -442,6 +446,7 @@
     background: #101b22;
     border: 1px solid #263740;
     padding: 19px;
+    overflow: visible;
 }
 
 .contenedor-header {
@@ -457,7 +462,7 @@
 ========================= */
 
 .menu-opciones-portal {
-    position: fixed;
+    position: fixed !important;
     width: 180px;
 
     background: #162630 !important;
@@ -472,7 +477,8 @@
         0 10px 30px rgba(0, 0, 0, 0.95),
         0 0 0 1px rgba(0, 0, 0, 0.5);
 
-    z-index: 9999999;
+    z-index: 2147483647 !important;
+    pointer-events: auto;
 }
 
 .menu-opciones-portal button {
@@ -492,6 +498,8 @@
     background: #24343d;
     color: white;
 }
+
+
 /* ============================================================
    RESPONSIVE — TABLA CON SCROLL HORIZONTAL
    ============================================================ */
@@ -501,9 +509,7 @@
     .miembros-tabla-container {
         overflow-x: auto;
         overflow-y: visible;
-
         -webkit-overflow-scrolling: touch;
-
         scrollbar-width: thin;
         scrollbar-color: #344650 #101b22;
     }
@@ -525,7 +531,6 @@
         background: #4a5c66;
     }
 
-    /* 🔑 Mantiene el orden y estructura */
     .miembros-tabla-container table {
         min-width: 820px;
     }
@@ -614,6 +619,8 @@
         height: 34px;
     }
 }
+
+
 /* ============================================================
    COLUMNA ACCIONES (específica de Equipo)
    ============================================================ */

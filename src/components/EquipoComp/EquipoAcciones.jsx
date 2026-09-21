@@ -37,8 +37,17 @@ function EquipoAcciones({
 
         const rect = e.currentTarget.getBoundingClientRect();
 
+        // Altura estimada del menú (2 opciones + padding)
+        const alturaMenu = 100;
+
+        // Detectar si el menú cabe abajo o hay que abrirlo arriba
+        const espacioAbajo = window.innerHeight - rect.bottom;
+        const abrirHaciaArriba = espacioAbajo < alturaMenu;
+
         setMenuPos({
-            top: rect.bottom + 4,
+            top: abrirHaciaArriba
+                ? rect.top - alturaMenu - 4
+                : rect.bottom + 4,
             right: window.innerWidth - rect.right
         });
 
@@ -95,15 +104,11 @@ function EquipoAcciones({
                         position: "fixed",
                         top: menuPos.top,
                         right: menuPos.right,
-                        zIndex: 9999999
+                        zIndex: 2147483647
                     }}
                 >
                     <button onClick={handleEditar}>
                         Editar miembro
-                    </button>
-
-                    <button onClick={handleEditar}>
-                        Cambiar rol / estado
                     </button>
 
                     <button onClick={handleEliminar}>
