@@ -8,59 +8,36 @@ import { Outlet } from "react-router-dom";
 
 function LayoutPrincipal() {
 
+    const usuarioGuardado = localStorage.getItem("usuario");
 
-  const usuarioGuardado = sessionStorage.getItem("usuario");
-
-
-  const usuario = usuarioGuardado
-
-    ? JSON.parse(usuarioGuardado)
-
-    : null;
+    const usuario = usuarioGuardado
+        ? JSON.parse(usuarioGuardado)
+        : null;
 
 
+    return (
 
-  return (
+        <div className="app-container">
 
+            {/* NAVBAR */}
+            <Navbar usuario={usuario} />
 
-    <div className="app-container">
+            {/* CONTENIDO DEBAJO */}
+            <div className="app-body">
 
+                <Sidebar usuario={usuario} />
 
-      {/* NAVBAR */}
+                <main className="contenido-principal">
 
-      <Navbar usuario={usuario} />
+                    <Outlet />
 
+                </main>
 
+            </div>
 
-      {/* CONTENIDO DEBAJO */}
+        </div>
 
-      <div className="app-body">
-
-
-        <Sidebar usuario={usuario} />
-
-
-
-        <main className="contenido-principal">
-
-
-          <Outlet />
-
-
-        </main>
-
-
-
-      </div>
-
-
-
-    </div>
-
-
-  );
-
-
+    );
 }
 
 

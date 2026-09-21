@@ -1,76 +1,79 @@
 const API_URL = import.meta.env.VITE_API_URL;
 
-
 export async function login(email, password) {
-
-  const response = await fetch(
-    `${API_URL}/auth/login`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        email,
-        password,
-      }),
-    }
-  );
-
+  const response = await fetch(`${API_URL}/auth/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password }),
+  });
 
   const data = await response.json();
 
-
   if (!response.ok) {
-    throw new Error(
-      data.detail || "Email o contraseña incorrectos"
-    );
+    throw new Error(data.detail || "Email o contraseña incorrectos");
   }
 
-
-  
   localStorage.setItem("token", data.access_token);
   localStorage.setItem("usuario", JSON.stringify(data.usuario));
 
-
   return data;
 }
 
-
-
 export async function register(datosUsuario) {
-
-  const response = await fetch(
-    `${API_URL}/auth/registro`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(datosUsuario),
-    }
-  );
-
+  const response = await fetch(`${API_URL}/auth/registro`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(datosUsuario),
+  });
 
   const data = await response.json();
 
-
   if (!response.ok) {
-    throw new Error(
-      data.detail || "Error al registrar usuario"
-    );
+    throw new Error(data.detail || "Error al registrar usuario");
   }
-
 
   return data;
 }
 
-
-
-
 export function logout() {
-
   localStorage.removeItem("token");
   localStorage.removeItem("usuario");
+}
 
+// 👇 FUNCIÓN NUEVA - Solo admin
+export async function deslogearUsuario(usuarioId) {
+  const token = localStorage.getItem('token');
+
+  const res = await fetch(
+    `${API_URL}/equipo/miembros/${usuarioId}/deslogear`,
+    {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    }
+  );
+
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.detail || 'Error al desconectar');
+  return data;
+}
+export async function reactivarUsuario(usuarioId) {
+    const token = localStorage.getItem('token');
+
+    const res = await fetch(
+        `${API_URL}/equipo/miembros/${usuarioId}/reactivar`,
+        {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+            },
+        }
+    );
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || 'Error al reactivar');
+    return data;
 }

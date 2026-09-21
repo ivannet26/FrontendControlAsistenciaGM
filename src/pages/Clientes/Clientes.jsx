@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import toast from "react-hot-toast";
 import "../Clientes/Clientes.css";
 import ClientesFiltro from "../../components/ClientesComp/ClientesFiltro";
 import ClientesTable from "../../components/ClientesComp/ClientesTable";
@@ -48,6 +49,7 @@ function Clientes() {
             );
         } catch (error) {
             console.error("Error cargando clientes", error);
+            toast.error("No se pudieron cargar los clientes");
         }
     };
 
@@ -83,9 +85,12 @@ function Clientes() {
                         : c
                 )
             );
+
+            toast.success("Cliente archivado");
+
         } catch (error) {
             console.error("Error archivando cliente", error);
-            alert(error.response?.data?.detail || "No se pudo archivar el cliente");
+            toast.error(error.response?.data?.detail || "No se pudo archivar el cliente");
         }
     };
 
@@ -103,9 +108,12 @@ function Clientes() {
                         : c
                 )
             );
+
+            toast.success("Cliente restaurado");
+
         } catch (error) {
             console.error("Error restaurando cliente", error);
-            alert(error.response?.data?.detail || "No se pudo restaurar el cliente");
+            toast.error(error.response?.data?.detail || "No se pudo restaurar el cliente");
         }
     };
 
@@ -118,7 +126,7 @@ function Clientes() {
         if (!cliente) return;
 
         if (cliente.estado !== "Archivado") {
-            alert("Primero debes archivar el cliente");
+            toast.error("Primero debes archivar el cliente");
             return;
         }
 
@@ -126,9 +134,12 @@ function Clientes() {
             await eliminarClienteAPI(id);
 
             setClientes(prev => prev.filter(c => c.id !== id));
+
+            toast.success("Cliente eliminado");
+
         } catch (error) {
             console.error("Error eliminando cliente", error);
-            alert(error.response?.data?.detail || "No se pudo eliminar el cliente");
+            toast.error(error.response?.data?.detail || "No se pudo eliminar el cliente");
         }
     };
 
@@ -219,6 +230,9 @@ function Clientes() {
                                             : c
                                     )
                                 );
+
+                                toast.success("Cliente actualizado");
+
                             } else {
                                 const creado = await crearCliente({
                                     nombre: nuevoCliente.nombre,
@@ -242,13 +256,15 @@ function Clientes() {
                                         estado: "Activo"
                                     }
                                 ]);
+
+                                toast.success("Cliente creado");
                             }
 
                             setMostrarModal(false);
                             setClienteEditar(null);
                         } catch (error) {
                             console.error("Error guardando cliente", error);
-                            alert(error.response?.data?.detail || "No se pudo guardar el cliente");
+                            toast.error(error.response?.data?.detail || "No se pudo guardar el cliente");
                         }
                     }}
                 />

@@ -2,6 +2,7 @@ import "./Rastreador.css";
 
 import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
+import toast from "react-hot-toast";
 
 import TimerBar from "../../components/RastreadorComp/TimerBar/TimerBar";
 
@@ -206,23 +207,67 @@ function Rastreador() {
 
 
     // =====================================
+    // HEARTBEAT: verificar cada 15s si seguimos activos
+    // =====================================
+
+    useEffect(() => {
+        if (!activo) return;
+
+        const verificarSesion = async () => {
+            try {
+                const token = localStorage.getItem("token");
+                const res = await fetch(
+                    `${import.meta.env.VITE_API_URL}/auth/me`,
+                    {
+                        headers: { Authorization: `Bearer ${token}` }
+                    }
+                );
+
+                if (res.status === 401 || res.status === 403) {
+                    localStorage.removeItem("actividad_activa");
+                    localStorage.removeItem("token");
+                    localStorage.removeItem("usuario");
+
+                    setActivo(false);
+                    setBloqueado(false);
+                    setSegundos(0);
+                    setHoraInicio(null);
+                    setActividad("");
+                    setProyecto(null);
+                    setTarea(null);
+                    setEtiquetasSeleccionadas([]);
+
+                    toast.error("Tu sesión fue cerrada por un administrador");
+                    window.location.href = "/login";
+                }
+            } catch (err) {
+                console.error("Error en heartbeat:", err);
+            }
+        };
+
+        const intervalo = setInterval(verificarSesion, 15000);
+        verificarSesion();
+
+        return () => clearInterval(intervalo);
+    }, [activo]);
+
+
+    // =====================================
     // INICIAR TIMER
     // =====================================
 
     const iniciarTiempo = async () => {
 
         if (!actividad.trim()) {
-            alert("Ingrese actividad");
+            toast.error("Ingrese una actividad");
             return;
         }
-
         if (!proyecto) {
-            alert("Seleccione proyecto");
+            toast.error("Seleccione un proyecto");
             return;
         }
-
         if (!tarea) {
-            alert("Seleccione una tarea");
+            toast.error("Seleccione una tarea");
             return;
         }
 
@@ -252,9 +297,22 @@ function Rastreador() {
                 })
             );
 
+            toast.success("Temporizador iniciado");
+
         } catch (error) {
             console.error("Error iniciando tiempo", error);
-            alert(
+
+            const status = error.response?.status;
+            if (status === 401 || status === 403) {
+                localStorage.removeItem("actividad_activa");
+                localStorage.removeItem("token");
+                localStorage.removeItem("usuario");
+                toast.error("Tu sesión fue cerrada por un administrador");
+                window.location.href = "/login";
+                return;
+            }
+
+            toast.error(
                 error.response?.data?.detail ||
                 "No se pudo iniciar el temporizador"
             );
@@ -278,17 +336,28 @@ function Rastreador() {
             await detenerTiempoAPI();
             await cargarHistorial();
 
+            toast.success("Actividad detenida");
+
         } catch (error) {
             console.error("Error deteniendo tiempo", error);
+
+            const status = error.response?.status;
+
+            if (status === 401 || status === 403) {
+                localStorage.removeItem("actividad_activa");
+                localStorage.removeItem("token");
+                localStorage.removeItem("usuario");
+                toast.error("Tu sesión fue cerrada por un administrador");
+                window.location.href = "/login";
+                return;
+            }
 
             const mensajeError =
                 error.response?.data?.detail ||
                 "No se pudo detener el temporizador";
 
-            // Si fue 404 (el backend ya no tenía el registro),
-            // limpiamos igual porque el estado local está desincronizado.
-            if (error.response?.status !== 404) {
-                alert(mensajeError);
+            if (status !== 404) {
+                toast.error(mensajeError);
                 return;
             }
 
@@ -297,7 +366,6 @@ function Rastreador() {
             );
         }
 
-        // ⚠️ SIEMPRE limpiar el estado local
         localStorage.removeItem("actividad_activa");
 
         setActivo(false);
@@ -318,7 +386,7 @@ function Rastreador() {
     const continuarRegistro = async (registro) => {
 
         if (activo) {
-            alert("Ya tienes un temporizador activo");
+            toast.error("Ya tienes un temporizador activo");
             return;
         }
 
@@ -353,9 +421,22 @@ function Rastreador() {
                 })
             );
 
+            toast.success("Temporizador iniciado");
+
         } catch (error) {
             console.error("Error continuando registro", error);
-            alert(
+
+            const status = error.response?.status;
+            if (status === 401 || status === 403) {
+                localStorage.removeItem("actividad_activa");
+                localStorage.removeItem("token");
+                localStorage.removeItem("usuario");
+                toast.error("Tu sesión fue cerrada por un administrador");
+                window.location.href = "/login";
+                return;
+            }
+
+            toast.error(
                 error.response?.data?.detail ||
                 "No se pudo continuar el registro"
             );
@@ -381,9 +462,22 @@ function Rastreador() {
             setRegistros(prev => prev.filter(r => r.id !== registroId));
             setMenuAbierto(null);
 
+            toast.success("Actividad eliminada");
+
         } catch (error) {
             console.error("Error eliminando registro", error);
-            alert(
+
+            const status = error.response?.status;
+            if (status === 401 || status === 403) {
+                localStorage.removeItem("actividad_activa");
+                localStorage.removeItem("token");
+                localStorage.removeItem("usuario");
+                toast.error("Tu sesión fue cerrada por un administrador");
+                window.location.href = "/login";
+                return;
+            }
+
+            toast.error(
                 error.response?.data?.detail ||
                 "No se pudo eliminar la actividad"
             );

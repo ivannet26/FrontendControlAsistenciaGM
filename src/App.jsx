@@ -1,4 +1,5 @@
 import React from "react";
+import { Toaster } from "react-hot-toast";
 
 import Login from "./pages/Login/Login.jsx";
 
@@ -28,6 +29,34 @@ function App() {
 
     <BrowserRouter>
 
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          duration: 3500,
+          style: {
+            background: "#162630",
+            color: "#d3dde3",
+            border: "1px solid #344650",
+            fontSize: "14px",
+            padding: "12px 16px",
+            borderRadius: "4px",
+            boxShadow: "0 10px 30px rgba(0, 0, 0, 0.7)"
+          },
+          success: {
+            iconTheme: {
+              primary: "#10a878",
+              secondary: "#162630"
+            }
+          },
+          error: {
+            iconTheme: {
+              primary: "#f56c6c",
+              secondary: "#162630"
+            }
+          }
+        }}
+      />
+
       <Routes>
 
         <Route
@@ -44,8 +73,6 @@ function App() {
           path="/registro"
           element={<Register />}
         />
-
-        {/* LAYOUT PRINCIPAL */}
 
         <Route
           path="/app"

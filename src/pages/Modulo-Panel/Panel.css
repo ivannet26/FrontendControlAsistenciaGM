@@ -327,8 +327,8 @@
     gap: 3px;
     max-height: 540px;
     overflow-y: auto;
-    padding-right: 14px;      /* ← Espacio entre contenido y scroll */
-    margin-right: -15px;      /* ← Compensa el padding para no perder espacio */
+    padding-right: 14px;
+    margin-right: -15px;
 }
 
 .top-lista::-webkit-scrollbar {
@@ -346,7 +346,7 @@
 
 .top-lista::-webkit-scrollbar-track {
     background: #0d151c;
-    margin: 4px 0;             /* ← Margen vertical del track */
+    margin: 4px 0;
 }
 
 .top-item {
@@ -481,7 +481,7 @@
 
 
 /* ============================================================
-   RESPONSIVE
+   RESPONSIVE GENERAL
    ============================================================ */
 
 @media (max-width: 1100px) {
@@ -522,8 +522,10 @@
         grid-column: span 2;
     }
 }
+
+
 /* ============================================================
-   CONTENEDOR ACTIVIDAD DE EQUIPO
+   CONTENEDOR ACTIVIDAD DE EQUIPO (CON SCOPE)
    ============================================================ */
 
 .equipo-container {
@@ -546,9 +548,9 @@
     letter-spacing: 0.5px;
 }
 
-.equipo-cabecera {
+.equipo-container .equipo-cabecera {
     display: grid;
-    grid-template-columns: 260px 1fr 100px 120px 260px;
+    grid-template-columns: 260px 1fr 100px 120px 260px 140px;
     gap: 16px;
     padding: 8px 0 12px 0;
     border-bottom: 1px solid #263740;
@@ -570,26 +572,26 @@
     font-size: 13px;
 }
 
-.equipo-row {
+.equipo-container .equipo-row {
     display: grid;
-    grid-template-columns: 260px 1fr 100px 120px 260px;
+    grid-template-columns: 260px 1fr 100px 120px 260px 140px;
     gap: 16px;
     align-items: center;
     padding: 12px 0;
     border-bottom: 1px solid #1a2831;
 }
 
-.equipo-row:last-child {
+.equipo-container .equipo-row:last-child {
     border-bottom: none;
 }
 
-.equipo-row-yo {
+.equipo-container .equipo-row-yo {
     background: rgba(16, 165, 245, 0.04);
 }
 
 /* --------- MIEMBRO --------- */
 
-.col-miembro {
+.equipo-container .col-miembro {
     display: flex;
     align-items: center;
     gap: 12px;
@@ -620,7 +622,7 @@
 
 /* --------- ACTIVIDAD --------- */
 
-.col-actividad {
+.equipo-container .col-actividad {
     display: flex;
     flex-direction: column;
     gap: 4px;
@@ -656,7 +658,7 @@
 
 /* --------- HORA --------- */
 
-.col-hora {
+.equipo-container .col-hora {
     color: #d3dde3;
     font-size: 12.5px;
     font-variant-numeric: tabular-nums;
@@ -664,7 +666,7 @@
 
 /* --------- ESTADO --------- */
 
-.col-estado {
+.equipo-container .col-estado {
     display: flex;
     align-items: center;
     gap: 8px;
@@ -697,9 +699,10 @@
     color: #10a878;
     font-weight: 500;
 }
+
 /* --------- TOTAL + BARRA --------- */
 
-.col-total {
+.equipo-container .col-total {
     display: flex;
     align-items: center;
     gap: 12px;
@@ -728,44 +731,135 @@
     transition: width 0.3s;
 }
 
+/* --------- ACCIONES --------- */
+
+.equipo-container .col-acciones {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.equipo-container .btn-desconectar {
+    background: #111d24;
+    border: 1px solid #344650;
+    color: #aebcc5;
+    font-size: 11.5px;
+    font-weight: 500;
+    padding: 5px 14px;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+    white-space: nowrap;
+    font-family: inherit;
+}
+
+.equipo-container .btn-desconectar:hover {
+    background: #162630;
+    border-color: #4a6272;
+    color: #d3dde3;
+}
+
+.equipo-container .btn-desconectar:active {
+    background: #0d151c;
+    transform: translateY(1px);
+}
+
+.equipo-container .btn-reactivar {
+    background: #111d24;
+    border: 1px solid #344650;
+    color: #6dbf8a;
+    font-size: 11.5px;
+    font-weight: 500;
+    padding: 5px 14px;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+    white-space: nowrap;
+    font-family: inherit;
+}
+
+.equipo-container .btn-reactivar:hover {
+    background: #162630;
+    border-color: #4a7a5c;
+    color: #8dd4a3;
+}
+
+.equipo-container .btn-reactivar:active {
+    background: #0d151c;
+    transform: translateY(1px);
+}
+
 
 /* ============================================================
    RESPONSIVE EQUIPO
    ============================================================ */
 
 @media (max-width: 1100px) {
-    .equipo-cabecera,
-    .equipo-row {
-        grid-template-columns: 220px 1fr 90px 110px 200px;
+    .equipo-container .equipo-cabecera,
+    .equipo-container .equipo-row {
+        grid-template-columns: 220px 1fr 90px 110px 200px 120px;
         gap: 12px;
     }
 }
 
 @media (max-width: 900px) {
-    .equipo-cabecera {
+    .equipo-container .equipo-cabecera {
         display: none;
     }
 
-    .equipo-row {
-        grid-template-columns: 1fr;
-        gap: 8px;
+    .equipo-container .equipo-row {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 8px 12px;
         padding: 14px 0;
+        align-items: center;
     }
 
-    .col-total {
+    .equipo-container .col-miembro,
+    .equipo-container .col-actividad,
+    .equipo-container .col-hora,
+    .equipo-container .col-estado,
+    .equipo-container .col-total {
+        grid-column: 1 / -1;
+    }
+
+    .equipo-container .col-total {
         flex-direction: column;
         align-items: flex-start;
         gap: 6px;
     }
 
-    .equipo-barra-fondo {
+    .equipo-container .equipo-barra-fondo {
         width: 100%;
+        height: 14px;
+        min-height: 14px;
+        background: #24343d;
+        border: 1px solid #3b5260;
+        border-radius: 4px;
+    }
+
+    .equipo-container .equipo-barra-relleno {
+        height: 100%;
+        min-height: 100%;
+        background: #10a5f5;
+    }
+
+    .equipo-container .col-acciones {
+        grid-column: 2;
+        justify-content: flex-end;
     }
 }
+
+
+/* ============================================================
+   KPI Y PANEL USER LABEL
+   ============================================================ */
+
 .kpi-sub {
     font-size: 11px;
     color: #9fb2c0;
 }
+
 .panel-user-label {
     height: 36px;
     padding: 0 14px;
@@ -776,9 +870,12 @@
     display: flex;
     align-items: center;
     gap: 6px;
-}/* ============================================================
+}
+
+
+/* ============================================================
    PANEL FILTROS RESPONSIVE
-============================================================ */
+   ============================================================ */
 
 .panel-actions {
     display: flex;
@@ -787,137 +884,35 @@
     flex-wrap: wrap;
 }
 
-
-/* Selector usuario */
-
 .panel-user-selector,
 .panel-user-label,
 .panel-date-selector {
     flex-shrink: 0;
 }
 
-
-
-/* Botón usuario */
-
 .panel-user-selector > button,
 .panel-user-label {
-
     height: 38px;
     min-width: 110px;
-
 }
 
-
-
-/* Selector fechas */
-
 .panel-date-selector {
-
     white-space: nowrap;
-
 }
 
 
 /* ============================================================
    TABLET
-============================================================ */
+   ============================================================ */
 
-@media(max-width:900px){
-
+@media (max-width: 900px) {
     .panel-header {
-
         flex-direction: column;
         align-items: stretch;
-
     }
-
 
     .panel-actions {
-
-        width:100%;
-        justify-content:flex-end;
-
+        width: 100%;
+        justify-content: flex-end;
     }
-
-}
-
-
-/* ============================================================
-   EQUIPO MOBILE - BARRA VISIBLE
-============================================================ */
-
-@media(max-width:900px){
-
-    .equipo-row{
-        display:flex;
-        flex-direction:column;
-        gap:10px;
-        padding:15px 8px;
-    }
-
-
-    .col-total{
-
-        width:100% !important;
-
-        display:flex !important;
-
-        flex-direction:column !important;
-
-        gap:8px;
-
-    }
-
-
-    .equipo-total-texto{
-
-        font-size:14px;
-
-        font-weight:600;
-
-        color:white;
-
-    }
-
-
-
-    /* CONTENEDOR DE BARRA */
-
-    .equipo-barra-fondo{
-
-        width:100% !important;
-
-        height:14px !important;
-
-        min-height:14px !important;
-
-        display:block !important;
-
-        background:#24343d !important;
-
-        border:1px solid #3b5260 !important;
-
-        overflow:hidden;
-
-        border-radius:4px;
-
-    }
-
-
-
-    /* RELLENO */
-
-    .equipo-barra-relleno{
-
-        height:100% !important;
-
-        min-height:100% !important;
-
-        display:block !important;
-
-        background:#10a5f5 !important;
-
-    }
-
-}
+}/*

@@ -46,7 +46,7 @@ function Login() {
       );
 
 
-      sessionStorage.setItem(
+      localStorage.setItem(
         "usuario",
         JSON.stringify(respuesta.usuario)
       );
@@ -153,7 +153,7 @@ function Login() {
               }}
             />
 
-            {/* mensaje de alerta de rror para el login */}
+            {/* mensaje de alerta de error para el login */}
             {error && (
               <p className="error-message">
                 {error}

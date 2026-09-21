@@ -614,3 +614,14 @@
         height: 34px;
     }
 }
+/* ============================================================
+   COLUMNA ACCIONES (específica de Equipo)
+   ============================================================ */
+
+.miembros-tabla-container .equipo-col-acciones {
+    width: 60px;
+    text-align: center;
+    padding: 0;
+    position: relative;
+    overflow: visible;
+}
