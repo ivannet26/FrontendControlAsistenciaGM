@@ -18,23 +18,23 @@ import {
     crearMiembroAPI,
     editarMiembroAPI,
     eliminarMiembroAPI,
-    crearGrupoAPI,          
-    editarGrupoAPI,        
-    eliminarGrupoAPI       
+    crearGrupoAPI,
+    editarGrupoAPI,
+    eliminarGrupoAPI
 } from "../../services/equipoService";
 
 
 function Equipo() {
 
     const [mostrarModal, setMostrarModal] = useState(false);
-    const [mostrarModalGrupo, setMostrarModalGrupo] = useState(false);   
+    const [mostrarModalGrupo, setMostrarModalGrupo] = useState(false);
 
     const [busqueda, setBusqueda] = useState("");
-    const [busquedaGrupo, setBusquedaGrupo] = useState("");              
-    const [nuevoGrupo, setNuevoGrupo] = useState("");                    
+    const [busquedaGrupo, setBusquedaGrupo] = useState("");
+    const [nuevoGrupo, setNuevoGrupo] = useState("");
 
     const [miembroEditar, setMiembroEditar] = useState(null);
-    const [grupoEditar, setGrupoEditar] = useState(null);                
+    const [grupoEditar, setGrupoEditar] = useState(null);
 
     const [rolFiltro, setRolFiltro] = useState("Todos");
     const [grupoFiltro, setGrupoFiltro] = useState("Todos");
@@ -204,9 +204,9 @@ function Equipo() {
 
 
     return (
-        
+
         <div className="equipo-container">
-          
+
             <div className="equipo-top">
                 <h1>Equipo</h1>
             </div>
@@ -317,7 +317,7 @@ function Equipo() {
                                                 estado: actualizado.estado,
                                                 tiene_clave_temp: actualizado.tiene_clave_temp,
                                                 clave_temp_mascara: actualizado.clave_temp_mascara
-                                              }
+                                            }
                                             : m
                                     )
                                 );
@@ -326,7 +326,7 @@ function Equipo() {
 
                             } else {
                                 const creado = await crearMiembroAPI({
-                                    usuario_id: nuevoMiembro.usuario_id,
+                                    email: nuevoMiembro.email,
                                     grupo_id: nuevoMiembro.grupo_id || null,
                                     tipo_usuario: nuevoMiembro.tipo_usuario,
                                     estado: nuevoMiembro.estado,
@@ -357,7 +357,17 @@ function Equipo() {
                             setMiembroEditar(null);
                         } catch (error) {
                             console.error("Error guardando miembro", error);
-                            toast.error(error.response?.data?.detail || "No se pudo guardar el miembro");
+
+                            const detail = error.response?.data?.detail;
+                            let mensaje = "No se pudo guardar el miembro";
+
+                            if (typeof detail === "string") {
+                                mensaje = detail;
+                            } else if (Array.isArray(detail) && detail.length > 0) {
+                                mensaje = detail[0].msg || mensaje;
+                            }
+
+                            toast.error(mensaje);
                         }
                     }}
                 />
@@ -412,7 +422,7 @@ function Equipo() {
                     }}
                 />
             }
-              <LoadingOverlay visible={cargando} />
+            <LoadingOverlay visible={cargando} />
 
         </div>
     );

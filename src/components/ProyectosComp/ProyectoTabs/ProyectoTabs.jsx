@@ -3,13 +3,9 @@ import "./ProyectoTabs.css";
 
 const TABS = [
     "TAREAS",
-    "ACCESO",
-    "ESTADO",
-    "PRONÓSTICO",
-    "NOTA",
-    "CONFIGURACIÓN"
+    
 ];
-
+//"ACCESO", "ESTADO","PRONÓSTICO","NOTA","CONFIGURACIÓN"
 
 function ProyectoTabs({ tabActiva, setTabActiva }) {
 

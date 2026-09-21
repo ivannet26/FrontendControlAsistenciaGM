@@ -25,7 +25,7 @@ function ModalMiembro({
     const [claveTemp, setClaveTemp] = useState("");
 
     // Solo para crear
-    const [usuarioId, setUsuarioId] = useState("");
+    const [email, setEmail] = useState("");
 
 
     const guardarMiembro = () => {
@@ -41,13 +41,13 @@ function ModalMiembro({
             });
         } else {
             // Crear
-            if (!usuarioId) {
-                toast.error("Debes ingresar el ID del usuario");
+            if (!email) {
+                toast.error("Debes ingresar el correo del usuario");
                 return;
             }
 
             guardar({
-                usuario_id: parseInt(usuarioId),
+                email: email.trim().toLowerCase(),
                 grupo_id: grupoId ? parseInt(grupoId) : null,
                 tipo_usuario: tipoUsuario,
                 estado: estado,
@@ -74,15 +74,15 @@ function ModalMiembro({
 
                     {!miembroEditar && (
                         <>
-                            <label>ID de usuario *</label>
+                            <label>Correo del usuario *</label>
                             <input
-                                type="number"
-                                placeholder="Ej: 8"
-                                value={usuarioId}
-                                onChange={(e) => setUsuarioId(e.target.value)}
+                                type="email"
+                                placeholder="Ej: juan@correo.com"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
                             />
                             <p className="mensaje-invitacion">
-                                Ingresa el ID del usuario registrado que deseas agregar al equipo.
+                                Ingresa el correo del usuario registrado que deseas agregar al equipo.
                             </p>
                         </>
                     )}

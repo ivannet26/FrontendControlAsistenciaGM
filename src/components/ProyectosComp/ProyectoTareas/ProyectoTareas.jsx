@@ -332,7 +332,7 @@ function ProyectoTareas({ proyectoId }) {
                 <select className="filtro-tareas">
 
                     <option>
-                        Mostrar todo
+                       Mostrar todo
                     </option>
 
                 </select>

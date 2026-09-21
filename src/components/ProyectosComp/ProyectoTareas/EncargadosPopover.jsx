@@ -8,7 +8,6 @@ function EncargadosPopover({
     tareaId,                        
     miembrosAsignados = [],
     todosLosMiembros = [],
-    grupos = [],
     onAsignar,                    
     onDesasignar                    
 }) {
@@ -38,24 +37,29 @@ function EncargadosPopover({
 
 
     const abrir = () => {
-        if (btnRef.current) {
-            const rect = btnRef.current.getBoundingClientRect();
-            setPos({
-                top: rect.bottom + 6,
-                left: rect.left
-            });
-        }
-        setAbierto(!abierto);
-    };
+    if (btnRef.current) {
+        const rect = btnRef.current.getBoundingClientRect();
+
+        // Altura estimada del popover (buscador + header + lista)
+        const alturaPopover = 400;
+
+        // Detectar si cabe abajo o hay que abrir hacia arriba
+        const espacioAbajo = window.innerHeight - rect.bottom;
+        const abrirHaciaArriba = espacioAbajo < alturaPopover;
+
+        setPos({
+            top: abrirHaciaArriba
+                ? rect.top - alturaPopover - 6   
+                : rect.bottom + 6,               
+            left: rect.left
+        });
+    }
+    setAbierto(!abierto);
+};
 
 
     // Filtros
     const texto = busqueda.toLowerCase();
-
-    const gruposFiltrados = useMemo(() => {
-        if (!texto) return grupos;
-        return grupos.filter(g => g.nombre.toLowerCase().includes(texto));
-    }, [grupos, texto]);
 
     const miembrosFiltrados = useMemo(() => {
         if (!texto) return todosLosMiembros;
@@ -112,7 +116,7 @@ function EncargadosPopover({
                     <div className="encargados-buscador">
                         <Search size={16} />
                         <input
-                            placeholder="Buscar usuarios o grupos"
+                            placeholder="Buscar usuarios"
                             value={busqueda}
                             onChange={(e) => setBusqueda(e.target.value)}
                             autoFocus
@@ -127,24 +131,6 @@ function EncargadosPopover({
 
 
                     <div className="encargados-lista">
-
-                        {/* GRUPOS - solo visual */}
-                        {gruposFiltrados.length > 0 && (
-                            <>
-                                <div className="encargados-seccion">GRUPOS</div>
-
-                                {gruposFiltrados.map(grupo => (
-                                    <label
-                                        key={`grupo-${grupo.id}`}
-                                        className="encargados-item"
-                                    >
-                                        <input type="checkbox" disabled />
-                                        <span>{grupo.nombre}</span>
-                                    </label>
-                                ))}
-                            </>
-                        )}
-
 
                         {/* USUARIOS - ✅ ACTIVOS */}
                         <div className="encargados-seccion">USUARIOS</div>
@@ -182,7 +168,7 @@ function EncargadosPopover({
                             </div>
                         ))}
 
-                        {miembrosFiltrados.length === 0 && gruposFiltrados.length === 0 && (
+                        {miembrosFiltrados.length === 0 && (
                             <div className="encargados-vacio">
                                 No se encontraron resultados
                             </div>

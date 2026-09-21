@@ -116,6 +116,7 @@
     background: #101b22;
     border: 1px solid #263740;
     width: 100%;
+    overflow: visible;
 }
 
 .tabla-header-tareas {
@@ -150,29 +151,30 @@
 
 
 /* =========================
-   ANCHOS FIJOS DE COLUMNAS
+   ANCHOS DE COLUMNAS (ajustados)
 ========================= */
 
-/* Columna 1: NOMBRE */
+/* Columna 1: NOMBRE (ancho fijo más pequeño) */
 .tareas-tabla-container th:nth-child(1),
 .tareas-tabla-container td:nth-child(1) {
-    width: 45%;
+    width: 260px;
     text-align: left;
 }
 
-/* Columna 2: ENCARGADOS */
+/* Columna 2: ENCARGADOS (pegado a nombre) */
 .tareas-tabla-container th:nth-child(2),
 .tareas-tabla-container td:nth-child(2) {
-    width: 35%;
+    width: 260px;
     text-align: left;
+    padding-left: 20px;
 }
 
-/* Columna 3: ACCIONES (los 3 puntos) */
+/* Columna 3: ACCIONES (a la derecha) */
 .tareas-tabla-container th:nth-child(3),
 .tareas-tabla-container td:nth-child(3) {
-    width: 60px;
-    text-align: center;
-    padding: 14px 0;
+    width: auto;   /* ← ocupa el resto del espacio */
+    text-align: right;
+    padding: 14px 20px;
 }
 
 
@@ -220,26 +222,28 @@
 ========================= */
 
 .col-acciones-tareas {
-    width: 60px;
-    text-align: center;
+    width: 70px;
+   text-align: right !important;
+    padding-right: 20px !important;
     position: relative;
     overflow: visible;
-    padding: 0 !important;
+   
 }
 
 .menu-icon-tarea {
     color: #5f6f7a;
     cursor: pointer;
     transition: color 0.15s;
+    display: inline-block;
+    vertical-align: middle;
 }
 
 .menu-icon-tarea:hover {
     color: white;
 }
 
-
 /* =========================
-   BOTÓN ENCARGADOS (fallback por si acaso)
+   BOTÓN ENCARGADOS
 ========================= */
 
 .encargados-btn {
@@ -268,131 +272,76 @@
     color: white;
     border-color: #10a5f5;
 }
+
+
 /* =========================
    TABLA RESPONSIVE
 ========================= */
 
-
 .tabla-scroll-tareas {
-
-    width:100%;
-
-    overflow-x:auto;
-
-    overflow-y:hidden;
-
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
 }
-
-
 
 .tabla-scroll-tareas table {
-
-    width:100%;
-
-    min-width:650px;
-
+    width: 100%;
+    min-width: 650px;
 }
-
-
-
-/* Scroll */
 
 .tabla-scroll-tareas::-webkit-scrollbar {
-
-    height:8px;
-
+    height: 8px;
 }
-
 
 .tabla-scroll-tareas::-webkit-scrollbar-thumb {
-
-    background:#344650;
-
+    background: #344650;
+    border-radius: 4px;
 }
-
 
 .tabla-scroll-tareas::-webkit-scrollbar-track {
-
-    background:#101b22;
-
+    background: #101b22;
 }
+
+
 /* =========================
    TOOLBAR RESPONSIVE
 ========================= */
 
+@media (max-width: 700px) {
 
-@media(max-width:700px){
+    .tareas-toolbar {
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        gap: 8px;
+        padding: 8px;
+        height: auto;
+    }
 
+    .filtro-tareas {
+        height: 40px;
+        padding: 0 10px;
+        font-size: 12px;
+        flex-shrink: 0;
+    }
 
-.tareas-toolbar {
+    .buscador-tareas {
+        width: 180px;
+        height: 38px;
+        margin-left: 0;
+        flex-shrink: 0;
+    }
 
-    overflow-x:auto;
+    .tareas-toolbar-der {
+        margin-left: 0;
+        padding-right: 0;
+        flex-shrink: 0;
+    }
 
-    flex-wrap:nowrap;
+    .input-nueva-tarea {
+        width: 180px;
+    }
 
-    gap:8px;
-
-    padding:8px;
-
-    height:auto;
-
-}
-
-
-
-.filtro-tareas {
-
-    height:40px;
-
-    padding:0 10px;
-
-    font-size:12px;
-
-    flex-shrink:0;
-
-}
-
-
-
-.buscador-tareas {
-
-    width:180px;
-
-    height:38px;
-
-    margin-left:0;
-
-    flex-shrink:0;
-
-}
-
-
-
-.tareas-toolbar-der {
-
-    margin-left:0;
-
-    padding-right:0;
-
-    flex-shrink:0;
-
-}
-
-
-
-.input-nueva-tarea {
-
-    width:180px;
-
-}
-
-
-
-.btn-anadir-tarea {
-
-    padding:0 15px;
-
-}
-
-
+    .btn-anadir-tarea {
+        padding: 0 15px;
+    }
 }
