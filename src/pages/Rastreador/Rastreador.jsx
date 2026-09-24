@@ -125,23 +125,35 @@ function Rastreador() {
         try {
             const data = await obtenerHistorialTiemposAPI();
 
-            const transformados = data.map(r => ({
-                id: r.id,
-                actividad: r.descripcion || "",
-                proyecto: {
-                    id: r.proyecto_id,
-                    nombre: r.nombre_proyecto || "Sin proyecto",
-                    color: r.color_proyecto || "#10b981"
-                },
-                tarea: r.tarea_id
-                    ? { id: r.tarea_id, nombre: r.titulo_tarea || "" }
-                    : null,
-                etiquetas: [],
-                horaInicio: r.inicio,
-                horaFin: r.fin,
-                tiempo: r.duracion_segundos || 0,
-                fecha: r.inicio
-            }));
+            // Leemos las etiquetas guardadas localmente
+            const etiquetasPorRegistro = JSON.parse(
+                localStorage.getItem("etiquetas_por_registro") || "{}"
+            );
+
+            const transformados = data.map(r => {
+                const etiquetasBackend = r.etiquetas || r.tags || [];
+                const etiquetasLocal = etiquetasPorRegistro[r.id] || [];
+
+                return {
+                    id: r.id,
+                    actividad: r.descripcion || "",
+                    proyecto: {
+                        id: r.proyecto_id,
+                        nombre: r.nombre_proyecto || "Sin proyecto",
+                        color: r.color_proyecto || "#10b981"
+                    },
+                    tarea: r.tarea_id
+                        ? { id: r.tarea_id, nombre: r.titulo_tarea || "" }
+                        : null,
+                    etiquetas: etiquetasBackend.length > 0
+                        ? etiquetasBackend
+                        : etiquetasLocal,
+                    horaInicio: r.inicio,
+                    horaFin: r.fin,
+                    tiempo: r.duracion_segundos || 0,
+                    fecha: r.inicio
+                };
+            });
 
             setRegistros(transformados);
         } catch (error) {
@@ -272,11 +284,26 @@ function Rastreador() {
         }
 
         try {
-            const registro = await iniciarTiempoAPI({
+            const payload = {
                 proyecto_id: proyecto.id,
                 tarea_id: tarea.id,
-                descripcion: actividad
-            });
+                descripcion: actividad,
+                etiquetas_ids: etiquetasSeleccionadas.map(e => e.id)
+            };
+
+            const registro = await iniciarTiempoAPI(payload);
+
+            // Guardamos las etiquetas asociadas al ID del registro en localStorage
+            if (etiquetasSeleccionadas.length > 0) {
+                const etiquetasPorRegistro = JSON.parse(
+                    localStorage.getItem("etiquetas_por_registro") || "{}"
+                );
+                etiquetasPorRegistro[registro.id] = etiquetasSeleccionadas;
+                localStorage.setItem(
+                    "etiquetas_por_registro",
+                    JSON.stringify(etiquetasPorRegistro)
+                );
+            }
 
             const inicio = new Date(registro.inicio);
 
@@ -394,8 +421,21 @@ function Rastreador() {
             const nuevo = await iniciarTiempoAPI({
                 proyecto_id: registro.proyecto.id,
                 tarea_id: registro.tarea?.id || null,
-                descripcion: registro.actividad
+                descripcion: registro.actividad,
+                etiquetas_ids: (registro.etiquetas || []).map(e => e.id)
             });
+
+            // Guardamos las etiquetas del registro continuado
+            if (registro.etiquetas && registro.etiquetas.length > 0) {
+                const etiquetasPorRegistro = JSON.parse(
+                    localStorage.getItem("etiquetas_por_registro") || "{}"
+                );
+                etiquetasPorRegistro[nuevo.id] = registro.etiquetas;
+                localStorage.setItem(
+                    "etiquetas_por_registro",
+                    JSON.stringify(etiquetasPorRegistro)
+                );
+            }
 
             const inicio = new Date(nuevo.inicio);
 
@@ -458,6 +498,16 @@ function Rastreador() {
 
         try {
             await eliminarTiempoAPI(registroId);
+
+            // Borramos las etiquetas asociadas al registro eliminado
+            const etiquetasPorRegistro = JSON.parse(
+                localStorage.getItem("etiquetas_por_registro") || "{}"
+            );
+            delete etiquetasPorRegistro[registroId];
+            localStorage.setItem(
+                "etiquetas_por_registro",
+                JSON.stringify(etiquetasPorRegistro)
+            );
 
             setRegistros(prev => prev.filter(r => r.id !== registroId));
             setMenuAbierto(null);

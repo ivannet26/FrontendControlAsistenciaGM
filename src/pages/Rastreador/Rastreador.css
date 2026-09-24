@@ -3,661 +3,290 @@
 ========================= */
 
 .tracker-page{
-
     width:100%;
-
     min-height:100vh;
-
     overflow-y:auto;
-
     background:#24343d;
-
     padding:10px 8px;
-
     box-sizing:border-box;
-
 }
-
 
 
 /* =========================
    BARRA SUPERIOR
 ========================= */
 
-
 .tracker-header{
-
-
     width:100%;
-
     height:60px;
-
-
     background:#111d24;
-
-
     border:1px solid #344650;
-
-
     display:flex;
-
-
     align-items:center;
-
-
     gap:12px;
-
-
     padding:10px;
-
-
     box-sizing:border-box;
-
-
 }
-
 
 
 /* =========================
    INPUT ACTIVIDAD
 ========================= */
 
-
 .tracker-header input{
-
-
     flex:1;
-
-
     height:40px;
-
-
     padding:0 15px;
-
-
     background:#101b22;
-
-
     border:1px solid #344650;
-
-
     color:white;
-
-
     outline:none;
-
-
     font-size:14px;
-
-
 }
-
-
 
 .tracker-header input::placeholder{
-
-
     color:#8ea0af;
-
-
 }
-
-
 
 .tracker-header input:focus{
-
-
     border-color:#10a5f5;
-
-
 }
-
-
-
 
 
 /* =========================
    CONTENIDO CENTRAL
 ========================= */
 
-
 .tracker-content{
-
-
     min-height:calc(100% - 80px);
-
-
     display:flex;
-
-
     justify-content:center;
-
-
     align-items:center;
-
-
 }
-
-
-
 
 
 /* =========================
    TARJETA INICIAL
 ========================= */
 
-
 .tracker-card{
-
-
     width:350px;
-
-
     padding:40px;
-
-
     background:#111c22;
-
-
     border:1px solid #263740;
-
-
     text-align:center;
-
-
     color:white;
-
-
 }
-
-
-
-
 
 .clock-icon{
-
-
     font-size:55px;
-
-
     margin-bottom:20px;
-
-
 }
-
-
-
 
 .tracker-card h2{
-
-
     font-size:22px;
-
-
     font-weight:400;
-
-
     margin-bottom:15px;
-
-
 }
-
-
-
-
 
 .tracker-card p{
-
-
     color:#8ea0af;
-
-
     font-size:14px;
-
-
     line-height:1.5;
-
-
 }
-
-
-
-
-
 
 
 /* =========================
    BOTON INICIO
 ========================= */
 
-
 .start-btn{
-
-
     height:40px;
-
-
     padding:0 25px;
-
-
     background:#10a5f5;
-
-
     border:none;
-
-
     color:white;
-
-
     font-size:14px;
-
-
     font-weight:600;
-
-
     cursor:pointer;
-
-
 }
-
-
 
 .start-btn:hover{
-
-
     background:#0c94dc;
-
-
 }
-
-
-
-
 
 
 /* =========================
    TIMER
 ========================= */
 
-
 .timer{
-
-
     color:white;
-
-
     font-size:18px;
-
-
     font-weight:600;
-
-
     min-width:90px;
-
-
     text-align:center;
-
-
 }
-
-
-
-
-
 
 
 /* =========================
    RESPONSIVE
 ========================= */
 
-
 @media(max-width:768px){
-
-
     .tracker-header{
-
-
         height:auto;
-
-
         flex-wrap:wrap;
-
-
     }
-
-
 
     .tracker-header input{
-
-
         width:100%;
-
-
         flex:none;
-
-
     }
-
-
 
     .tracker-card{
-
-
         width:90%;
-
-
     }
-
-
 }
+
+
 /* =========================
-   CONTENEDOR
+   CONTENEDOR ETIQUETAS
 ========================= */
 
 .etiqueta-selector{
-
     position:relative;
-
     display:flex;
-
     align-items:center;
-
 }
-
 
 
 /* =========================
    BOTON ICONO ETIQUETA
 ========================= */
 
-
 .etiqueta-btn{
-
-
     height:40px;
-
     width:45px;
-
-
     display:flex;
-
     justify-content:center;
-
     align-items:center;
-
-
     background:transparent;
-
     border:none;
-
-
     color:#8ea0af;
-
-
     cursor:pointer;
-
-
 }
-
-
 
 .etiqueta-btn:hover{
-
     color:#10a5f5;
-
 }
-
 
 
 /* =========================
    PANEL ETIQUETAS
 ========================= */
 
-
 .etiqueta-panel{
-
-
     position:absolute;
-
-
     top:45px;
-
-
     right:-10px;
-
-
     width:330px;
-
-
     background:#111c22;
-
-
     border:1px solid #344650;
-
-
     z-index:2000;
-
-
     padding:10px;
-
-
     box-sizing:border-box;
-
-
     box-shadow:0 8px 20px rgba(0,0,0,.5);
-
-
 }
-
-
-
 
 
 /* =========================
    BUSCADOR
 ========================= */
 
-
 .etiqueta-search{
-
-
     height:38px;
-
-
     width:100%;
-
-
     display:flex;
-
-
     align-items:center;
-
-
     gap:8px;
-
-
     background:#24343d;
-
-
     padding:0 10px;
-
-
     box-sizing:border-box;
-
-
 }
-
-
 
 .etiqueta-search svg{
-
-
     color:#8ea0af;
-
-
     flex-shrink:0;
-
-
 }
-
-
-
 
 .etiqueta-search input{
-
-
     width:100%;
-
-
     background:none;
-
-
     border:none;
-
-
     outline:none;
-
-
     color:white;
-
-
     font-size:14px;
-
-
 }
-
-
 
 .etiqueta-search input::placeholder{
-
-
     color:#8ea0af;
-
-
 }
-
-
-
 
 
 /* =========================
    LISTA
 ========================= */
 
-
 .lista-etiquetas{
-
-
     margin-top:10px;
-
-
     max-height:300px;
-
-
     overflow-y:auto;
-
-
     width:100%;
-
-
 }
-
-
-
-
 
 .lista-etiquetas::-webkit-scrollbar{
-
-
     width:4px;
-
-
 }
-
-
 
 .lista-etiquetas::-webkit-scrollbar-thumb{
-
-
     background:#10a5f5;
-
-
     border-radius:10px;
-
-
 }
-
-
 
 .lista-etiquetas::-webkit-scrollbar-track{
-
-
     background:#101b22;
-
-
 }
-
-
-
-
-
 
 
 /* =========================
    ITEM ETIQUETA
 ========================= */
 
-
 .etiqueta-item{
-
-
     width:100%;
-
-
     height:40px;
-
-
     display:flex;
-
-
     align-items:center;
-
-
     gap:12px;
-
-
     padding:0 10px;
-
-
     box-sizing:border-box;
-
-
     cursor:pointer;
-
-
     color:#b5c2cc;
-
-
 }
+
 
 /* ============================================================
    REGISTROS
 ============================================================ */
 
 .registro-container{
-
     width:100%;
-
     margin-top:20px;
-
     background:#111c22;
-
     border:1px solid #263943;
-
     box-sizing:border-box;
-
     overflow:hidden;
-
 }
 
 
@@ -666,45 +295,26 @@
 ============================================================ */
 
 .registro-header{
-
     height:45px;
-
     display:flex;
-
     align-items:center;
-
     justify-content:space-between;
-
     padding:0 20px;
-
     background:#0d171d;
-
     color:#9aa8b3;
-
     font-size:13px;
-
 }
-
 
 .registro-total{
-
     display:flex;
-
     align-items:center;
-
     gap:10px;
-
 }
-
 
 .registro-total strong{
-
     color:white;
-
     font-size:16px;
-
 }
-
 
 
 /* ============================================================
@@ -712,202 +322,120 @@
 ============================================================ */
 
 .registro-row{
-
     width:100%;
-
     min-height:60px;
-
     display:flex;
-
     align-items:center;
-
     padding:0 20px;
-
     background:#17242c;
-
     border-top:1px solid #263943;
-
     box-sizing:border-box;
-
 }
-
 
 
 /* ACTIVIDAD */
 
 .registro-actividad{
-
-    width:220px;
-
+    width:200px;
     flex-shrink:0;
-
     color:#e8f0f5;
-
     font-size:14px;
-
+    
 }
-
 
 
 /* PROYECTO */
 
 .registro-proyecto{
-
     width:320px;
-
     flex-shrink:0;
-
     display:flex;
-
     align-items:center;
-
     gap:10px;
-
     color:#159de0;
-
     font-size:14px;
-
     white-space:nowrap;
-
+    margin-left: 10px;
 }
-
 
 .punto{
-
     width:8px;
-
     height:8px;
-
     border-radius:50%;
-
     background:#10a878;
-
     flex-shrink:0;
-
 }
 
 
-
-/* ETIQUETAS */
+/* ETIQUETAS - Corregido el padding-left */
 
 .registro-tags{
-
     flex:1;
-
     display:flex;
-
     align-items:center;
-
     gap:6px;
-
     overflow:hidden;
-
-    padding-left:430px;
-
+    padding-left: 100px;
+    min-width:150px;
 }
-
-
 
 .tag{
-
     background:#24343d;
-
     border:1px solid #344650;
-
     color:#cbd5db;
-
     padding:5px 10px;
-
     font-size:12px;
-
     border-radius:2px;
-
     white-space:nowrap;
-
 }
-
 
 
 /* HORA */
 
 .registro-hora{
-
     width:160px;
-
     flex-shrink:0;
-
     text-align:center;
-
     color:#cbd5db;
-
     font-size:14px;
-
 }
-
 
 
 /* TIEMPO */
 
 .registro-tiempo{
-
     width:100px;
-
     flex-shrink:0;
-
     text-align:center;
-
     color:white;
-
     font-size:17px;
-
     font-weight:bold;
-
 }
-
 
 
 /* ACCIONES */
 
 .registro-actions{
-
     width:70px;
-
     flex-shrink:0;
-
     margin-left:10px;
-
     display:flex;
-
     justify-content:flex-end;
-
     align-items:center;
-
     gap:15px;
-
 }
-
 
 .registro-actions button{
-
     background:none;
-
     border:none;
-
     color:#8ea0af;
-
     font-size:20px;
-
     cursor:pointer;
-
 }
-
 
 .registro-actions button:hover{
-
     color:#10a5f5;
-
 }
-
 
 
 /* ============================================================
@@ -915,75 +443,41 @@
 ============================================================ */
 
 .semana-bloque{
-
     width:100%;
-
     height:auto;
-
     margin-top:25px;
-
 }
-
-
 
 .semana-header{
-
     height:40px;
-
     display:flex;
-
     align-items:center;
-
     justify-content:space-between;
-
     padding:0 20px;
-
     background:#0a1218;
-
     color:#9aa8b3;
-
     font-size:13px;
-
     font-weight:600;
-
     border:1px solid #263943;
-
     border-bottom:none;
-
 }
-
 
 .semana-total{
-
     display:flex;
-
     align-items:center;
-
     gap:10px;
-
 }
-
 
 .semana-total strong{
-
     color:#10a5f5;
-
     font-size:14px;
-
 }
-
-
 
 .semana-bloque .registro-container{
-
     margin-top:0;
-
     margin-bottom:15px;
-
     border-top:none;
-
 }
-
 
 
 /* ============================================================
@@ -999,7 +493,7 @@
 
     .registro-container{
         width:100%;
-        background:#17242c; /* mismo color que las filas */
+        background:#17242c;
         overflow-x:auto;
         overflow-y:hidden;
     }
@@ -1008,7 +502,7 @@
         width:850px;
         min-width:850px;
         height:60px;
-        background:transparent; /* para que se vea el fondo del contenedor */
+        background:transparent;
     }
 
     .registro-container::-webkit-scrollbar{
@@ -1020,8 +514,42 @@
         border-radius:10px;
     }
 
-    /* Opcional: que el header de fecha también se desplace con fondo */
     .registro-header{
-        min-width:850px; /* para que acompañe el scroll */
+        min-width:850px;
     }
+}
+/* ============================================================
+   MENU FLOTANTE (PORTAL)
+============================================================ */
+
+.menu-registro-portal{
+    background:#111c22;
+    border:1px solid #344650;
+    border-radius:4px;
+    padding:6px;
+    box-shadow:0 8px 20px rgba(0,0,0,.5);
+    min-width:150px;
+}
+
+.menu-item-eliminar{
+    width:100%;
+    height:38px;
+    display:flex;
+    align-items:center;
+    justify-content:flex-start;
+    padding:0 14px;
+    background:transparent;
+    border:none;
+    color:#cbd5db;
+    font-size:14px;
+    cursor:pointer;
+    text-align:left;
+    box-sizing:border-box;
+    border-radius:3px;
+    transition:background .15s ease, color .15s ease;
+}
+
+.menu-item-eliminar:hover{
+    background:#2a3b45;
+    
 }
