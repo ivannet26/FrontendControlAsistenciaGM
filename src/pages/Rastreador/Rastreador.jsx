@@ -12,7 +12,8 @@ import {
     iniciarTiempoAPI,
     detenerTiempoAPI,
     obtenerHistorialTiemposAPI,
-    eliminarTiempoAPI
+    eliminarTiempoAPI,
+    obtenerTiempoActivoAPI   // ⬅️ AGREGADO
 } from "../../services/tareasService";
 
 
@@ -97,7 +98,6 @@ function Rastreador() {
     useEffect(() => {
         cargarHistorial();
         cargarEtiquetas();
-        recuperarActividadActiva();
     }, []);
 
 
@@ -125,7 +125,6 @@ function Rastreador() {
         try {
             const data = await obtenerHistorialTiemposAPI();
 
-            // Leemos las etiquetas guardadas localmente
             const etiquetasPorRegistro = JSON.parse(
                 localStorage.getItem("etiquetas_por_registro") || "{}"
             );
@@ -173,31 +172,100 @@ function Rastreador() {
 
 
     // =====================================
-    // RECUPERAR ACTIVIDAD ACTIVA
+    // RECUPERAR ACTIVIDAD ACTIVA (DEL BACKEND)
     // =====================================
 
-    const recuperarActividadActiva = () => {
-        const guardado = localStorage.getItem("actividad_activa");
+       // =====================================
+    // RECUPERAR ACTIVIDAD ACTIVA (DEL BACKEND)
+    // =====================================
 
-        if (!guardado) return;
+    const recuperarActividadActiva = async () => {
+        try {
+            const data = await obtenerTiempoActivoAPI();
 
-        const data = JSON.parse(guardado);
+            // Caso 1: NO hay temporizador en el servidor → LIMPIAR TODO
+            if (!data || !data.inicio) {
+                // Siempre limpiamos, sin condiciones (así evitamos estados fantasma)
+                setActivo(false);
+                setBloqueado(false);
+                setSegundos(0);
+                setHoraInicio(null);
+                setActividad("");
+                setProyecto(null);
+                setTarea(null);
+                setEtiquetasSeleccionadas([]);
+                localStorage.removeItem("actividad_activa");
+                return;
+            }
 
-        setActividad(data.actividad || "");
-        setProyecto(data.proyecto || null);
-        setTarea(data.tarea || null);
-        setEtiquetasSeleccionadas(data.etiquetas || []);
+            // Caso 2: SÍ hay temporizador en el servidor
+            const guardado = localStorage.getItem("actividad_activa");
+            const cacheLocal = guardado ? JSON.parse(guardado) : {};
 
-        const inicio = new Date(data.horaInicio);
-        setHoraInicio(inicio);
+            // Cargamos TODO el estado desde el backend
+            const inicio = new Date(data.inicio);
+            const diferencia = Math.floor((new Date() - inicio) / 1000);
 
-        const diferencia = Math.floor((new Date() - inicio) / 1000);
-        setSegundos(diferencia);
+            setActividad(data.descripcion || cacheLocal.actividad || "");
+            setProyecto(
+                cacheLocal.proyecto || {
+                    id: data.proyecto_id,
+                    nombre: data.nombre_proyecto || "Sin proyecto",
+                    color: data.color_proyecto || "#10b981"
+                }
+            );
+            setTarea(
+                data.tarea_id
+                    ? {
+                        id: data.tarea_id,
+                        nombre: data.titulo_tarea || cacheLocal.tarea?.nombre || ""
+                    }
+                    : cacheLocal.tarea || null
+            );
+            setEtiquetasSeleccionadas(
+                data.etiquetas || cacheLocal.etiquetas || []
+            );
+            setHoraInicio(inicio);
+            setSegundos(diferencia);
+            setActivo(true);
+            setBloqueado(true);
 
-        setActivo(true);
-        setBloqueado(true);
+            // Sincronizamos localStorage
+            localStorage.setItem(
+                "actividad_activa",
+                JSON.stringify({
+                    registro_id: data.id,
+                    actividad: data.descripcion || "",
+                    proyecto: cacheLocal.proyecto || {
+                        id: data.proyecto_id,
+                        nombre: data.nombre_proyecto,
+                        color: data.color_proyecto
+                    },
+                    tarea: data.tarea_id
+                        ? { id: data.tarea_id, nombre: data.titulo_tarea }
+                        : null,
+                    etiquetas: data.etiquetas || [],
+                    horaInicio: inicio.toISOString()
+                })
+            );
+
+        } catch (error) {
+            console.error("Error recuperando actividad activa", error);
+            // Si el endpoint devuelve 404, significa que no hay timer activo
+            // → limpiamos todo también
+            if (error.response?.status === 404) {
+                setActivo(false);
+                setBloqueado(false);
+                setSegundos(0);
+                setHoraInicio(null);
+                setActividad("");
+                setProyecto(null);
+                setTarea(null);
+                setEtiquetasSeleccionadas([]);
+                localStorage.removeItem("actividad_activa");
+            }
+        }
     };
-
 
     // =====================================
     // CONTADOR (cada segundo)
@@ -217,22 +285,42 @@ function Rastreador() {
         return () => clearInterval(intervalo);
     }, [activo, horaInicio]);
 
+// =====================================
+// SINCRONIZAR AL RECUPERAR FOCO
+// =====================================
 
+useEffect(() => {
+    const alRecuperarFoco = () => {
+        // El usuario volvió a la ventana: sincronizar inmediatamente
+        recuperarActividadActiva();
+    };
+
+    window.addEventListener("focus", alRecuperarFoco);
+    document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState === "visible") {
+            alRecuperarFoco();
+        }
+    });
+
+    return () => {
+        window.removeEventListener("focus", alRecuperarFoco);
+        document.removeEventListener("visibilitychange", alRecuperarFoco);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+}, []);
     // =====================================
-    // HEARTBEAT: verificar cada 15s si seguimos activos
+    // HEARTBEAT: verificar sesión + sincronizar timer cada 15s
     // =====================================
 
     useEffect(() => {
-        if (!activo) return;
-
-        const verificarSesion = async () => {
+        const sincronizar = async () => {
             try {
                 const token = localStorage.getItem("token");
+
+                // 1) Verificar que la sesión siga activa
                 const res = await fetch(
                     `${import.meta.env.VITE_API_URL}/auth/me`,
-                    {
-                        headers: { Authorization: `Bearer ${token}` }
-                    }
+                    { headers: { Authorization: `Bearer ${token}` } }
                 );
 
                 if (res.status === 401 || res.status === 403) {
@@ -251,17 +339,25 @@ function Rastreador() {
 
                     toast.error("Tu sesión fue cerrada por un administrador");
                     window.location.href = "/login";
+                    return;
                 }
+
+                // 2) Sincronizar el temporizador con el backend
+                await recuperarActividadActiva();
+
             } catch (err) {
                 console.error("Error en heartbeat:", err);
             }
         };
 
-        const intervalo = setInterval(verificarSesion, 15000);
-        verificarSesion();
+        // Ejecutar al montar siempre
+        sincronizar();
 
+        // Y cada 15 segundos
+        const intervalo = setInterval(sincronizar, 5000);
         return () => clearInterval(intervalo);
-    }, [activo]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
 
     // =====================================
@@ -293,7 +389,6 @@ function Rastreador() {
 
             const registro = await iniciarTiempoAPI(payload);
 
-            // Guardamos las etiquetas asociadas al ID del registro en localStorage
             if (etiquetasSeleccionadas.length > 0) {
                 const etiquetasPorRegistro = JSON.parse(
                     localStorage.getItem("etiquetas_por_registro") || "{}"
@@ -336,6 +431,15 @@ function Rastreador() {
                 localStorage.removeItem("usuario");
                 toast.error("Tu sesión fue cerrada por un administrador");
                 window.location.href = "/login";
+                return;
+            }
+
+            // Si el backend dice "ya tienes un temporizador activo",
+            // intentamos recuperarlo para mostrarlo en pantalla
+            const detalle = error.response?.data?.detail || "";
+            if (detalle.includes("temporizador activo")) {
+                toast.error("Ya tienes un temporizador activo en curso. Deténlo antes de iniciar otro.");
+                await recuperarActividadActiva();
                 return;
             }
 
@@ -425,7 +529,6 @@ function Rastreador() {
                 etiquetas_ids: (registro.etiquetas || []).map(e => e.id)
             });
 
-            // Guardamos las etiquetas del registro continuado
             if (registro.etiquetas && registro.etiquetas.length > 0) {
                 const etiquetasPorRegistro = JSON.parse(
                     localStorage.getItem("etiquetas_por_registro") || "{}"
@@ -499,7 +602,6 @@ function Rastreador() {
         try {
             await eliminarTiempoAPI(registroId);
 
-            // Borramos las etiquetas asociadas al registro eliminado
             const etiquetasPorRegistro = JSON.parse(
                 localStorage.getItem("etiquetas_por_registro") || "{}"
             );
@@ -569,10 +671,6 @@ function Rastreador() {
         );
     };
 
-
-    // =====================================
-    // FORMATO HORA
-    // =====================================
 
     const formatoHora = (fecha) => {
         if (!fecha) return "";
