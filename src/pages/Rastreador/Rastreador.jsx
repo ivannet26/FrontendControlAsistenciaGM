@@ -13,7 +13,7 @@ import {
     detenerTiempoAPI,
     obtenerHistorialTiemposAPI,
     eliminarTiempoAPI,
-    obtenerTiempoActivoAPI   // ⬅️ AGREGADO
+    obtenerTiempoActivoAPI
 } from "../../services/tareasService";
 
 
@@ -90,6 +90,10 @@ function Rastreador() {
     const [etiquetas, setEtiquetas] = useState([]);
     const [etiquetasSeleccionadas, setEtiquetasSeleccionadas] = useState([]);
 
+    // 🆕 Ref para saber si ANTES había un timer activo (para recargar el historial
+    // solo cuando hay transición activo → inactivo, y no cada 5s)
+    const eraActivoRef = useRef(false);
+
 
     // =====================================
     // CARGAR AL MONTAR
@@ -99,6 +103,15 @@ function Rastreador() {
         cargarHistorial();
         cargarEtiquetas();
     }, []);
+
+
+    // =====================================
+    // 🆕 ACTUALIZAR REF CUANDO CAMBIA "activo"
+    // =====================================
+
+    useEffect(() => {
+        eraActivoRef.current = activo;
+    }, [activo]);
 
 
     // =====================================
@@ -175,17 +188,16 @@ function Rastreador() {
     // RECUPERAR ACTIVIDAD ACTIVA (DEL BACKEND)
     // =====================================
 
-       // =====================================
-    // RECUPERAR ACTIVIDAD ACTIVA (DEL BACKEND)
-    // =====================================
-
     const recuperarActividadActiva = async () => {
         try {
             const data = await obtenerTiempoActivoAPI();
 
-            // Caso 1: NO hay temporizador en el servidor → LIMPIAR TODO
+            // ─── Caso 1: NO hay temporizador en el servidor ───
             if (!data || !data.inicio) {
-                // Siempre limpiamos, sin condiciones (así evitamos estados fantasma)
+                // 🆕 Si ANTES había un timer activo, recargamos el historial
+                //    (para ver el registro recién terminado sin presionar F5)
+                const habiaTimer = eraActivoRef.current;
+
                 setActivo(false);
                 setBloqueado(false);
                 setSegundos(0);
@@ -195,14 +207,17 @@ function Rastreador() {
                 setTarea(null);
                 setEtiquetasSeleccionadas([]);
                 localStorage.removeItem("actividad_activa");
+
+                if (habiaTimer) {
+                    await cargarHistorial();
+                }
                 return;
             }
 
-            // Caso 2: SÍ hay temporizador en el servidor
+            // ─── Caso 2: SÍ hay temporizador en el servidor ───
             const guardado = localStorage.getItem("actividad_activa");
             const cacheLocal = guardado ? JSON.parse(guardado) : {};
 
-            // Cargamos TODO el estado desde el backend
             const inicio = new Date(data.inicio);
             const diferencia = Math.floor((new Date() - inicio) / 1000);
 
@@ -230,7 +245,6 @@ function Rastreador() {
             setActivo(true);
             setBloqueado(true);
 
-            // Sincronizamos localStorage
             localStorage.setItem(
                 "actividad_activa",
                 JSON.stringify({
@@ -251,9 +265,11 @@ function Rastreador() {
 
         } catch (error) {
             console.error("Error recuperando actividad activa", error);
-            // Si el endpoint devuelve 404, significa que no hay timer activo
-            // → limpiamos todo también
+
+            // Si el endpoint devuelve 404, no hay timer activo → limpiamos
             if (error.response?.status === 404) {
+                const habiaTimer = eraActivoRef.current;
+
                 setActivo(false);
                 setBloqueado(false);
                 setSegundos(0);
@@ -263,9 +279,16 @@ function Rastreador() {
                 setTarea(null);
                 setEtiquetasSeleccionadas([]);
                 localStorage.removeItem("actividad_activa");
+
+                // 🆕 Recargar historial si veníamos de un timer activo
+                if (habiaTimer) {
+                    await cargarHistorial();
+                }
             }
+            // Si es otro error (red, 500, etc.), NO tocar el estado local
         }
     };
+
 
     // =====================================
     // CONTADOR (cada segundo)
@@ -285,31 +308,35 @@ function Rastreador() {
         return () => clearInterval(intervalo);
     }, [activo, horaInicio]);
 
-// =====================================
-// SINCRONIZAR AL RECUPERAR FOCO
-// =====================================
 
-useEffect(() => {
-    const alRecuperarFoco = () => {
-        // El usuario volvió a la ventana: sincronizar inmediatamente
-        recuperarActividadActiva();
-    };
-
-    window.addEventListener("focus", alRecuperarFoco);
-    document.addEventListener("visibilitychange", () => {
-        if (document.visibilityState === "visible") {
-            alRecuperarFoco();
-        }
-    });
-
-    return () => {
-        window.removeEventListener("focus", alRecuperarFoco);
-        document.removeEventListener("visibilitychange", alRecuperarFoco);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-}, []);
     // =====================================
-    // HEARTBEAT: verificar sesión + sincronizar timer cada 15s
+    // SINCRONIZAR AL RECUPERAR FOCO
+    // =====================================
+
+    useEffect(() => {
+        const alRecuperarFoco = () => {
+            recuperarActividadActiva();
+        };
+
+        const alCambiarVisibilidad = () => {
+            if (document.visibilityState === "visible") {
+                alRecuperarFoco();
+            }
+        };
+
+        window.addEventListener("focus", alRecuperarFoco);
+        document.addEventListener("visibilitychange", alCambiarVisibilidad);
+
+        return () => {
+            window.removeEventListener("focus", alRecuperarFoco);
+            document.removeEventListener("visibilitychange", alCambiarVisibilidad);
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+
+    // =====================================
+    // HEARTBEAT: verificar sesión + sincronizar timer cada 5s
     // =====================================
 
     useEffect(() => {
@@ -317,7 +344,6 @@ useEffect(() => {
             try {
                 const token = localStorage.getItem("token");
 
-                // 1) Verificar que la sesión siga activa
                 const res = await fetch(
                     `${import.meta.env.VITE_API_URL}/auth/me`,
                     { headers: { Authorization: `Bearer ${token}` } }
@@ -342,7 +368,6 @@ useEffect(() => {
                     return;
                 }
 
-                // 2) Sincronizar el temporizador con el backend
                 await recuperarActividadActiva();
 
             } catch (err) {
@@ -350,10 +375,8 @@ useEffect(() => {
             }
         };
 
-        // Ejecutar al montar siempre
         sincronizar();
 
-        // Y cada 15 segundos
         const intervalo = setInterval(sincronizar, 5000);
         return () => clearInterval(intervalo);
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -434,8 +457,6 @@ useEffect(() => {
                 return;
             }
 
-            // Si el backend dice "ya tienes un temporizador activo",
-            // intentamos recuperarlo para mostrarlo en pantalla
             const detalle = error.response?.data?.detail || "";
             if (detalle.includes("temporizador activo")) {
                 toast.error("Ya tienes un temporizador activo en curso. Deténlo antes de iniciar otro.");

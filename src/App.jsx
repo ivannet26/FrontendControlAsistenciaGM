@@ -22,6 +22,7 @@ import Equipo from "./pages/Equipo/Equipo.jsx";
 import Clientes from "./pages/Clientes/Clientes.jsx";
 import Etiquetas from "./pages/Etiquetas/Etiquetas.jsx";
 import InformesPage from "./pages/Informes/InformesPage.jsx";
+import GestionUsuarios from "./pages/GestionUsuarios/GestionUsuarios.jsx";
 
 function App() {
 
@@ -97,6 +98,11 @@ function App() {
           <Route
             path="informes"
             element={<InformesPage />}
+          />
+
+          <Route
+            path="gestion-usuarios"
+            element={<GestionUsuarios />}
           />
 
           <Route

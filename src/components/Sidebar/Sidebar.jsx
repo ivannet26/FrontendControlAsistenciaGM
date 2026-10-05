@@ -19,6 +19,7 @@ import {
     ChevronDown,
     ChevronUp,
     FileText,
+    UserCog,
 } from "lucide-react";
 
 import "./Sidebar.css";
@@ -92,6 +93,7 @@ function Sidebar({ usuario }) {
     const [movilAbierto, setMovilAbierto] = useState(false);
 
     const rol = usuario?.rol;
+    const esAdmin = rol === "ADMINISTRADOR" || rol === "ADMINISTRACION";
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -217,38 +219,17 @@ function Sidebar({ usuario }) {
                     </MenuItem>
 
 
-                    {/* SOLO ADMIN {rol === "ADMINISTRADOR" && (
-                        <>
-                            <MenuItem
-                                icon={
-                                    mostrarMas
-                                        ? <ChevronUp size={20} />     // 
-                                        : <ChevronDown size={20} />   // 
-                                }
-                                onClick={() => setMostrarMas(!mostrarMas)}
-                                menuItemStyles={estilosBase}
-                            >
-                                {mostrarMas ? "MOSTRAR MENOS" : "MOSTRAR MÁS"}
-                            </MenuItem>
-                            {mostrarMas && (
-                                <>
-                                    <MenuItem
-                                        icon={<CalendarCheck size={20} />}    // 0
-                                        menuItemStyles={estilosBase}
-                                    >
-                                        APROBACIONES
-                                    </MenuItem>
-                                    <MenuItem
-                                        icon={<FileText size={20} />}         // 
-                                        menuItemStyles={estilosBase}
-                                    >
-                                        FACTURAS
-                                    </MenuItem>
-                                </>
-                            )}
-                        </>
-                    )}*/}
-                    
+                    {/* GESTIÓN DE USUARIOS (SOLO ADMINISTRADORES) */}
+                    {esAdmin && (
+                        <MenuItem
+                            icon={<UserCog size={22} />}
+                            onClick={() => irA("/app/gestion-usuarios")}
+                            menuItemStyles={estilos("/app/gestion-usuarios")}
+                        >
+                            USUARIOS
+                        </MenuItem>
+                    )}
+
 
                 </Menu>
 

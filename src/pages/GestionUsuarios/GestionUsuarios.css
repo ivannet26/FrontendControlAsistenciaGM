@@ -1,0 +1,544 @@
+/* =========================
+   CONTENEDOR PRINCIPAL
+========================= */
+
+.usuarios-container {
+    width: 100%;
+    padding: 8px;
+    box-sizing: border-box;
+}
+
+
+/* =========================
+   HEADER
+========================= */
+
+.usuarios-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.usuarios-header h1 {
+    color: #ffffff;
+    font-size: 28px;
+    font-weight: 450;
+    letter-spacing: 0.3px;
+}
+
+.usuarios-header button {
+    background: #10a5f5;
+    border: none;
+    color: white;
+    padding: 12px 20px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.usuarios-header button:hover {
+    background: #078ed5;
+}
+
+
+/* =========================
+   TABLA
+========================= */
+
+.tabla-usuarios-container {
+    background: #101b22;
+    border: 1px solid #263740;
+    width: 100%;
+    overflow: visible;
+}
+
+.tabla-usuarios-container table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    table-layout: fixed;
+}
+
+.tabla-usuarios-container thead {
+    background: #16242c;
+}
+
+.tabla-usuarios-container th {
+    text-align: left;
+    padding: 14px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #9eacb5;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.tabla-usuarios-container td {
+    padding: 12px 10px;
+    height: 55px;
+    border-top: 1px solid #263740;
+    color: #bfcbd3;
+    font-size: 14px;
+}
+
+.tabla-usuarios-container tr:hover {
+    background: #1d303a;
+}
+
+
+/* =========================
+   ANCHOS DE COLUMNAS
+========================= */
+
+/* NOMBRE */
+.tabla-usuarios-container th:nth-child(1),
+.tabla-usuarios-container td:nth-child(1) {
+    width: 22%;
+}
+
+/* EMAIL */
+.tabla-usuarios-container th:nth-child(2),
+.tabla-usuarios-container td:nth-child(2) {
+    width: 28%;
+}
+
+/* ROL */
+.tabla-usuarios-container th:nth-child(3),
+.tabla-usuarios-container td:nth-child(3) {
+    width: 16%;
+}
+
+/* ESTADO */
+.tabla-usuarios-container th:nth-child(4),
+.tabla-usuarios-container td:nth-child(4) {
+    width: 14%;
+}
+
+/* ACCIONES */
+.tabla-usuarios-container th:nth-child(5),
+.tabla-usuarios-container td:nth-child(5) {
+    width: 20%;
+    text-align: right;
+    padding-right: 20px;
+}
+
+
+/* =========================
+   NOMBRE USUARIO
+========================= */
+
+.nombre-usuario {
+    color: #d3dde3;
+    font-size: 14px;
+}
+
+.nombre-usuario strong {
+    color: #ffffff;
+    font-weight: 500;
+}
+
+
+/* =========================
+   BADGES DE ROL
+========================= */
+
+.rol-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    font-size: 12px;
+    border-radius: 3px;
+    border: 1px solid #344650;
+    background: #101b22;
+    color: #d3dde3;
+}
+
+.rol-ADMINISTRADOR {
+    color: #c98a8a;
+    border-color: #4a1e1e;
+    background: #1f0a0a;
+}
+
+.rol-ADMINISTRACION {
+    color: #7ba3c9;
+    border-color: #1e3a5f;
+    background: #101d2e;
+}
+
+.rol-PRACTICANTE {
+    color: #7ab89a;
+    border-color: #1e4a35;
+    background: #0d1f16;
+}
+
+/* =========================
+   ESTADO ACTIVO / INACTIVO
+========================= */
+
+.estado-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+}
+
+.estado-punto {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.estado-activo {
+    color: #4ade80;
+}
+
+.estado-activo .estado-punto {
+    background: #4ade80;
+}
+
+.estado-inactivo {
+    color: #94a3b8;
+}
+
+.estado-inactivo .estado-punto {
+    background: #64748b;
+}
+
+
+/* =========================
+   BOTONES DE ACCIÓN
+========================= */
+
+.acciones-usuario {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-editar,
+.btn-desactivar,
+.btn-activar {
+    background: transparent;
+    border: 1px solid #344650;
+    color: #b5c4cc;
+    padding: 6px 12px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.btn-editar:hover {
+    border-color: #10a5f5;
+    color: #10a5f5;
+}
+
+.btn-desactivar:hover {
+    border-color: #ef4444;
+    color: #ef4444;
+}
+
+.btn-activar:hover {
+    border-color: #4ade80;
+    color: #4ade80;
+}
+
+
+/* =========================
+   FILTROS (opcional, mismo estilo que proyectos)
+========================= */
+
+.filtros-usuarios {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #111d24;
+    border: 1px solid #273943;
+    padding: 10px;
+    margin-bottom: 25px;
+}
+
+.filtros-usuarios .buscador {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #162630;
+    border: 1px solid #344650;
+    padding: 0 12px;
+}
+
+.filtros-usuarios .buscador input {
+    width: 100%;
+    background: none;
+    border: none;
+    outline: none;
+    color: white;
+    height: 38px;
+}
+
+.filtros-usuarios select {
+    background: #162630;
+    color: white;
+    border: 1px solid #344650;
+    padding: 10px;
+    outline: none;
+}
+
+
+/* =========================
+   MODAL
+========================= */
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
+
+.modal-usuario {
+    width: 440px;
+    background: #162630;
+    border: 1px solid #344650;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    border-bottom: 1px solid #344650;
+}
+
+.modal-header h2 {
+    color: white;
+    font-size: 20px;
+    margin: 0;
+    font-weight: 450;
+}
+
+.modal-header button {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 25px;
+    cursor: pointer;
+}
+
+.modal-body {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.modal-body label {
+    color: #b8c5cc;
+    font-size: 13px;
+    margin-bottom: -6px;
+}
+
+.modal-body input,
+.modal-body select {
+    background: #101b22;
+    color: white;
+    border: 1px solid #344650;
+    padding: 10px;
+    outline: none;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+.modal-body input:focus,
+.modal-body select:focus {
+    border-color: #10a5f5;
+}
+
+.checkbox-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #b8c5cc;
+    font-size: 13px;
+    cursor: pointer;
+    padding: 5px 0;
+}
+
+.checkbox-row input[type="checkbox"] {
+    accent-color: #10a5f5;
+    width: 15px;
+    height: 15px;
+    cursor: pointer;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 15px;
+    border-top: 1px solid #344650;
+}
+
+.btn-cancelar {
+    background: none;
+    border: 1px solid #10a5f5;
+    color: #10a5f5;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.btn-cancelar:hover {
+    background: rgba(16, 165, 245, 0.1);
+}
+
+.btn-guardar {
+    background: #10a5f5;
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.btn-guardar:hover {
+    background: #078ed5;
+}
+
+
+/* =========================
+   ESTADO VACÍO
+========================= */
+
+.usuarios-vacio {
+    padding: 40px;
+    text-align: center;
+    color: #8ea0af;
+    font-size: 14px;
+}
+
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 900px) {
+
+    .tabla-usuarios-container {
+        overflow-x: auto;
+    }
+
+    .tabla-usuarios-container table {
+        min-width: 850px;
+    }
+
+    .tabla-usuarios-container::-webkit-scrollbar {
+        height: 8px;
+    }
+
+    .tabla-usuarios-container::-webkit-scrollbar-thumb {
+        background: #344650;
+    }
+
+    .tabla-usuarios-container::-webkit-scrollbar-track {
+        background: #101b22;
+    }
+}
+
+@media (max-width: 500px) {
+
+    .modal-usuario {
+        width: 90%;
+    }
+
+    .modal-footer {
+        flex-direction: column;
+    }
+
+    .modal-footer button {
+        width: 100%;
+    }
+
+    .usuarios-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .usuarios-header button {
+        width: 100%;
+    }
+}
+.filtros-usuarios {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #111d24;
+    border: 1px solid #273943;
+    padding: 10px;
+    margin-bottom: 25px;
+}
+
+.filtro-titulo {
+    padding: 5px;
+    color: #aab8c2;
+    font-size: 13px;
+}
+
+.filtros-usuarios select {
+    background: #162630;
+    color: white;
+    border: 1px solid #344650;
+    padding: 10px;
+    outline: none;
+}
+
+.filtros-usuarios .buscador {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #162630;
+    border: 1px solid #344650;
+    padding: 0 12px;
+}
+
+.filtros-usuarios .buscador input {
+    width: 100%;
+    background: none;
+    border: none;
+    outline: none;
+    color: white;
+    height: 38px;
+}
+.modal-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    padding: 15px;
+    border-top: 1px solid #344650;
+}
+
+.modal-footer-right {
+    display: flex;
+    gap: 10px;
+    margin-left: auto;
+}
+
+.btn-eliminar-modal {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border-color: #ef4444;
+    color: #ef4444;
+    background: rgba(239, 68, 68, 0.08);
+    padding: 10px 14px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.15s ease;
+}
