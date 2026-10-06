@@ -23,6 +23,8 @@ import Clientes from "./pages/Clientes/Clientes.jsx";
 import Etiquetas from "./pages/Etiquetas/Etiquetas.jsx";
 import InformesPage from "./pages/Informes/InformesPage.jsx";
 import GestionUsuarios from "./pages/GestionUsuarios/GestionUsuarios.jsx";
+import Auditoria from "./pages/Auditoria/Auditoria.jsx";
+
 
 function App() {
 
@@ -103,6 +105,10 @@ function App() {
           <Route
             path="gestion-usuarios"
             element={<GestionUsuarios />}
+          />
+          <Route
+            path="auditoria"
+            element={<Auditoria />}
           />
 
           <Route

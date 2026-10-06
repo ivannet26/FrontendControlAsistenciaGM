@@ -228,6 +228,16 @@ function Sidebar({ usuario }) {
                         >
                             USUARIOS
                         </MenuItem>
+
+                    )}
+                    {esAdmin && (
+                        <MenuItem
+                            icon={<FileText size={22} />}
+                            onClick={() => irA("/app/auditoria")}
+                            menuItemStyles={estilos("/app/auditoria")}
+                        >
+                            AUDITORÍA
+                        </MenuItem>
                     )}
 
 

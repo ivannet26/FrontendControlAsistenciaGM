@@ -142,34 +142,18 @@
    BADGES DE ROL
 ========================= */
 
-.rol-badge {
-    display: inline-block;
-    padding: 4px 10px;
-    font-size: 12px;
-    border-radius: 3px;
-    border: 1px solid #344650;
-    background: #101b22;
-    color: #d3dde3;
-}
 
-.rol-ADMINISTRADOR {
-    color: #c98a8a;
-    border-color: #4a1e1e;
-    background: #1f0a0a;
-}
-
-.rol-ADMINISTRACION {
-    color: #7ba3c9;
-    border-color: #1e3a5f;
-    background: #101d2e;
-}
-
+.rol-badge,
+.rol-ADMINISTRADOR,
+.rol-ADMINISTRACION,
 .rol-PRACTICANTE {
-    color: #7ab89a;
-    border-color: #1e4a35;
-    background: #0d1f16;
+    display: inline-block;
+    background: #101b22;
+    padding: 5px 10px;
+    font-size: 12px;
+    color: #f8f9fa;
+    border: 1px solid rgba(129, 126, 126, 0.4);
 }
-
 /* =========================
    ESTADO ACTIVO / INACTIVO
 ========================= */
