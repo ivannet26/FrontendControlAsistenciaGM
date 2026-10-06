@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import "./Panel.css";
 
 import PanelFiltros from "../../components/PanelComp/PanelFiltros";
@@ -45,7 +45,6 @@ const calcularRangoSemana = (offsetSemanas) => {
     };
 };
 
-// Timeout helper
 const timeout = (ms) => new Promise((_, reject) =>
     setTimeout(() => reject(new Error("Tiempo de espera agotado")), ms)
 );
@@ -66,9 +65,94 @@ function Panel() {
     const [cargando, setCargando] = useState(true);
     const [error, setError] = useState(null);
 
-    
-    const rangoActual = calcularRangoSemana(offsetSemana);
+    // ✅ Ref para evitar peticiones duplicadas
+    const abortControllerRef = useRef(null);
+    const cargandoRef = useRef(false);
 
+    // ✅ useMemo: el rango solo se recalcula cuando cambia offsetSemana
+    const rangoActual = useMemo(
+        () => calcularRangoSemana(offsetSemana),
+        [offsetSemana]
+    );
+
+
+    // ============================================================
+    // CARGA DE DATOS (estabilizada con useCallback)
+    // ============================================================
+
+    const cargarTodo = useCallback(async (silencioso = false) => {
+
+        // ✅ Evitar peticiones duplicadas simultáneas
+        if (cargandoRef.current && silencioso) return;
+        cargandoRef.current = true;
+
+        // ✅ Cancelar petición anterior si existe
+        if (abortControllerRef.current) {
+            abortControllerRef.current.abort();
+        }
+        const controller = new AbortController();
+        abortControllerRef.current = controller;
+
+        if (!silencioso) setCargando(true);
+        setError(null);
+
+        try {
+            const { fecha_inicio, fecha_fin } = calcularRangoSemana(offsetSemana);
+
+            // Petición 1: resumen tiempo
+            const res = await Promise.race([
+                obtenerResumenTiempo({
+                    fecha_inicio,
+                    fecha_fin,
+                    usuario_filtro: usuarioFiltro
+                }, controller.signal),
+                timeout(15000)
+            ]);
+
+            // Si la petición fue abortada, salir sin actualizar
+            if (controller.signal.aborted) return;
+
+            setDatos(res);
+
+            // Petición 2: equipo (solo si aplica)
+            if (usuarioFiltro === "equipo") {
+                try {
+                    const resEquipo = await Promise.race([
+                        obtenerActividadEquipo(
+                            { fecha_inicio, fecha_fin },
+                            controller.signal
+                        ),
+                        timeout(15000)
+                    ]);
+
+                    if (controller.signal.aborted) return;
+                    setEquipo(resEquipo);
+                } catch (errEquipo) {
+                    if (errEquipo.name !== "AbortError") {
+                        console.error("Error cargando equipo:", errEquipo);
+                        setEquipo(null);
+                    }
+                }
+            } else {
+                setEquipo(null);
+            }
+
+        } catch (err) {
+            if (err.name === "AbortError") return; // Ignorar cancelaciones
+            console.error("Error cargando panel:", err);
+            setError(err.message || "Error al cargar");
+        } finally {
+            cargandoRef.current = false;
+            if (!controller.signal.aborted) {
+                setCargando(false);
+            }
+        }
+    }, [offsetSemana, usuarioFiltro]);
+
+
+    // ============================================================
+    // EFECTO PRINCIPAL
+    // ============================================================
 
     useEffect(() => {
         cargarTodo();
@@ -77,56 +161,23 @@ function Panel() {
             cargarTodo(true);
         }, 30000);
 
-        return () => clearInterval(intervalo);
-    }, [offsetSemana, usuarioFiltro]);
-
-
-    const cargarTodo = async (silencioso = false) => {
-        if (!silencioso) setCargando(true);
-        setError(null);
-
-        try {
-            const { fecha_inicio, fecha_fin } = calcularRangoSemana(offsetSemana);
-
-            // Cargar resumen con timeout
-            const res = await Promise.race([
-                obtenerResumenTiempo({
-                    fecha_inicio,
-                    fecha_fin,
-                    usuario_filtro: usuarioFiltro
-                }),
-                timeout(15000)
-            ]);
-            setDatos(res);
-
-            // Cargar equipo SOLO si el filtro es "equipo"
-            if (usuarioFiltro === "equipo") {
-                try {
-                    const resEquipo = await Promise.race([
-                        obtenerActividadEquipo({ fecha_inicio, fecha_fin }),
-                        timeout(15000)
-                    ]);
-                    setEquipo(resEquipo);
-                } catch (errEquipo) {
-                    console.error("Error cargando equipo:", errEquipo);
-                    setEquipo(null);   // no rompemos la página
-                }
-            } else {
-                setEquipo(null);
+        return () => {
+            clearInterval(intervalo);
+            // Cancelar petición en curso al desmontar
+            if (abortControllerRef.current) {
+                abortControllerRef.current.abort();
             }
-
-        } catch (err) {
-            console.error("Error cargando panel:", err);
-            setError(err.message || "Error al cargar");
-        } finally {
-            setCargando(false);   // ← SIEMPRE se ejecuta
-        }
-    };
+        };
+    }, [cargarTodo]);
 
 
-    const semanaAnterior = () => setOffsetSemana(offsetSemana - 1);
+    // ============================================================
+    // NAVEGACIÓN
+    // ============================================================
+
+    const semanaAnterior = () => setOffsetSemana(prev => prev - 1);
     const semanaSiguiente = () => {
-        if (offsetSemana < 0) setOffsetSemana(offsetSemana + 1);
+        if (offsetSemana < 0) setOffsetSemana(prev => prev + 1);
     };
 
 
@@ -154,7 +205,6 @@ function Panel() {
     return (
         <div className="panel-page">
 
-            {/* OVERLAY DE CARGA */}
             <LoadingOverlay
                 visible={cargando}
                 texto="Cargando"
@@ -175,29 +225,23 @@ function Panel() {
                     />
 
                     <div className="panel-layout">
-
                         <div className="panel-main">
-
                             <PanelKpis
                                 tiempoTotal={datos.tiempo_total}
                                 tiempoHoy={datos.tiempo_hoy}
                                 proyectoPrincipal={datos.proyecto_principal}
                                 clientePrincipal={datos.cliente_principal || "—"}
                             />
-
                             <PanelGraficoBarras datos={datos.por_dia} />
-
                             <PanelDonut
                                 datos={datos.por_proyecto}
                                 total={datos.tiempo_total}
                             />
-
                         </div>
 
                         <div className="panel-side">
                             <PanelTopActividades actividades={datos.top_actividades} />
                         </div>
-
                     </div>
 
                     {usuarioFiltro === "equipo" && equipo && (

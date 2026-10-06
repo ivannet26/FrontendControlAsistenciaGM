@@ -130,7 +130,7 @@ const Auditoria = () => {
                     onChange={(e) => setFiltros({ ...filtros, entidad: e.target.value })}
                     title="Filtrar por elemento"
                 >
-                    <option value="">Elemento</option>
+                    <option value="">Modulo</option>
                     <option value="PROYECTO">Proyecto</option>
                     <option value="TAREA">Tarea</option>
                     <option value="USUARIO">Usuario</option>
@@ -178,7 +178,7 @@ const Auditoria = () => {
                                 <th>Fecha</th>
                                 <th>Usuario</th>
                                 <th>Acción</th>
-                                <th>Elemento</th>
+                                <th>Modulo</th>
                                 <th>Descripción</th>
                                 <th>Proyecto</th>
                             </tr>

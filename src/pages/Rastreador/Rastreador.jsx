@@ -187,28 +187,27 @@ function Rastreador() {
     // =====================================
     // RECUPERAR ACTIVIDAD ACTIVA (DEL BACKEND)
     // =====================================
-
     const recuperarActividadActiva = async () => {
         try {
             const data = await obtenerTiempoActivoAPI();
 
             // ─── Caso 1: NO hay temporizador en el servidor ───
             if (!data || !data.inicio) {
-                // 🆕 Si ANTES había un timer activo, recargamos el historial
-                //    (para ver el registro recién terminado sin presionar F5)
                 const habiaTimer = eraActivoRef.current;
 
                 setActivo(false);
                 setBloqueado(false);
                 setSegundos(0);
                 setHoraInicio(null);
-                setActividad("");
-                setProyecto(null);
-                setTarea(null);
-                setEtiquetasSeleccionadas([]);
                 localStorage.removeItem("actividad_activa");
 
+                // 🆕 SOLO limpiamos el formulario si ANTES había un timer activo
+                // Si el usuario está escribiendo por primera vez, NO borramos nada
                 if (habiaTimer) {
+                    setActividad("");
+                    setProyecto(null);
+                    setTarea(null);
+                    setEtiquetasSeleccionadas([]);
                     await cargarHistorial();
                 }
                 return;
@@ -274,20 +273,21 @@ function Rastreador() {
                 setBloqueado(false);
                 setSegundos(0);
                 setHoraInicio(null);
-                setActividad("");
-                setProyecto(null);
-                setTarea(null);
-                setEtiquetasSeleccionadas([]);
                 localStorage.removeItem("actividad_activa");
 
-                // 🆕 Recargar historial si veníamos de un timer activo
+                // 🆕 Misma corrección aquí
                 if (habiaTimer) {
+                    setActividad("");
+                    setProyecto(null);
+                    setTarea(null);
+                    setEtiquetasSeleccionadas([]);
                     await cargarHistorial();
                 }
             }
             // Si es otro error (red, 500, etc.), NO tocar el estado local
         }
     };
+    
 
 
     // =====================================

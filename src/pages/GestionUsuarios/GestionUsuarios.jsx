@@ -144,26 +144,47 @@ const GestionUsuarios = () => {
 
     // ── Guardar (Crear / Editar) ────────────────────────────
     const handleSubmit = async (e) => {
-        e.preventDefault();
-        try {
-            if (usuarioEditando) {
-                const payload = { ...formData };
-                if (!payload.password) delete payload.password;
-                await editarUsuario(usuarioEditando.id, payload);
-                mostrarToast("success", "Usuario actualizado correctamente.");
-            } else {
-                await crearUsuario(formData);
-                mostrarToast("success", "Usuario creado correctamente.");
-            }
-            setModalAbierto(false);
-            recargarConFiltros();
-        } catch (error) {
-            mostrarToast(
-                "error",
-                error.response?.data?.detail || "Error al guardar el usuario"
-            );
+    e.preventDefault();
+
+    // ── Validaciones de contraseña ──────────────────────────
+    if (!usuarioEditando) {
+        // CREAR: la contraseña es obligatoria
+        if (!formData.password) {
+            mostrarToast("error", "Debes ingresar una contraseña.");
+            return;
         }
-    };
+        if (formData.password.length < 6) {
+            mostrarToast("error", "La contraseña debe tener al menos 6 caracteres.");
+            return;
+        }
+    } else {
+        // EDITAR: solo valida si el admin escribió algo
+        if (formData.password && formData.password.length < 6) {
+            mostrarToast("error", "La contraseña debe tener al menos 6 caracteres.");
+            return;
+        }
+    }
+
+    try {
+        if (usuarioEditando) {
+            const payload = { ...formData };
+            if (!payload.password) delete payload.password;
+            await editarUsuario(usuarioEditando.id, payload);
+            mostrarToast("success", "Usuario actualizado correctamente.");
+        } else {
+            await crearUsuario(formData);
+            mostrarToast("success", "Usuario creado correctamente.");
+        }
+        setModalAbierto(false);
+        recargarConFiltros();
+    } catch (error) {
+        const detalle =
+            Array.isArray(error.response?.data?.detail)
+                ? error.response.data.detail.map(e => `${e.loc?.join(".")}: ${e.msg}`).join(" | ")
+                : error.response?.data?.detail;
+        mostrarToast("error", detalle || "Error al guardar el usuario");
+    }
+};
 
     // ── Activar / Desactivar ────────────────────────────────
     const toggleActivo = (usuario) => {
