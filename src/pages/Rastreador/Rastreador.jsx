@@ -1,11 +1,11 @@
 import "./Rastreador.css";
-
+import { Play, Pencil, MoreVertical } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import toast from "react-hot-toast";
 
 import TimerBar from "../../components/RastreadorComp/TimerBar/TimerBar";
-
+import EditarTiempoModal from "../../components/RastreadorComp/EditarTiempoModal/EditarTiempoModal";
 import { obtenerEtiquetas } from "../../services/etiquetaService";
 
 import {
@@ -90,8 +90,15 @@ function Rastreador() {
     const [etiquetas, setEtiquetas] = useState([]);
     const [etiquetasSeleccionadas, setEtiquetasSeleccionadas] = useState([]);
 
-    // 🆕 Ref para saber si ANTES había un timer activo (para recargar el historial
-    // solo cuando hay transición activo → inactivo, y no cada 5s)
+    // ✅ NUEVO: estado del modal de edición (dentro del componente)
+    const [registroEditando, setRegistroEditando] = useState(null);
+
+    // ✅ NUEVO: detectar si es admin
+    const usuarioActual = JSON.parse(localStorage.getItem("usuario") || "{}");
+    const esAdmin = ["ADMINISTRACION", "ADMINISTRADOR"]
+        .includes((usuarioActual.rol || "").toUpperCase());
+
+    // Ref para saber si ANTES había un timer activo
     const eraActivoRef = useRef(false);
 
 
@@ -106,7 +113,7 @@ function Rastreador() {
 
 
     // =====================================
-    // 🆕 ACTUALIZAR REF CUANDO CAMBIA "activo"
+    // ACTUALIZAR REF CUANDO CAMBIA "activo"
     // =====================================
 
     useEffect(() => {
@@ -191,7 +198,6 @@ function Rastreador() {
         try {
             const data = await obtenerTiempoActivoAPI();
 
-            // ─── Caso 1: NO hay temporizador en el servidor ───
             if (!data || !data.inicio) {
                 const habiaTimer = eraActivoRef.current;
 
@@ -201,8 +207,6 @@ function Rastreador() {
                 setHoraInicio(null);
                 localStorage.removeItem("actividad_activa");
 
-                // 🆕 SOLO limpiamos el formulario si ANTES había un timer activo
-                // Si el usuario está escribiendo por primera vez, NO borramos nada
                 if (habiaTimer) {
                     setActividad("");
                     setProyecto(null);
@@ -213,7 +217,6 @@ function Rastreador() {
                 return;
             }
 
-            // ─── Caso 2: SÍ hay temporizador en el servidor ───
             const guardado = localStorage.getItem("actividad_activa");
             const cacheLocal = guardado ? JSON.parse(guardado) : {};
 
@@ -265,7 +268,6 @@ function Rastreador() {
         } catch (error) {
             console.error("Error recuperando actividad activa", error);
 
-            // Si el endpoint devuelve 404, no hay timer activo → limpiamos
             if (error.response?.status === 404) {
                 const habiaTimer = eraActivoRef.current;
 
@@ -275,7 +277,6 @@ function Rastreador() {
                 setHoraInicio(null);
                 localStorage.removeItem("actividad_activa");
 
-                // 🆕 Misma corrección aquí
                 if (habiaTimer) {
                     setActividad("");
                     setProyecto(null);
@@ -284,10 +285,8 @@ function Rastreador() {
                     await cargarHistorial();
                 }
             }
-            // Si es otro error (red, 500, etc.), NO tocar el estado local
         }
     };
-    
 
 
     // =====================================
@@ -808,41 +807,58 @@ function Rastreador() {
                                 {dia.registros.map(registro => (
                                     <div className="registro-row" key={registro.id}>
 
-                                        <div className="registro-actividad">
-                                            {registro.actividad}
-                                        </div>
+                                        <div className="registro-info">
+                                            <div className="registro-actividad">
+                                                {registro.actividad}
+                                            </div>
 
-                                        <div className="registro-proyecto">
-                                            <span
-                                                className="punto"
-                                                style={{
-                                                    backgroundColor:
-                                                        registro.proyecto?.color || "#10b981"
-                                                }}
-                                            />
-                                            <span
-                                                style={{
-                                                    color:
-                                                        registro.proyecto?.color || "#10b981"
-                                                }}
-                                            >
-                                                {registro.proyecto?.nombre || "Sin proyecto"}
+                                            <div className="registro-proyecto">
+                                                <span
+                                                    className="punto"
+                                                    style={{
+                                                        backgroundColor:
+                                                            registro.proyecto?.color || "#10b981"
+                                                    }}
+                                                />
+                                                <span
+                                                    className="registro-proyecto-nombre"
+                                                    style={{
+                                                        color:
+                                                            registro.proyecto?.color || "#10b981"
+                                                    }}
+                                                >
+                                                    {registro.proyecto?.nombre || "Sin proyecto"}
+                                                </span>
 
                                                 {registro.tarea && (
-                                                    <span className="registro-tarea">
-                                                        {" - "}
-                                                        {registro.tarea.nombre}
-                                                    </span>
+                                                    <>
+                                                        <span className="registro-separador">·</span>
+                                                        <span className="registro-tarea">
+                                                            {registro.tarea.nombre}
+                                                        </span>
+                                                    </>
                                                 )}
-                                            </span>
+                                            </div>
                                         </div>
 
                                         <div className="registro-tags">
-                                            {registro.etiquetas?.map(e => (
+                                            {registro.etiquetas?.slice(0, 4).map(e => (
                                                 <span className="tag" key={e.id}>
                                                     {e.nombre}
                                                 </span>
                                             ))}
+
+                                            {registro.etiquetas?.length > 4 && (
+                                                <span
+                                                    className="tag tag-mas"
+                                                    title={registro.etiquetas
+                                                        .slice(4)
+                                                        .map(e => e.nombre)
+                                                        .join(", ")}
+                                                >
+                                                    +{registro.etiquetas.length - 4}
+                                                </span>
+                                            )}
                                         </div>
 
                                         <div className="registro-hora">
@@ -856,11 +872,30 @@ function Rastreador() {
                                         </div>
 
                                         <div className="registro-actions">
-                                            <button onClick={() => continuarRegistro(registro)}>
-                                                ▶
+                                            <button
+                                                className="action-btn"
+                                                onClick={() => continuarRegistro(registro)}
+                                                title="Continuar registro"
+                                            >
+                                                <Play size={14} />
                                             </button>
-                                            <button onClick={(e) => abrirMenu(e, registro.id)}>
-                                                ⋮
+
+                                            {esAdmin && (
+                                                <button
+                                                    className="action-btn"
+                                                    onClick={() => setRegistroEditando(registro)}
+                                                    title="Editar tiempo (admin)"
+                                                >
+                                                    <Pencil size={14} />
+                                                </button>
+                                            )}
+
+                                            <button
+                                                className="action-btn"
+                                                onClick={(e) => abrirMenu(e, registro.id)}
+                                                title="Más opciones"
+                                            >
+                                                <MoreVertical size={14} />
                                             </button>
                                         </div>
 
@@ -873,6 +908,16 @@ function Rastreador() {
 
                 </div>
             ))}
+
+
+            {/* ✅ MODAL: una sola vez, fuera del .map() */}
+            {registroEditando && (
+                <EditarTiempoModal
+                    registro={registroEditando}
+                    onClose={() => setRegistroEditando(null)}
+                    onGuardado={cargarHistorial}
+                />
+            )}
 
 
             {menuAbierto && createPortal(

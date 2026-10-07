@@ -299,13 +299,7 @@ const GestionUsuarios = () => {
 
             {/* TABLA */}
             <div className="tabla-usuarios-container">
-                {cargando ? (
-                    <div className="usuarios-vacio">Cargando usuarios...</div>
-                ) : usuarios.length === 0 ? (
-                    <div className="usuarios-vacio">
-                        No se encontraron usuarios con esos filtros.
-                    </div>
-                ) : (
+                 
                     <table>
                         <thead>
                             <tr>
@@ -356,7 +350,7 @@ const GestionUsuarios = () => {
                             ))}
                         </tbody>
                     </table>
-                )}
+                
             </div>
 
             {/* MODAL CREAR / EDITAR */}

@@ -3,6 +3,42 @@ import { getAuditoria, getResumenAuditoria } from "../../services/auditoriaServi
 import { getUsuarios } from "../../services/usuariosService";
 import "./Auditoria.css";
 
+
+// ============================================================
+// MAPA DE ENTIDADES: nombre técnico → nombre amigable
+// ============================================================
+
+const ENTIDADES_LABEL = {
+    TIEMPO_REGISTRO: "Rastreador",
+    TIEMPO: "Rastreador",
+    USUARIO: "Usuario",
+    MIEMBRO: "Miembro de equipo",
+    PROYECTO: "Proyecto",
+    TAREA: "Tarea",
+    CLIENTE: "Cliente",
+    ETIQUETA: "Etiqueta",
+};
+
+const ACCIONES_LABEL = {
+    CREAR: "Creó",
+    EDITAR: "Editar",
+    ELIMINAR: "Eliminó",
+    ASIGNAR: "Asignó",
+    REMOVER: "Removió",
+    ARCHIVAR: "Archivó",
+    DESARCHIVAR: "Desarchivó",
+    DESACTIVAR: "Desactivó",
+    ACTIVAR: "Activó",
+    EDITAR_TIEMPO: "Editar tiempo",
+    CREAR_TIEMPO_ADMIN: "Creó tiempo",
+};
+
+// Helper para obtener el label amigable
+const labelEntidad = (codigo) =>
+    ENTIDADES_LABEL[codigo] || codigo || "—";
+
+const labelAccion = (codigo) =>
+    ACCIONES_LABEL[codigo] || codigo || "—";
 const hoy = () => new Date().toISOString().split("T")[0];
 
 const Auditoria = () => {
@@ -166,52 +202,66 @@ const Auditoria = () => {
             </div>
 
             {/* TABLA */}
-            <div className="auditoria-tabla-container">
-                {cargando ? (
-                    <div className="auditoria-vacio">Cargando...</div>
-                ) : registros.length === 0 ? (
+            {/* TABLA */}
+            <div className="auditoria-tabla">
+                {registros.length === 0 ? (
                     <div className="auditoria-vacio">No hay registros con esos filtros.</div>
                 ) : (
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Fecha</th>
-                                <th>Usuario</th>
-                                <th>Acción</th>
-                                <th>Modulo</th>
-                                <th>Descripción</th>
-                                <th>Proyecto</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {registros.map((r) => (
-                                <tr key={`${r.origen}-${r.id}`}>
-                                    <td className="col-fecha">{fmt(r.fecha)}</td>
-                                    <td>
-                                        <span className="nombre-usuario">
-                                            {r.usuario_nombre || "—"}
+                    <>
+                        {/* Cabecera solo visible en desktop/tablet */}
+                        <div className="auditoria-cabecera">
+                            <div>Fecha</div>
+                            <div>Usuario</div>
+                            <div>Acción</div>
+                            <div>Módulo</div>
+                            <div>Descripción</div>
+                            <div>Proyecto</div>
+                        </div>
+
+                        {registros.map((r) => (
+                            <div className="auditoria-row" key={`${r.origen}-${r.id}`}>
+
+                                <div className="col-fecha">
+                                    {fmt(r.fecha)}
+                                </div>
+
+                                <div className="col-usuario">
+                                    <span className="nombre-usuario">
+                                        {r.usuario_nombre || "—"}
+                                    </span>
+                                    {r.usuario_email && (
+                                        <span className="email-usuario">{r.usuario_email}</span>
+                                    )}
+                                </div>
+
+                                <div className="col-accion">
+                                    <span className={`texto-accion accion-${r.accion}`}>
+                                        {labelAccion(r.accion)}
+                                    </span>
+                                </div>
+
+                                <div className="col-modulo">
+                                    <span className="texto-entidad">
+                                        {labelEntidad(r.entidad)}
+                                    </span>
+                                    {r.entidad_nombre && (
+                                        <span className="entidad-nombre">
+                                            {r.entidad_nombre}
                                         </span>
-                                        {r.usuario_email && (
-                                            <span className="email-usuario">{r.usuario_email}</span>
-                                        )}
-                                    </td>
-                                    <td>
-                                        <span className={`badge-accion badge-${r.accion}`}>
-                                            {r.accion}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <span className="badge-entidad">{r.entidad}</span>
-                                        {r.entidad_nombre && (
-                                            <div className="entidad-nombre">{r.entidad_nombre}</div>
-                                        )}
-                                    </td>
-                                    <td className="col-descripcion">{r.detalle || "—"}</td>
-                                    <td className="col-proyecto">{r.proyecto_nombre || "—"}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                                    )}
+                                </div>
+
+                                <div className="col-descripcion">
+                                    {r.detalle || "—"}
+                                </div>
+
+                                <div className="col-proyecto">
+                                    {r.proyecto_nombre || "—"}
+                                </div>
+
+                            </div>
+                        ))}
+                    </>
                 )}
             </div>
         </div>

@@ -240,7 +240,25 @@
 
 }
 
+/* ============================================================
+   CHIP "+N" DE ETIQUETAS OCULTAS
+============================================================ */
 
+.etiqueta-activa.etiqueta-mas {
+    background: rgba(16, 165, 245, 0.1);
+    border-color: rgba(16, 165, 245, 0.35);
+    color: #10a5f5;
+    font-weight: 700;
+    cursor: help;
+    min-width: 32px;
+    justify-content: center;
+    padding: 0 8px;
+}
+
+.etiqueta-activa.etiqueta-mas:hover {
+    background: rgba(16, 165, 245, 0.2);
+    border-color: #10a5f5;
+}
 
 .etiquetas-activas{
 

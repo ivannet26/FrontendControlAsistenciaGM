@@ -1,0 +1,92 @@
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 99999;
+}
+
+.modal-editar-tiempo {
+    background: #101b22;
+    border: 1px solid #263740;
+    border-radius: 8px;
+    padding: 24px;
+    width: 420px;
+    max-width: 90vw;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    color: #d3dde3;
+}
+
+.modal-editar-tiempo h3 {
+    margin: 0 0 8px 0;
+    color: #fff;
+}
+
+.modal-advertencia {
+    background: rgba(230, 162, 60, 0.1);
+    border-left: 3px solid #e6a23c;
+    padding: 8px 12px;
+    font-size: 12px;
+    margin: 0 0 8px 0;
+    color: #e6a23c;
+}
+
+.modal-editar-tiempo label {
+    font-size: 12px;
+    color: #9fb2c0;
+    margin-top: 4px;
+}
+
+.modal-editar-tiempo input,
+.modal-editar-tiempo textarea {
+    background: #0a1319;
+    border: 1px solid #263740;
+    border-radius: 4px;
+    padding: 8px 10px;
+    color: #d3dde3;
+    font-family: inherit;
+    font-size: 13px;
+    outline: none;
+    color-scheme: dark;
+}
+
+.modal-editar-tiempo input:focus,
+.modal-editar-tiempo textarea:focus {
+    border-color: #10a5f5;
+}
+
+.modal-botones {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.modal-botones button {
+    padding: 8px 16px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 13px;
+}
+
+.modal-botones button:first-child {
+    background: transparent;
+    border: 1px solid #263740;
+    color: #9fb2c0;
+}
+
+.modal-botones button:last-child {
+    background: #10a5f5;
+    color: #fff;
+}
+
+.modal-botones button:last-child:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}

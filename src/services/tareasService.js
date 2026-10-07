@@ -142,3 +142,25 @@ export const eliminarTiempoAPI = async (id) => {
         getConfig()
     );
 };
+export async function editarTiempoAdmin(registroId, datos) {
+    const token = localStorage.getItem("token");
+
+    const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/rastreador/admin/tiempo/${registroId}`,
+        {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify(datos),
+        }
+    );
+
+    if (!res.ok) {
+        const error = await res.json().catch(() => ({}));
+        throw new Error(error.detail || "No se pudo editar el registro");
+    }
+
+    return res.json();
+}

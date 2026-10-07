@@ -109,7 +109,7 @@ function TimerBar({
             {
                 tarea && (
                     <div className="tarea-activa">
-                    
+
                         {proyecto && <span className="tarea-separador"> - </span>}
                         <span className="tarea-nombre">{tarea.nombre}</span>
                     </div>
@@ -145,53 +145,56 @@ function TimerBar({
 
                     )
                 }
-
-
                 {
                     etiquetasSeleccionadas.length > 0 && (
 
                         <div className="etiquetas-activas">
 
+                            {/* Mostrar solo las primeras 4 etiquetas */}
                             {
-                                etiquetasSeleccionadas.map(e => (
+                                etiquetasSeleccionadas.slice(0, 4).map(e => (
 
                                     <span
                                         key={e.id}
                                         className="etiqueta-activa"
                                     >
-
                                         {e.nombre}
-
                                     </span>
 
                                 ))
                             }
 
-
-                            {/* botón para agregar más */}
-
+                           
                             {
-                                !bloqueado && (
+                                etiquetasSeleccionadas.length > 4 && (
 
-                                    <EtiquetaSelector
-
-                                        etiquetas={etiquetas}
-
-                                        etiquetasSeleccionadas={
-                                            etiquetasSeleccionadas
-                                        }
-
-                                        setEtiquetasSeleccionadas={
-                                            setEtiquetasSeleccionadas
-                                        }
-
-                                        bloqueado={bloqueado}
-
-                                    />
+                                    <span
+                                        className="etiqueta-activa etiqueta-mas"
+                                        title={etiquetasSeleccionadas
+                                            .slice(4)
+                                            .map(e => e.nombre)
+                                            .join(", ")}
+                                    >
+                                        +{etiquetasSeleccionadas.length - 4}
+                                    </span>
 
                                 )
                             }
 
+
+                            {/* botón para agregar más */}
+                            {
+                                !bloqueado && (
+
+                                    <EtiquetaSelector
+                                        etiquetas={etiquetas}
+                                        etiquetasSeleccionadas={etiquetasSeleccionadas}
+                                        setEtiquetasSeleccionadas={setEtiquetasSeleccionadas}
+                                        bloqueado={bloqueado}
+                                    />
+
+                                )
+                            }
 
                         </div>
 
