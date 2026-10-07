@@ -21,7 +21,7 @@ const ENTIDADES_LABEL = {
 
 const ACCIONES_LABEL = {
     CREAR: "Creó",
-    EDITAR: "Editar",
+    EDITAR: "Editó",
     ELIMINAR: "Eliminó",
     ASIGNAR: "Asignó",
     REMOVER: "Removió",
@@ -29,17 +29,18 @@ const ACCIONES_LABEL = {
     DESARCHIVAR: "Desarchivó",
     DESACTIVAR: "Desactivó",
     ACTIVAR: "Activó",
-    EDITAR_TIEMPO: "Editar tiempo",
+    EDITAR_TIEMPO: "Editó tiempo",
     CREAR_TIEMPO_ADMIN: "Creó tiempo",
 };
 
-// Helper para obtener el label amigable
 const labelEntidad = (codigo) =>
     ENTIDADES_LABEL[codigo] || codigo || "—";
 
 const labelAccion = (codigo) =>
     ACCIONES_LABEL[codigo] || codigo || "—";
+
 const hoy = () => new Date().toISOString().split("T")[0];
+
 
 const Auditoria = () => {
     const [registros, setRegistros] = useState([]);
@@ -94,40 +95,58 @@ const Auditoria = () => {
             hour: "2-digit",
             minute: "2-digit",
         });
-
+    // Formatea "2026-10-07" → "miércoles, 7 de octubre de 2026"
+    const formatearFecha = (iso) => {
+        if (!iso) return "—";
+        const [y, m, d] = iso.split("-").map(Number);
+        return new Date(y, m - 1, d).toLocaleDateString("es-PE", {
+            weekday: "long",
+            day: "numeric",
+            month: "long",
+            year: "numeric"
+        });
+    };
     return (
         <div className="auditoria-container">
             <div className="auditoria-header">
                 <h1>Registro de Auditoría</h1>
             </div>
 
-            {/* RESUMEN — COMPACTO */}
-            {resumen && (
-                <div className="auditoria-resumen">
-                    <div className="resumen-card">
-                        <span className="resumen-label">Registros</span>
-                        <span className="resumen-valor">{resumen.total}</span>
-                    </div>
-                    <div className="resumen-card">
-                        <span className="resumen-label">Usuarios activos</span>
-                        <span className="resumen-valor">{resumen.usuarios_activos}</span>
-                    </div>
-                    <div className="resumen-card">
-                        <span className="resumen-label">Creaciones</span>
-                        <span className="resumen-valor">{resumen.por_accion?.CREAR || 0}</span>
-                    </div>
-                    <div className="resumen-card">
-                        <span className="resumen-label">Ediciones</span>
-                        <span className="resumen-valor">{resumen.por_accion?.EDITAR || 0}</span>
-                    </div>
-                    <div className="resumen-card">
-                        <span className="resumen-label">Eliminaciones</span>
-                        <span className="resumen-valor">{resumen.por_accion?.ELIMINAR || 0}</span>
-                    </div>
+            {/* RESUMEN — siempre visible, con optional chaining */}
+            <div className="auditoria-resumen">
+                <div className="resumen-card">
+                    <span className="resumen-label">Registros</span>
+                    <span className="resumen-valor">
+                        {resumen?.total ?? "—"}
+                    </span>
                 </div>
-            )}
+                <div className="resumen-card">
+                    <span className="resumen-label">Usuarios activos</span>
+                    <span className="resumen-valor">
+                        {resumen?.usuarios_activos ?? "—"}
+                    </span>
+                </div>
+                <div className="resumen-card">
+                    <span className="resumen-label">Creaciones</span>
+                    <span className="resumen-valor">
+                        {resumen?.por_accion?.CREAR ?? 0}
+                    </span>
+                </div>
+                <div className="resumen-card">
+                    <span className="resumen-label">Ediciones</span>
+                    <span className="resumen-valor">
+                        {resumen?.por_accion?.EDITAR ?? 0}
+                    </span>
+                </div>
+                <div className="resumen-card">
+                    <span className="resumen-label">Eliminaciones</span>
+                    <span className="resumen-valor">
+                        {resumen?.por_accion?.ELIMINAR ?? 0}
+                    </span>
+                </div>
+            </div>
 
-            {/* FILTROS COMPACTOS (sin buscador) */}
+            {/* FILTROS */}
             <div className="auditoria-filtros">
                 <span className="filtro-titulo">FILTRAR</span>
 
@@ -202,10 +221,19 @@ const Auditoria = () => {
             </div>
 
             {/* TABLA */}
-            {/* TABLA */}
             <div className="auditoria-tabla">
                 {registros.length === 0 ? (
-                    <div className="auditoria-vacio">No hay registros con esos filtros.</div>
+                    <div className="auditoria-vacio">
+                        <p className="auditoria-vacio-titulo">
+                            Sin registros
+                        </p>
+                        <p className="auditoria-vacio-sub">
+                            {filtros.fecha_inicio === filtros.fecha_fin
+                                ? formatearFecha(filtros.fecha_inicio)
+                                : `${formatearFecha(filtros.fecha_inicio)} → ${formatearFecha(filtros.fecha_fin)}`
+                            }
+                        </p>
+                    </div>
                 ) : (
                     <>
                         {/* Cabecera solo visible en desktop/tablet */}
@@ -230,7 +258,9 @@ const Auditoria = () => {
                                         {r.usuario_nombre || "—"}
                                     </span>
                                     {r.usuario_email && (
-                                        <span className="email-usuario">{r.usuario_email}</span>
+                                        <span className="email-usuario">
+                                            {r.usuario_email}
+                                        </span>
                                     )}
                                 </div>
 

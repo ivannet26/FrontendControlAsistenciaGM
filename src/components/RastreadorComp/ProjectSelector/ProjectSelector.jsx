@@ -3,8 +3,8 @@ import { useState, useEffect, useRef } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import ModalProyecto from "../ModalProyecto/ModalProyecto";
 import ModalTarea from "../ModalTarea/ModalTarea";
-
-import { obtenerProyectos } from "../../../services/proyectosService";
+import toast from "react-hot-toast";
+import { obtenerProyectos, crearProyectoAPI } from "../../../services/proyectosService";
 import { obtenerTareasProyecto, crearTarea } from "../../../services/tareasService";
 
 import "./ProjectSelector.css";
@@ -94,7 +94,7 @@ function ProjectSelector({
     }, []);
 
 
-    
+
     const abrirCrearTarea = (e, proyecto) => {
         e.stopPropagation();
         setProyecto(proyecto);
@@ -103,7 +103,7 @@ function ProjectSelector({
     };
 
 
-    
+
     const handleCrearTarea = async (nombreTarea) => {
         try {
             const creada = await crearTarea({
@@ -119,7 +119,7 @@ function ProjectSelector({
                         ? {
                             ...p,
                             tareas: [...p.tareas, { id: creada.id, nombre: creada.titulo }]
-                          }
+                        }
                         : p
                 )
             );
@@ -162,17 +162,17 @@ function ProjectSelector({
         <div className="project-selector" ref={projectRef}>
 
             <button
-    className="project-btn"
-    style={{
-        color: proyecto?.color || "#10a5f5"
-    }}
-    onClick={() => setMostrarProyectos(!mostrarProyectos)}
->
-    {proyecto 
-        ? truncar(proyecto.nombre) 
-        : "+ Proyecto"
-    }
-</button>
+                className="project-btn"
+                style={{
+                    color: proyecto?.color || "#10a5f5"
+                }}
+                onClick={() => setMostrarProyectos(!mostrarProyectos)}
+            >
+                {proyecto
+                    ? truncar(proyecto.nombre)
+                    : "+ Proyecto"
+                }
+            </button>
 
 
             {mostrarProyectos && (
@@ -342,9 +342,19 @@ function ProjectSelector({
             {mostrarModalProyecto && (
                 <ModalProyecto
                     cerrar={() => setMostrarModalProyecto(false)}
-                    guardar={async () => {
-                        await cargarProyectos();
-                        setMostrarModalProyecto(false);
+                    guardar={async (datos) => {
+                        try {
+                            await crearProyectoAPI(datos);
+                            toast.success("Proyecto creado");
+                            await cargarProyectos();
+                            setMostrarModalProyecto(false);
+                        } catch (error) {
+                            console.error("Error creando proyecto", error);
+                            toast.error(
+                                error.response?.data?.detail ||
+                                "No se pudo crear el proyecto"
+                            );
+                        }
                     }}
                 />
             )}

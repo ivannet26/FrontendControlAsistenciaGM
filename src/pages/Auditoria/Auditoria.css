@@ -19,7 +19,38 @@
   letter-spacing: 0.3px;
   margin: 0;
 }
+/* ============================================================
+   ESTADO VACÍO
+============================================================ */
 
+.auditoria-vacio {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 80px 24px;
+    min-height: 320px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.auditoria-vacio-titulo {
+    color: #d3dde3;
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0 0 8px 0;
+    letter-spacing: 0.3px;
+}
+
+.auditoria-vacio-sub {
+    color: #6b7c88;
+    font-size: 13px;
+    margin: 0;
+    max-width: 400px;
+    line-height: 1.5;
+    text-transform: capitalize;  
+}
 /* ============================================================
    RESUMEN
 ============================================================ */
