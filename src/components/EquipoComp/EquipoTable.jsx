@@ -13,7 +13,7 @@ function EquipoTable({
 
             <div className="tabla-header">
                 <span>Miembros</span>
-                <button>Exportar ▾</button>
+                
             </div>
 
             <table>

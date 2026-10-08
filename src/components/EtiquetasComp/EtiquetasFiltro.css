@@ -1,215 +1,225 @@
 /* ============================================================
-   CONTENEDOR PRINCIPAL
-   ============================================================ */
+   FILTRO ETIQUETAS
+============================================================ */
 
-.etiquetas-container {
-    width: 100%;
-    max-width: 100%;
-    padding: 8px;
-    box-sizing: border-box;
-    margin: 0 auto;
-    overflow-x: hidden;
-}
-
-/* ============================================================
-   TÍTULO
-   ============================================================ */
-
-.etiquetas-top {
-    display: flex;
-    align-items: center;
-    margin-bottom: 20px;
-    width: 100%;
-    box-sizing: border-box;
-}
-
-.etiquetas-top h1 {
-    color: #d9e1e5;
-    font-size: 28px;
-    font-weight: 400;
-    margin: 9px;
-}
-
-/* ============================================================
-   CONTENEDOR INTERNO
-   ============================================================ */
-
-.etiquetas-contenedor {
-    width: 100%;
-    max-width: 100%;
-    box-sizing: border-box;
-
-    background: #101b22;
-    border: 1px solid #263740;
-
-    padding: 19px;
-
-    margin: 0 auto;
-
-    overflow: visible;
-}
-
-/* ============================================================
-   FILTROS
-   ============================================================ */
+/* ---------- CONTENEDOR ---------- */
 
 .etiquetas-filtros {
     width: 100%;
-    max-width: 100%;
-    box-sizing: border-box;
-
     background: #111d24;
     border: 1px solid #273943;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px;
+    margin-bottom: 14px;
+    box-sizing: border-box;
+}
 
-    margin-bottom: 30px;
-    margin-left: 0;
-    margin-right: 0;
+/* ---------- IZQUIERDA ---------- */
+
+.filtros-izquierda {
+    display: flex;
+    align-items: center;        /* 👈 centra ambos hijos */
+    gap: 0;
+    height: 36px;               /* 👈 misma altura que el botón */
+    min-width: 0;
+}
+
+.filtro-titulo {
+    color: #aab8c2;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    padding: 0 14px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    border-right: 1px solid #344650;
+    flex-shrink: 0;
+    margin: 0;
+}
+.filtro-dropdown {
+    position: relative;
+    background: transparent;
+    border: none;
+    padding: 0;
+    margin: 0 0 0 14px;         /* 👈 espacio después del border-right */
+    height: 36px;               /* 👈 misma altura que el botón */
+    display: flex;
+    align-items: center;        /* 👈 centra el botón dentro */
+    box-sizing: border-box;
+}
+
+.filtro-btn {
+    appearance: none;
+    -webkit-appearance: none;
+    background: #162630;
+    border: 1px solid #344650;
+    border-radius: 0;
+    color: #d3dde3;
+
+    height: 36px;
+    padding: 0 14px;
+    margin: 0;
+
+    font-size: 13px;
+    font-family: inherit;
 
     display: flex;
     align-items: center;
-    flex-wrap: nowrap;
+    justify-content: center;
+    gap: 8px;
 
-    gap: 0;
-
-    overflow: visible;
-    min-width: 0;
-
-    position: relative;
-    left: 0;
-    right: auto;
-    transform: none;
-}
-
-/* ============================================================
-   TABLA
-   ============================================================ */
-
-.etiquetas-tabla-container {
-    width: 100%;
-    max-width: 100%;
+    white-space: nowrap;
     box-sizing: border-box;
 
-    background: #101b22;
-    border: 1px solid #263740;
-
-    overflow-x: auto;
-    overflow-y: visible;
-
-    margin: 0;
-
-    position: relative;
-    z-index: 1;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.15s ease;
 }
 
-.etiquetas-tabla-container table {
-    width: 100%;
+.filtro-btn:hover,
+.filtro-btn:focus,
+.filtro-btn:active {
+    border-color: #10a5f5;
+    outline: none;
+}
+/* ---------- DROPDOWN PANEL ---------- */
+
+.dropdown-panel {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    min-width: 210px;
+    background: #162630;
+    border: 1px solid #344650;
+    border-radius: 4px;
+    padding: 6px;
+    z-index: 1000;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55);
+}
+
+.dropdown-panel label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    color: #d3dde3;
+    font-size: 13px;
+    cursor: pointer;
+    border-radius: 3px;
+    transition: background 0.15s ease;
+}
+
+.dropdown-panel label:hover {
+    background: #1d303a;
+}
+
+.dropdown-panel input[type="checkbox"] {
+    width: 14px;
+    height: 14px;
+    accent-color: #10a5f5;
+    cursor: pointer;
+}
+
+/* ---------- DERECHA ---------- */
+
+.filtros-derecha {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1 1 auto;
+    justify-content: flex-end;
     min-width: 0;
-    border-collapse: collapse;
 }
-
-/* ============================================================
-   RESPONSIVE
-   ============================================================ */
-
-@media (max-width: 900px) {
-    .etiquetas-container {
-        padding: 8px;
-    }
-
-    .etiquetas-contenedor {
-        padding: 14px;
-    }
-}
-
-@media (max-width: 700px) {
-    .etiquetas-container {
-        padding: 6px;
-    }
-
-    .etiquetas-contenedor {
-        padding: 10px;
-    }
-
-    .etiquetas-top h1 {
-        font-size: 22px;
-        margin: 8px 0;
-    }
-}
-
-@media (max-width: 500px) {
-    .etiquetas-container {
-        padding: 4px;
-    }
-
-    .etiquetas-contenedor {
-        padding: 8px;
-    }
-
-    .etiquetas-top h1 {
-        font-size: 20px;
-        margin: 6px 0;
-    }
-}
-
-@media (max-width: 380px) {
-    .etiquetas-contenedor {
-        padding: 6px;
-    }
-
-    .etiquetas-top h1 {
-        font-size: 18px;
-    }
-}
-.etiquetas-buscador {
-    flex: 1 1 auto;      /* ← controla si crece o se encoge */
-    min-width: 0;        /* ← ancho mínimo */
-    max-width: 100%;     /* ← ancho máximo */
-}
-/* ---------- BUSCADOR BASE ---------- */
 
 .etiquetas-buscador {
     flex: 1 1 auto;
     min-width: 0;
-    max-width: 400px;   /* 👈 AJUSTA AQUÍ en desktop */
-
-    height: 36px;
+    max-width: 400px;
+    height: 38px;
     display: flex;
     align-items: center;
     gap: 8px;
-
     background: #162630;
     border: 1px solid #344650;
-
-    padding: 0 10px;
-
+    padding: 0 12px;
     box-sizing: border-box;
-    overflow: hidden;
-
     color: #ffffff;
+    transition: border-color 0.15s ease;
 }
 
-/* ---------- MÓVIL ---------- */
-
-@media (max-width: 900px) {
-    .etiquetas-buscador {
-        max-width: 320px;   /* 👈 AJUSTA */
-    }
+.etiquetas-buscador:focus-within {
+    border-color: #10a5f5;
 }
+
+.etiquetas-buscador svg {
+    color: #8799a5;
+    flex-shrink: 0;
+}
+
+.etiquetas-buscador input {
+    width: 100%;
+    background: none;
+    border: none;
+    outline: none;
+    color: #ffffff;
+    font-size: 13px;
+    font-family: inherit;
+    min-width: 0;
+}
+
+.etiquetas-buscador input::placeholder {
+    color: #5c6f7d;
+}
+
+
+/* ============================================================
+   RESPONSIVE — MÓVIL (<= 700px)
+============================================================ */
 
 @media (max-width: 700px) {
+
+    /* Contenedor: apilado vertical */
+    .etiquetas-filtros {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+        padding: 12px;
+    }
+
+    /* Cada lado ocupa todo el ancho */
+    .filtros-izquierda,
+    .filtros-derecha {
+        width: 100%;
+        max-width: 100%;
+        flex: 1 1 100%;
+    }
+
     .filtros-izquierda {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+
+    /* Ocultar el label "FILTRAR" */
+    .filtro-titulo {
         display: none;
     }
-}
 
-@media (max-width: 600px) {
-    .etiquetas-buscador {
-        max-width: 160px;   /* 👈 AJUSTA */
+    .filtro-btn {
+        width: 100%;
+        justify-content: space-between;
     }
-}
 
-@media (max-width: 500px) {
+    /* Buscador ocupa todo el ancho */
     .etiquetas-buscador {
-        max-width: 135px;   /* 👈 AJUSTA */
+        width: 100%;
+        max-width: 100%;
+        flex: 1 1 100%;
     }
 }

@@ -11,7 +11,7 @@ import {
 } from "react-router-dom";
 
 import LayoutPrincipal from "./components/LayoutPrincipal/LayoutPrincipal.jsx";
-
+import RutaProtegida from "./components/RutaProtegida/RutaProtegida.jsx";
 import Register from "./pages/Register/Register.jsx";
 
 import Rastreador from "./pages/Rastreador/Rastreador.jsx";
@@ -77,68 +77,75 @@ function App() {
           element={<Register />}
         />
 
-        <Route
-          path="/app"
-          element={<LayoutPrincipal />}
-        >
-          
-          <Route
-            index
-            element={<Navigate to="/app/rastreador" replace />}
-          />
+        {/* TODAS las rutas de /app requieren sesión */}
+        <Route element={<RutaProtegida />}>
 
           <Route
-            path="rastreador"
-            element={<Rastreador />}
-          />
+            path="/app"
+            element={<LayoutPrincipal />}
+          >
 
-          <Route
-            path="panel"
-            element={<Panel />}
-          />
+            <Route
+              index
+              element={<Navigate to="/app/rastreador" replace />}
+            />
 
-          <Route
-            path="informes"
-            element={<InformesPage />}
-          />
+            <Route
+              path="rastreador"
+              element={<Rastreador />}
+            />
 
-          <Route
-            path="gestion-usuarios"
-            element={<GestionUsuarios />}
-          />
-          <Route
-            path="auditoria"
-            element={<Auditoria />}
-          />
+            <Route
+              path="panel"
+              element={<Panel />}
+            />
 
-          <Route
-            path="proyectos"
-            element={<Proyectos />}
-          />
+            <Route
+              path="informes"
+              element={<InformesPage />}
+            />
 
-          <Route
-            path="proyectos/:id"
-            element={<DetalleProyecto />}
-          />
+            <Route
+              path="gestion-usuarios"
+              element={<GestionUsuarios />}
+            />
 
-          <Route
-            path="equipo"
-            element={<Equipo />}
-          />
+            <Route
+              path="auditoria"
+              element={<Auditoria />}
+            />
 
-          <Route
-            path="clientes"
-            element={<Clientes />}
-          />
+            <Route
+              path="proyectos"
+              element={<Proyectos />}
+            />
 
-          <Route
-            path="etiquetas"
-            element={<Etiquetas />}
-          />
+            <Route
+              path="proyectos/:id"
+              element={<DetalleProyecto />}
+            />
+
+            <Route
+              path="equipo"
+              element={<Equipo />}
+            />
+
+            <Route
+              path="clientes"
+              element={<Clientes />}
+            />
+
+            <Route
+              path="etiquetas"
+              element={<Etiquetas />}
+            />
+
+          </Route>
 
         </Route>
 
-        
+
+        {/* Cualquier otra ruta: si no hay sesión, la guarda lleva a /login */}
         <Route
           path="*"
           element={<Navigate to="/app/rastreador" replace />}

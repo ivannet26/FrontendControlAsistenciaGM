@@ -1,248 +1,210 @@
-.clientes-filtros{
+/* ============================================================
+   FILTRO CLIENTES
+============================================================ */
 
-
-    width:100%;
-
-    height:55px;
-
-
-    display:flex;
-
-    justify-content:space-between;
-
-    align-items:center;
-
-
-    background:#111d24;
-
-    border:1px solid #273943;
-
-
-    margin-bottom:25px;
-
-    position:relative;
-
-
-}
-.clientes-filtro-btn{
-
-
-    height:55px;
-
-    padding:0 22px;
-
-
-    background:transparent!important;
-
-    border:none!important;
-
-    border-right:1px solid #344650!important;
-
-
-    color:#d3dde3!important;
-
-
-    cursor:pointer;
-
-    font-size:14px;
-
-
-}
-.clientes-filtros-izquierda{
-
-
-    display:flex;
-
-    align-items:center;
-
-    height:100%;
-
-
-}
-
-.filtros-izquierda{
-
-    display:flex;
-
-    align-items:center;
-
-    height:100%;
-
+.clientes-filtros {
+    width: 100%;
+    background: #111d24;
+    border: 1px solid #273943;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px;
+    margin-bottom: 20px;
+    box-sizing: border-box;
 }
 
 
+/* ---------- IZQUIERDA (FILTRAR + dropdown) ---------- */
 
-.filtro-titulo{
+.filtros-izquierda {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    min-width: 0;
+    flex-shrink: 0;
+}
 
-    height:55px;
+.filtro-titulo {
+    color: #aab8c2;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    padding: 0 18px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-right: 1px solid #344650;
+    flex-shrink: 0;
+    margin: 0;
+}
 
-    display:flex;
+.clientes-filtros select {
+    height: 40px;
+    padding: 0 14px;
+    background: #162630;
+    border: 1px solid #344650;
+    color: #ffffff;
+    font-size: 13px;
+    font-family: inherit;
+    cursor: pointer;
+    outline: none;
+    margin-left: 14px;
+    box-sizing: border-box;
+    transition: border-color 0.15s ease;
+}
 
-    align-items:center;
+.clientes-filtros select:hover,
+.clientes-filtros select:focus {
+    border-color: #10a5f5;
+}
 
-    padding:0 20px;
-
-    color:#aab8c2;
-
-    font-size:13px;
-
-    border-right:1px solid #344650;
-
+.clientes-filtros select option {
+    background: #162630;
+    color: #ffffff;
 }
 
 
+/* ---------- DERECHA (buscador) ---------- */
 
+.filtros-derecha {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1 1 auto;
+    justify-content: flex-end;
+    min-width: 0;
+}
 
+.clientes-buscador {
+    flex: 1 1 auto;
+    min-width: 0;
+    max-width: 400px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #162630;
+    border: 1px solid #344650;
+    padding: 0 12px;
+    box-sizing: border-box;
+    color: #ffffff;
+    transition: border-color 0.15s ease;
+}
 
-.clientes-filtros select{
+.clientes-buscador:focus-within {
+    border-color: #10a5f5;
+}
 
-    height:40px;
+.clientes-buscador svg {
+    color: #8799a5;
+    flex-shrink: 0;
+}
 
-    margin-left:15px;
+.clientes-buscador input {
+    width: 100%;
+    background: none;
+    border: none;
+    outline: none;
+    color: #ffffff;
+    font-size: 13px;
+    font-family: inherit;
+    min-width: 0;
+}
 
-    background:#162630;
-
-    color:white;
-
-    border:1px solid #344650;
-
-    padding:0 15px;
-
-    outline:none;
-
+.clientes-buscador input::placeholder {
+    color: #5c6f7d;
 }
 
 
+/* ---------- BOTÓN APLICAR (opcional) ---------- */
 
+.aplicar-btn {
+    height: 40px;
+    background: transparent;
+    border: 1px solid #10a5f5;
+    color: #10a5f5;
+    padding: 0 18px;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all 0.15s ease;
+}
 
-
-
-
-.filtros-derecha{
-
-    display:flex;
-
-    align-items:center;
-
-    gap:10px;
-
-    padding-right:10px;
-
+.aplicar-btn:hover {
+    background: #10a5f5;
+    color: #ffffff;
 }
 
 
-
-
-
-.clientes-buscador{
-
-    width:300px;
-
-    height:40px;
-
-    display:flex;
-
-    align-items:center;
-
-    gap:10px;
-
-    padding:0 12px;
-
-    background:#162630;
-
-    border:1px solid #344650;
-
-}
-
-
-
-
-
-.clientes-buscador input{
-
-
-    width:100%;
-
-    background:none;
-
-    border:none;
-
-    outline:none;
-
-    color:white;
-
-}
-
-
-
-
-
-
-
-.aplicar-btn{
-
-
-    height:40px;
-
-    background:transparent;
-
-    border:1px solid #10a5f5;
-
-    color:#10a5f5;
-
-    padding:0 18px;
-
-    cursor:pointer;
-
-
-}
-
-
-
-.aplicar-btn:hover{
-
-
-    background:#10a5f5;
-
-    color:white;
-
-
-}/* ============================================================
-   RESPONSIVE — Ocultar FILTRAR en móvil
-   ============================================================ */
-
-@media (max-width: 700px) {
-
-    .filtros-izquierda {
-        display: none;
-    }
-
-    /* 🔑 El buscador aprovecha el espacio */
-    .filtros-derecha {
-        flex: 1 1 auto;
-        width: 100%;
-        padding: 0 10px;
-        gap: 8px;
-    }
-
-    .clientes-buscador {
-        width: 100%;
-        max-width: 100%;
-        flex: 1 1 auto;
-        min-width: 0;
-    }
-}
-
-@media (max-width: 500px) {
+/* ============================================================
+   RESPONSIVE — TABLET/MÓVIL (<= 900px)
+============================================================ */
+@media (max-width: 900px) {
 
     .clientes-filtros {
-        height: 48px;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 10px !important;
+        padding: 14px !important;
+    }
+
+    .filtros-izquierda,
+    .filtros-derecha {
+        width: 100% !important;
+        max-width: 100% !important;
+        flex: 1 1 100% !important;
+    }
+
+    .filtros-izquierda {
+        flex-direction: column !important;
+        align-items: flex-start !important;   /* 👈 alineado a la izquierda */
+        gap: 8px !important;
+    }
+
+    .filtro-titulo {
+        display: none !important;
+    }
+
+    /* 👇 SELECT COMPACTO: ancho se ajusta al contenido */
+    .clientes-filtros select {
+        width: auto !important;
+        max-width: 100% !important;
+        min-width: 180px;                     /* 👈 ancho mínimo legible */
+        margin: 0 !important;
+        padding: 0 30px 0 14px !important;    /* 👈 espacio para la flechita */
+        height: 42px !important;
+        box-sizing: border-box !important;
+    }
+
+    /* 👇 Buscador sí ocupa todo el ancho */
+    .clientes-buscador {
+        width: 100% !important;
+        max-width: 100% !important;
+        flex: 1 1 100% !important;
+        height: 42px !important;
+    }
+}
+
+/* ============================================================
+   RESPONSIVE — MÓVIL PEQUEÑO (<= 500px)
+============================================================ */
+
+@media (max-width: 500px) {
+    .clientes-filtros {
+        padding: 10px;
+        gap: 8px;
+    }
+
+    .clientes-filtros select {
+        height: 38px;
+        font-size: 13px;
     }
 
     .clientes-buscador {
-        height: 36px;
+        height: 38px;
         padding: 0 10px;
-        gap: 8px;
     }
 
     .clientes-buscador input {
@@ -250,81 +212,25 @@
     }
 }
 
-@media (max-width: 380px) {
 
-    .clientes-filtros {
-        height: 44px;
+/* ============================================================
+   RESPONSIVE — MÓVIL MUY PEQUEÑO (<= 380px)
+============================================================ */
+
+@media (max-width: 380px) {
+    .clientes-filtros select {
+        height: 36px;
+        padding: 0 10px;
+        font-size: 12px;
     }
 
     .clientes-buscador {
-        height: 34px;
+        height: 36px;
         padding: 0 8px;
         gap: 6px;
     }
 
     .clientes-buscador input {
         font-size: 12px;
-    }
-}/* ============================================================
-   RESPONSIVE — Reducir dropdown "Mostrar todo"
-   ============================================================ */
-
-@media (max-width: 900px) {
-
-    .clientes-filtros select {
-        height: 36px;
-        margin-left: 10px;
-        padding: 0 10px;
-        font-size: 12.5px;
-    }
-
-    .filtro-titulo {
-        padding: 0 12px;
-        font-size: 12px;
-    }
-}
-
-@media (max-width: 700px) {
-
-    .clientes-filtros select {
-        height: 34px;
-        margin-left: 8px;
-        padding: 0 8px;
-        font-size: 12px;
-    }
-
-    .filtro-titulo {
-        padding: 0 10px;
-        font-size: 11.5px;
-    }
-}
-
-@media (max-width: 500px) {
-
-    .clientes-filtros select {
-        height: 32px;
-        margin-left: 6px;
-        padding: 0 6px;
-        font-size: 11.5px;
-    }
-
-    .filtro-titulo {
-        padding: 0 8px;
-        font-size: 11px;
-    }
-}
-
-@media (max-width: 380px) {
-
-    .clientes-filtros select {
-        height: 30px;
-        margin-left: 4px;
-        padding: 0 5px;
-        font-size: 11px;
-    }
-
-    .filtro-titulo {
-        padding: 0 6px;
-        font-size: 10.5px;
     }
 }

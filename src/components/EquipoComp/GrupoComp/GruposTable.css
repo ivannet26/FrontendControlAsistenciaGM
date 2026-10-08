@@ -213,49 +213,160 @@
     text-align: center;
     color: #5f6f7a;
     font-size: 14px;
+}/* ============================================================
+   RESPONSIVE — MÓVIL (<= 700px)
+   Cards sin scroll horizontal
+============================================================ */
+
+@media (max-width: 700px) {
+
+    .tabla-scroll {
+        overflow-x: visible;
+    }
+
+    .grupos-tabla-container table {
+        min-width: 0;
+        width: 100%;
+        table-layout: auto;
+    }
+
+    .grupos-tabla-container thead {
+        display: none;
+    }
+
+    .grupos-tabla-container table,
+    .grupos-tabla-container tbody,
+    .grupos-tabla-container tr,
+    .grupos-tabla-container td {
+        display: block;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    /* Cada grupo es una tarjeta */
+    .grupos-tabla-container tbody tr {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        grid-template-areas:
+            "nombre   acciones"
+            "acceso   acceso";
+        gap: 8px 12px;
+        padding: 18px 18px;
+        margin-bottom: 10px;
+        background: #0d161d;
+        border: 1px solid #1a2831;
+        border-radius: 6px;
+        align-items: center;
+    }
+
+    .grupos-tabla-container tbody tr:hover {
+        background: #1d303a;
+    }
+
+    .grupos-tabla-container tbody tr:last-child {
+        margin-bottom: 0;
+    }
+
+    /* Nombre */
+    .grupos-tabla-container td:nth-child(1) {
+        grid-area: nombre;
+        padding: 0;
+        height: auto;
+        width: auto;
+        text-align: left;
+    }
+
+    .grupo-nombre {
+        font-size: 17px;                     /* 👈 agrandado */
+        font-weight: 600;
+        color: #ffffff;
+        white-space: normal;
+        word-break: break-word;
+        line-height: 1.4;
+    }
+
+    /* Acceso (miembros) */
+    .grupos-tabla-container td:nth-child(2) {
+        grid-area: acceso;
+        padding: 0;
+        height: auto;
+        width: auto;
+        text-align: left;
+    }
+
+    .grupo-miembros {
+        display: block;
+        font-size: 14px;                     /* 👈 agrandado */
+        color: #8799a5;
+        white-space: normal;
+        word-break: break-word;
+        line-height: 1.4;
+    }
+
+    /* Acciones */
+    .grupos-tabla-container td:nth-child(3),
+    .grupos-tabla-container .col-acciones-grupo {
+        grid-area: acciones;
+        padding: 0;
+        height: auto;
+        width: auto;
+        text-align: right;
+        align-self: start;
+    }
+
+    .grupo-acciones {
+        justify-content: flex-end;
+        gap: 8px;
+    }
+
+    .grupo-acciones .btn-icono {
+        padding: 8px;
+    }
+
+    /* Header del contenedor */
+    .grupos-tabla-container .tabla-header {
+        padding: 0 18px;
+        height: 52px;
+        font-size: 15px;                     /* 👈 agrandado */
+    }
+
+    .grupos-tabla-container .tabla-header button {
+        font-size: 13px;
+        padding: 7px 14px;
+    }
+
+    /* Fila vacía */
+    .grupos-tabla-container tbody tr td[colspan] {
+        grid-column: 1 / -1;
+        padding: 40px 20px;
+        text-align: center;
+        font-size: 15px;
+    }
 }
-/* =========================
-   TABLA RESPONSIVE
-========================= */
 
 
-.tabla-scroll{
+/* ============================================================
+   RESPONSIVE — MÓVIL PEQUEÑO (<= 500px)
+============================================================ */
 
-    width:100%;
+@media (max-width: 500px) {
 
-    overflow-x:auto;
+    .grupos-tabla-container tbody tr {
+        padding: 16px 16px;
+        gap: 6px 12px;
+    }
 
-}
+    .grupo-nombre {
+        font-size: 16px;                     /* 👈 agrandado */
+    }
 
+    .grupo-miembros {
+        font-size: 13px;                     /* 👈 agrandado */
+    }
 
-.grupos-tabla-container table{
-
-    width:100%;
-
-    min-width:700px;
-
-    border-collapse:collapse;
-
-}
-
-
-
-.tabla-scroll::-webkit-scrollbar{
-
-    height:8px;
-
-}
-
-
-.tabla-scroll::-webkit-scrollbar-thumb{
-
-    background:#344650;
-
-}
-
-
-.tabla-scroll::-webkit-scrollbar-track{
-
-    background:#101b22;
-
+    .grupos-tabla-container .tabla-header {
+        height: 48px;
+        padding: 0 16px;
+        font-size: 14px;
+    }
 }

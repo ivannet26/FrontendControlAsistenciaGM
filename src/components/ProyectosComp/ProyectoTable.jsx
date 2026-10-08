@@ -148,7 +148,7 @@ function ProyectoTable({
         <div className="tabla-container">
 
 
-            <div className="tabla-header-tareas">
+            <div className="tabla-header">
 
                 <span>
                     Proyectos

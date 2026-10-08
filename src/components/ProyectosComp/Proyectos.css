@@ -6,6 +6,7 @@
     width: 100%;
     padding: 8px;
     box-sizing: border-box;
+    position: relative;
 }
 
 
@@ -129,16 +130,16 @@
 
 
 /* =========================
-   COLUMNA ACCIONES (al extremo derecho)
+   COLUMNA ACCIONES
 ========================= */
 
 .tabla-container th:nth-child(7),
 .tabla-container td:nth-child(7),
 .tabla-container .col-acciones {
-    width: 100px;                     
+    width: 100px;
     max-width: 100px;
-    text-align: right;                
-    padding: 0 20px 0 0;            
+    text-align: right;
+    padding: 0 20px 0 0;
     position: relative;
     overflow: visible;
     border-right: none;
@@ -146,10 +147,10 @@
 
 .tabla-container .acciones {
     display: flex;
-    justify-content: flex-end;         
+    justify-content: flex-end;
     align-items: center;
-    gap: 15px;                        
-    width: 100%;                       
+    gap: 15px;
+    width: 100%;
 }
 
 
@@ -246,8 +247,17 @@
     background: #162630;
     color: white;
     border: 1px solid #344650;
-    padding: 10px;
+    padding: 10px 12px;
     outline: none;
+    font-family: inherit;
+    font-size: 14px;
+    cursor: pointer;
+    width: 100%;
+    max-width: 180px;
+    box-sizing: border-box;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
 }
 
 .buscador {
@@ -375,21 +385,23 @@
 
 /* =========================
    TABLA HEADER
+   (.tabla-header-tareas = clase que usa el JSX actual)
 ========================= */
 
-.tabla-header {
+.tabla-header,
+.tabla-header-tareas {
     height: 45px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 0 15px;
-    background: #101b22;
     border-bottom: 1px solid #263740;
     color: #b5c4cc;
     font-size: 13px;
 }
 
-.tabla-header button {
+.tabla-header button,
+.tabla-header-tareas button {
     background: none;
     border: none;
     color: #b5c4cc;
@@ -397,7 +409,8 @@
     font-size: 13px;
 }
 
-.tabla-header button:hover {
+.tabla-header button:hover,
+.tabla-header-tareas button:hover {
     color: white;
 }
 
@@ -520,169 +533,258 @@
 .tabla-container tbody tr:has(input[type="checkbox"]:checked) td {
     color: #ffffff;
 }
-.proyectos-container {
+
+
+/* =========================
+   TABLA SCROLL (ESCRITORIO)
+========================= */
+
+.tabla-scroll {
     width: 100%;
-    padding: 8px;
-    box-sizing: border-box;
-    position: relative;  
-}
-/* =========================
-   TABLA RESPONSIVE
-========================= */
-
-
-.tabla-scroll{
-
-    width:100%;
-
-    overflow-x:auto;
-
-    overflow-y:hidden;
-
+    overflow-x: auto;
+    overflow-y: hidden;
 }
 
+.tabla-scroll table {
+    min-width: 900px;
+    width: 100%;
+}
 
+.tabla-scroll::-webkit-scrollbar {
+    height: 8px;
+}
 
-.tabla-scroll table{
+.tabla-scroll::-webkit-scrollbar-thumb {
+    background: #344650;
+}
 
-    min-width:900px;
-
-    width:100%;
-
+.tabla-scroll::-webkit-scrollbar-track {
+    background: #101b22;
 }
 
 
+/* ============================================================
+   RESPONSIVE — TABLET / MÓVIL (<= 900px)
+   Misma estructura que Equipo: un solo contenedor,
+   filas transparentes separadas por una línea.
+============================================================ */
 
-/* scrollbar */
+@media (max-width: 900px) {
 
-.tabla-scroll::-webkit-scrollbar{
+    /* ---------- FILTROS apilados ---------- */
+    .filtros-container {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+        padding: 12px;
+        margin-bottom: 16px;
+    }
 
-    height:8px;
+    .filtro-titulo {
+        display: none;
+    }
 
+    .filtros-container select {
+        width: 100%;
+        max-width: 100%;
+        height: 46px;
+        padding: 0 14px;
+        font-size: 14px;
+    }
+
+    .buscador,
+    .filtros-container button {
+        width: 100%;
+        max-width: 100%;
+        height: 44px;
+        padding: 0 14px;
+        font-size: 14px;
+        min-height: 40px !important;
+    }
+
+    .buscador input {
+        height: 100%;
+        font-size: 14px;
+    }
+
+    /* ---------- TABLA ESTILO EQUIPO ---------- */
+
+    .tabla-container .tabla-header,
+    .tabla-container .tabla-header-tareas {
+        height: 45px;
+        padding: 0 16px;
+        font-size: 13px;
+    }
+
+    .tabla-scroll {
+        overflow-x: visible;
+    }
+
+    .tabla-scroll table {
+        min-width: 0;
+        width: 100%;
+        table-layout: auto;
+    }
+
+    .tabla-container thead {
+        display: none;
+    }
+
+    .tabla-container table,
+    .tabla-container tbody {
+        display: block;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    /* Cada fila: transparente, separada por una línea */
+    .tabla-container tbody tr {
+        display: grid;
+        grid-template-columns: auto auto 1fr;
+        grid-template-areas:
+            "nombre     nombre    acciones"
+            "cliente    cliente   cliente"
+            "registrado progreso  acceso";
+        gap: 6px 16px;
+        padding: 14px 16px;
+        margin: 0;
+        border: none;
+        border-top: 1px solid #263740;
+        border-radius: 0;
+        align-items: center;
+        box-sizing: border-box;
+    }
+
+    .tabla-container tbody tr:first-child {
+        border-top: none;
+    }
+
+    .tabla-container tbody tr:hover {
+        background: #1d303a;
+    }
+
+    /* Celdas sin rayitas ni medidas de escritorio */
+    .tabla-container td {
+        display: block;
+        width: auto;
+        max-width: none;
+        height: auto;
+        border: none;
+        box-sizing: border-box;
+    }
+
+    /* Ocultar checkbox */
+    .tabla-container td:nth-child(1) {
+        display: none;
+    }
+
+    /* Nombre */
+    .tabla-container td:nth-child(2) {
+        grid-area: nombre;
+        width: auto;
+        padding: 0;
+        min-width: 0;
+    }
+
+    .tabla-container .nombre-proyecto {
+        font-size: 14px;
+        font-weight: 600;
+        color: #ffffff;
+        white-space: normal;
+        word-break: break-word;
+        line-height: 1.3;
+    }
+
+    .tabla-container .punto {
+        width: 8px;
+        height: 8px;
+        margin-right: 10px;
+    }
+
+    /* Cliente */
+    .tabla-container td:nth-child(3) {
+        grid-area: cliente;
+        width: auto;
+        padding: 0;
+        font-size: 12px;
+        color: #8799a5;
+        word-break: break-word;
+        line-height: 1.3;
+    }
+
+    /* Registrado / Progreso / Acceso */
+    .tabla-container td:nth-child(4),
+    .tabla-container td:nth-child(5),
+    .tabla-container td:nth-child(6) {
+        width: auto;
+        padding: 0;
+        font-size: 12px;
+        color: #d3dde3;
+    }
+
+    .tabla-container td:nth-child(4) { grid-area: registrado; }
+    .tabla-container td:nth-child(5) { grid-area: progreso; }
+    .tabla-container td:nth-child(6) { grid-area: acceso; }
+
+    .tabla-container td:nth-child(4)::before { content: "Registrado: "; color: #5f6f7a; }
+    .tabla-container td:nth-child(5)::before { content: "Progreso: ";   color: #5f6f7a; }
+    .tabla-container td:nth-child(6)::before { content: "Acceso: ";     color: #5f6f7a; }
+
+    /* Acciones arriba a la derecha */
+    .tabla-container td:nth-child(7),
+    .tabla-container .col-acciones {
+        grid-area: acciones;
+        position: static;
+        width: auto;
+        max-width: none;
+        padding: 0;
+        align-self: start;
+        justify-self: end;
+    }
+
+    .tabla-container .acciones {
+        display: flex;
+        gap: 6px;
+        justify-content: flex-end;
+        width: auto;
+    }
+
+    .tabla-container .star,
+    .tabla-container .menu-icon {
+        width: 20px;
+        height: 20px;
+    }
 }
 
 
-.tabla-scroll::-webkit-scrollbar-thumb{
-
-    background:#344650;
-
-}
-
-
-.tabla-scroll::-webkit-scrollbar-track{
-
-    background:#101b22;
-
-}
-
-
-
-/* =========================
-   FILTROS RESPONSIVE
-========================= */
-
-
-@media(max-width:700px){
-
-
-.filtros-container{
-
-    overflow-x:auto;
-
-    flex-wrap:nowrap;
-
-    gap:8px;
-
-    padding:8px;
-
-}
-
-
-
-.filtro-titulo{
-
-    flex-shrink:0;
-
-}
-
-
-
-.filtros-container select{
-
-    flex-shrink:0;
-
-    height:38px;
-
-    padding:8px;
-
-    font-size:12px;
-
-}
-
-
-
-.buscador{
-
-    min-width:180px;
-
-    flex-shrink:0;
-
-}
-
-
-
-.buscador input{
-
-    font-size:12px;
-
-}
-
-
-
-.filtros-container button{
-
-    flex-shrink:0;
-
-    padding:8px 10px;
-
-    font-size:11px;
-
-}
-
-
-}
-
-
-
-/* =========================
-   MODAL RESPONSIVE
-========================= */
-
-
-@media(max-width:500px){
-
-
-.modal-proyecto{
-
-    width:90%;
-
-}
-
-
-
-.modal-footer{
-
-    flex-direction:column;
-
-}
-
-
-
-.modal-footer button{
-
-    width:100%;
-
-}
-
-
+/* ============================================================
+   RESPONSIVE — MÓVIL PEQUEÑO (<= 500px)
+============================================================ */
+
+@media (max-width: 500px) {
+
+    .filtros-container select,
+    .buscador,
+    .filtros-container button {
+        height: 42px;
+    }
+
+    .tabla-container tbody tr {
+        padding: 12px 14px;
+        gap: 5px 12px;
+    }
+
+    .tabla-container .nombre-proyecto {
+        font-size: 13px;
+    }
+
+    .tabla-container td:nth-child(3) {
+        font-size: 11.5px;
+    }
+
+    .tabla-container td:nth-child(4),
+    .tabla-container td:nth-child(5),
+    .tabla-container td:nth-child(6) {
+        font-size: 11px;
+    }
 }

@@ -23,7 +23,7 @@ function ProyectoFiltros({
 
             <select
                 value={estadoFiltro}
-                onChange={(e)=>setEstadoFiltro(e.target.value)}
+                onChange={(e) => setEstadoFiltro(e.target.value)}
             >
 
                 <option value="TODO">
@@ -44,28 +44,18 @@ function ProyectoFiltros({
 
             <select
                 value={clienteFiltro}
-                onChange={(e)=>setClienteFiltro(e.target.value)}
+                onChange={(e) => setClienteFiltro(e.target.value)}
             >
+                <option value="TODOS">Cliente</option>
 
-                <option value="TODOS">
-                    Cliente
-                </option>
-
-
-                {
-                    clientes.map(c=>(
-
-                        <option 
-                            key={c.id}
-                            value={c.id}
-                        >
-                            {c.nombre}
-                        </option>
-
-                    ))
-                }
-
-
+                {clientes.map(c => (
+                    <option key={c.id} value={c.id}>
+                        {c.nombre.length > 25
+                            ? c.nombre.slice(0, 25) + "…"
+                            : c.nombre
+                        }
+                    </option>
+                ))}
             </select>
 
 
@@ -82,7 +72,7 @@ function ProyectoFiltros({
 
             <div className="buscador">
 
-                <Search size={18}/>
+                <Search size={18} />
 
 
                 <input
@@ -91,7 +81,7 @@ function ProyectoFiltros({
 
                     value={busqueda}
 
-                    onChange={(e)=>setBusqueda(e.target.value)}
+                    onChange={(e) => setBusqueda(e.target.value)}
 
                 />
 

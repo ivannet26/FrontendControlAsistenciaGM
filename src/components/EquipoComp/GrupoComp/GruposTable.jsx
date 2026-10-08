@@ -72,10 +72,7 @@ function GruposTable({
 
         <span>Grupos</span>
 
-        <button>
-            Exportar ▾
-        </button>
-
+        
     </div>
 
 

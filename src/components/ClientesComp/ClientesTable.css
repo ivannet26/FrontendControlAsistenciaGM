@@ -1,3 +1,7 @@
+/* ============================================================
+   TABLA CLIENTES — RESPONSIVE SIN SCROLL
+============================================================ */
+
 /* =========================
    CONTENEDOR
 ========================= */
@@ -35,6 +39,7 @@
     cursor: pointer;
     font-size: 12px;
     border-radius: 3px;
+    transition: all 0.15s ease;
 }
 
 .tabla-header button:hover {
@@ -44,13 +49,13 @@
 
 
 /* =========================
-   TABLA
+   TABLA (DESKTOP)
 ========================= */
 
 .clientes-tabla-container table {
     width: 100%;
     border-collapse: collapse;
-    table-layout: fixed;         /* ✅ FIXED: respeta los width */
+    table-layout: fixed;
 }
 
 .clientes-tabla-container th {
@@ -72,6 +77,9 @@
     font-size: 14px;
     vertical-align: middle;
     text-align: left;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .clientes-tabla-container tr:hover {
@@ -80,8 +88,7 @@
 
 
 /* =========================
-   ANCHOS DE COLUMNAS
-   Los porcentajes suman 100% para que NO haya huecos
+   ANCHOS DE COLUMNAS (DESKTOP)
 ========================= */
 
 /* 1. CHECKBOX */
@@ -95,7 +102,7 @@
 /* 2. NOMBRE */
 .clientes-tabla-container th:nth-child(2),
 .clientes-tabla-container td:nth-child(2) {
-    width: 18%;
+    width: 30%;
 }
 
 /* 3. DIRECCIÓN (absorbe el espacio) */
@@ -107,7 +114,7 @@
 /* 4. MONEDA */
 .clientes-tabla-container th:nth-child(4),
 .clientes-tabla-container td:nth-child(4) {
-    width: 100px;
+    width: 120px;
 }
 
 /* 5. ACCIONES */
@@ -155,7 +162,6 @@
     justify-content: flex-end;
     align-items: center;
     gap: 12px;
-    width: 100%;
 }
 
 .btn-icono {
@@ -166,10 +172,13 @@
     display: flex;
     align-items: center;
     padding: 4px;
+    border-radius: 4px;
+    transition: all 0.15s ease;
 }
 
 .btn-icono:hover {
     color: white;
+    background: #24343d;
 }
 
 
@@ -180,19 +189,13 @@
 .menu-opciones-portal {
     position: fixed;
     width: 160px;
-
     background: #162630 !important;
-    background-color: #162630 !important;
-    opacity: 1 !important;
-
     border: 1px solid #344650;
     border-radius: 4px;
     padding: 5px;
-
     box-shadow:
         0 10px 30px rgba(0, 0, 0, 0.95),
         0 0 0 1px rgba(0, 0, 0, 0.5);
-
     z-index: 9999999;
 }
 
@@ -207,6 +210,7 @@
     border-radius: 3px;
     font-size: 14px;
     display: block;
+    transition: background 0.15s ease;
 }
 
 .menu-opciones-portal button:hover {
@@ -232,55 +236,184 @@
     text-decoration: line-through;
     text-decoration-thickness: 1.5px;
     text-decoration-color: #aebcc5;
-}/* ============================================================
-   RESPONSIVE — Scroll horizontal en móvil
-   ============================================================ */
+}
+
+
+/* ============================================================
+   RESPONSIVE — TABLET (<= 900px)
+   Ocultar MONEDA, más espacio para dirección
+============================================================ */
 
 @media (max-width: 900px) {
 
-    .clientes-tabla-container {
-        overflow-x: auto;
-        overflow-y: visible;
-
-        /* 🔑 Scroll suave */
-        -webkit-overflow-scrolling: touch;
-
-        /* 🔑 Scrollbar delgada y oscura */
-        scrollbar-width: thin;
-        scrollbar-color: #344650 #101b22;
+    .clientes-tabla-container th:nth-child(4),
+    .clientes-tabla-container td:nth-child(4) {
+        display: none;
     }
 
-    .clientes-tabla-container::-webkit-scrollbar {
-        height: 8px;
+    .clientes-tabla-container th:nth-child(2),
+    .clientes-tabla-container td:nth-child(2) {
+        width: 40%;
     }
 
-    .clientes-tabla-container::-webkit-scrollbar-track {
-        background: #101b22;
+    .clientes-tabla-container th,
+    .clientes-tabla-container td {
+        padding: 12px 14px;
     }
 
-    .clientes-tabla-container::-webkit-scrollbar-thumb {
-        background: #344650;
-        border-radius: 4px;
+    .clientes-tabla-container td {
+        height: 50px;
+        font-size: 13px;
     }
 
-    .clientes-tabla-container::-webkit-scrollbar-thumb:hover {
-        background: #4a5c66;
-    }
-
-    /* 🔑 La tabla mantiene su ancho mínimo */
-    .clientes-tabla-container table {
-        min-width: 720px;
+    .clientes-tabla-container th:nth-child(5),
+    .clientes-tabla-container td:nth-child(5) {
+        width: 90px;
+        padding-right: 14px;
     }
 }
+
+
+/* ============================================================
+   RESPONSIVE — MÓVIL (<= 700px)
+   Cada fila se convierte en una tarjeta vertical
+============================================================ */
 
 @media (max-width: 700px) {
-    .clientes-tabla-container table {
-        min-width: 640px;
+
+    /* Ocultar cabecera completa */
+    .clientes-tabla-container thead {
+        display: none;
+    }
+
+    .clientes-tabla-container table,
+    .clientes-tabla-container tbody,
+    .clientes-tabla-container tr,
+    .clientes-tabla-container td {
+        display: block;
+        width: 100%;
+    }
+
+    .clientes-tabla-container tr {
+        padding: 14px 16px;
+        border-top: 1px solid #263740;
+        position: relative;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        grid-template-areas:
+            "nombre     acciones"
+            "direccion  direccion";
+        gap: 6px 12px;
+        align-items: center;
+    }
+
+    .clientes-tabla-container tr:hover {
+        background: #1d303a;
+    }
+
+    /* Checkbox: ocultar */
+    .clientes-tabla-container td:nth-child(1) {
+        display: none;
+    }
+
+    /* Nombre */
+    .clientes-tabla-container td:nth-child(2) {
+        grid-area: nombre;
+        padding: 0;
+        height: auto;
+        font-size: 14px;
+        font-weight: 600;
+        white-space: normal;
+        overflow: visible;
+        text-overflow: initial;
+        color: #ffffff;
+    }
+
+    /* Dirección */
+    .clientes-tabla-container td:nth-child(3) {
+        grid-area: direccion;
+        padding: 0;
+        height: auto;
+        font-size: 12px;
+        color: #6b7c88;
+        white-space: normal;
+        overflow: visible;
+        text-overflow: initial;
+        line-height: 1.4;
+        margin-top: 2px;
+    }
+
+    /* Moneda: ya oculta por la media de 900px */
+    .clientes-tabla-container td:nth-child(4) {
+        display: none;
+    }
+
+    /* Acciones */
+    .clientes-tabla-container td:nth-child(5) {
+        grid-area: acciones;
+        padding: 0;
+        height: auto;
+        width: auto;
+        text-align: right;
+        align-self: start;
+    }
+
+    .cliente-acciones {
+        gap: 4px;
+    }
+
+    .btn-icono {
+        padding: 6px;
+    }
+
+    .btn-icono svg {
+        width: 16px;
+        height: 16px;
+    }
+
+    /* Mostrar moneda dentro del nombre como badge pequeño */
+    .clientes-tabla-container tr::after {
+        content: none;
+    }
+
+    /* Header de la tabla (Clientes + Exportar) */
+    .tabla-header {
+        padding: 0 14px;
+        font-size: 12px;
+    }
+
+    .tabla-header button {
+        font-size: 11px;
+        padding: 5px 10px;
     }
 }
 
+
+/* ============================================================
+   RESPONSIVE — MÓVIL PEQUEÑO (<= 500px)
+============================================================ */
+
 @media (max-width: 500px) {
-    .clientes-tabla-container table {
-        min-width: 580px;
+
+    .clientes-tabla-container tr {
+        padding: 12px 14px;
+        gap: 4px 10px;
+    }
+
+    .clientes-tabla-container td:nth-child(2) {
+        font-size: 13px;
+    }
+
+    .clientes-tabla-container td:nth-child(3) {
+        font-size: 11.5px;
+    }
+
+    .btn-icono {
+        padding: 5px;
+    }
+
+    .btn-icono svg {
+        width: 15px;
+        height: 15px;
     }
 }
