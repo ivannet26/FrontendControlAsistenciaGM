@@ -1,0 +1,293 @@
+/* ============================================================
+   MODAL PERFIL
+============================================================ */
+
+.perfil-overlay {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 16px;
+    box-sizing: border-box;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 10000;
+}
+
+.perfil-modal {
+    width: 100%;
+    max-width: 460px;
+    max-height: 100%;
+    display: flex;
+    flex-direction: column;
+    background: #162630;
+    border: 1px solid #344650;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.perfil-modal form {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+/* ---------- HEADER ---------- */
+
+.perfil-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    border-bottom: 1px solid #344650;
+}
+
+.perfil-header h2 {
+    margin: 0;
+    color: #ffffff;
+    font-size: 20px;
+    font-weight: 450;
+}
+
+.perfil-header button {
+    display: flex;
+    background: none;
+    border: none;
+    color: #8799a5;
+    cursor: pointer;
+}
+
+.perfil-header button:hover {
+    color: #ffffff;
+}
+
+/* ---------- CUERPO (FORMULARIO) ---------- */
+
+.perfil-body {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    overflow-y: auto;
+}
+
+.perfil-fila {
+    display: flex;
+    gap: 12px;
+}
+
+.perfil-fila .perfil-campo {
+    flex: 1;
+    min-width: 0;
+}
+
+.perfil-campo {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.perfil-campo label {
+    color: #b8c5cc;
+    font-size: 13px;
+}
+
+.perfil-opcional {
+    color: #6f8391;
+    font-size: 12px;
+}
+
+.perfil-campo input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px;
+    background: #101b22;
+    color: #ffffff;
+    border: 1px solid #344650;
+    outline: none;
+    font-size: 14px;
+    font-family: inherit;
+}
+
+.perfil-campo input:focus {
+    border-color: #10a5f5;
+}
+
+.perfil-campo input:disabled {
+    color: #6f8391;
+    background: #0f1a20;
+    cursor: not-allowed;
+}
+
+/* ---------- CONTRASEÑA ---------- */
+
+.perfil-pass-bloque {
+    padding-top: 14px;
+    border-top: 1px solid #263740;
+}
+
+.perfil-pass-toggle {
+    padding: 0;
+    background: none;
+    border: none;
+    color: #10a5f5;
+    font-size: 13px;
+    font-family: inherit;
+    cursor: pointer;
+}
+
+.perfil-pass-toggle:hover {
+    text-decoration: underline;
+}
+
+.perfil-pass-campos {
+    margin-top: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+/* ---------- FOOTER ---------- */
+
+.perfil-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 15px 20px;
+    border-top: 1px solid #344650;
+}
+
+.perfil-btn-cancelar {
+    padding: 10px 20px;
+    background: none;
+    border: 1px solid #10a5f5;
+    color: #10a5f5;
+    font-size: 14px;
+    font-family: inherit;
+    cursor: pointer;
+}
+
+.perfil-btn-cancelar:hover {
+    background: rgba(16, 165, 245, 0.1);
+}
+
+.perfil-btn-guardar {
+    padding: 10px 20px;
+    background: #10a5f5;
+    border: none;
+    color: #ffffff;
+    font-size: 14px;
+    font-family: inherit;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.perfil-btn-guardar:hover {
+    background: #078ed5;
+}
+
+.perfil-btn-guardar:disabled,
+.perfil-btn-cancelar:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* ============================================================
+   NUEVOS ESTILOS: VISTA DE SOLO LECTURA
+   ============================================================ */
+
+.perfil-vista {
+    align-items: center;
+    padding: 30px 20px;
+    gap: 0;
+}
+
+.perfil-avatar-grande {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: #08a88a;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    margin-bottom: 15px;
+    box-shadow: 0 4px 12px rgba(8, 168, 138, 0.3);
+}
+
+.perfil-nombre-completo {
+    margin: 0;
+    color: #ffffff;
+    font-size: 22px;
+    font-weight: 500;
+    text-align: center;
+}
+
+.perfil-rol-tag {
+    display: inline-block;
+    margin-top: 6px;
+    padding: 4px 12px;
+    background: #0b1419;
+    border: 1px solid #24343d;
+    border-radius: 20px;
+    color: #10a5f5;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.perfil-datos-lista {
+    width: 100%;
+    margin-top: 25px;
+    display: flex;
+    flex-direction: column;
+}
+
+.perfil-dato {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 0;
+    border-bottom: 1px solid #263740;
+}
+
+.perfil-dato:last-child {
+    border-bottom: none;
+}
+
+.perfil-label {
+    color: #8799a5;
+    font-size: 13px;
+}
+
+.perfil-valor {
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* ---------- MÓVIL ---------- */
+
+@media (max-width: 500px) {
+    .perfil-fila {
+        flex-direction: column;
+    }
+
+    .perfil-footer {
+        flex-direction: column-reverse;
+    }
+
+    .perfil-footer button {
+        width: 100%;
+    }
+    
+    .perfil-vista .perfil-footer {
+        flex-direction: row;
+    }
+}

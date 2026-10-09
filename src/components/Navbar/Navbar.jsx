@@ -2,6 +2,7 @@ import "./Navbar.css";
 import logoGM from "../../assets/logo-mg.png";
 import { useState, useRef, useEffect } from "react";
 import ProfileMenu from "../ProfileMenu/ProfileMenu";
+import HelpMenu from "../HelpMenu/HelpMenu";
 
 function Navbar({ usuario }) {
 
@@ -36,6 +37,9 @@ function Navbar({ usuario }) {
 
         <span>{usuario?.nombre}</span>
 
+        {/* Ayuda */}
+        <HelpMenu />
+
         <div className="profile-container" ref={refPerfil}>
 
           <button
@@ -46,6 +50,7 @@ function Navbar({ usuario }) {
           </button>
 
           {profileOpen && (
+            /* Ya no recibe onAbrirPerfil */
             <ProfileMenu usuario={usuario} />
           )}
 

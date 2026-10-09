@@ -1,0 +1,125 @@
+/* ============================================================
+   HELP MENU - mismo estilo que Profile Menu
+   ============================================================ */
+
+.help-menu {
+    position: relative;
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+/* ---------- BOTÓN (?) ---------- */
+
+.help-btn {
+    width: 40px;
+    height: 40px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 0;
+    background: transparent;
+    border: none;
+
+    color: #6f8391;
+    cursor: pointer;
+
+    transition: background 0.15s, color 0.15s;
+}
+
+.help-btn:hover,
+.help-btn.activo {
+    background: #16242c;
+    color: #ffffff;
+}
+
+/* ---------- DESPLEGABLE ---------- */
+
+.help-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    width: 260px;
+
+    border-radius: 0;
+
+    background: #0f1a20;
+    border: 1px solid #24343d;
+
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55);
+
+    z-index: 9999;
+
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+    animation: helpSlideDown 0.15s ease-out;
+}
+
+@keyframes helpSlideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+/* ---------- ITEMS ---------- */
+
+.help-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    width: 100%;
+
+    padding: 10px 16px;
+
+    background: transparent;
+    border: none;
+
+    color: #c5d1d8;
+    font-size: 13px;
+    font-family: inherit;
+    font-weight: 400;
+
+    text-align: left;
+    cursor: pointer;
+
+    transition: background 0.15s;
+}
+
+/* Línea separadora de extremo a extremo entre opciones */
+.help-item + .help-item {
+    border-top: 1px solid #24343d;
+}
+
+.help-item:hover {
+    background: #16242c;
+    color: #ffffff;
+}
+
+.help-item svg {
+    color: #6f8391;
+    flex-shrink: 0;
+}
+
+.help-item:hover svg {
+    color: #c5d1d8;
+}/* ---------- TÍTULO ---------- */
+
+.help-titulo {
+    padding: 8px 14px;
+
+    background: #0b1419;
+    border-bottom: 1px solid #24343d;
+
+    color: #7a8a96;
+    font-size: 10.5px;
+    font-weight: 500;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+}

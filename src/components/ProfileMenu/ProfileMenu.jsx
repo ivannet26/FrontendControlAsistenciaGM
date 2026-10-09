@@ -1,16 +1,25 @@
-// src/components/ProfileMenu/ProfileMenu.jsx
 import { useNavigate } from "react-router-dom";
-import { User, LogOut, Settings, Mail, Shield } from "lucide-react";
+import { User, LogOut, Shield, Download } from "lucide-react";
 import "./ProfileMenu.css";
+
+const URL_DESCARGA =
+  "https://github.com/ivannet26/ControlAsistenciaDesktopGM/releases/download/bckend/ControlAsistencia_Setup_v1.0.4.exe";
 
 function ProfileMenu({ usuario }) {
   const navigate = useNavigate();
 
   const handleCerrarSesion = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("access_token");
     localStorage.removeItem("usuario");
     sessionStorage.clear();
     navigate("/login");
+  };
+
+  const handleDescargar = () => {
+    if (URL_DESCARGA && URL_DESCARGA !== "#") {
+      window.open(URL_DESCARGA, "_blank", "noopener,noreferrer");
+    }
   };
 
   const iniciales = (
@@ -44,25 +53,22 @@ function ProfileMenu({ usuario }) {
 
       <div className="profile-menu-divider"></div>
 
-      {/* Opciones */}
-      <button className="profile-menu-item">
+      {/* Botón que ahora navega a la pantalla completa */}
+      <button 
+        className="profile-menu-item" 
+        onClick={() => navigate("/app/perfil")}
+      >
         <User size={15} />
         <span>Mi perfil</span>
       </button>
 
-      {/*<button className="profile-menu-item">
-        <Mail size={15} />
-        <span>Cambiar correo</span>
-      </button>
-
-      <button className="profile-menu-item">
-        <Settings size={15} />
-        <span>Configuración</span>
-      </button>*/}
-
       <div className="profile-menu-divider"></div>
 
-      {/* Cerrar sesión */}
+      <button className="profile-menu-item" onClick={handleDescargar}>
+        <Download size={15} />
+        <span>Descargar aplicación</span>
+      </button>
+
       <button
         className="profile-menu-item profile-menu-danger"
         onClick={handleCerrarSesion}

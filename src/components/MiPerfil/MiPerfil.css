@@ -1,0 +1,391 @@
+/* ============================================================
+   MI PERFIL · Mismos colores que la pantalla Equipo
+============================================================ */
+
+.perfil-pantalla {
+    /* Fondos (de más oscuro a más claro) */
+    --bg: #24343D;   /* fondo del contenido principal */
+    --card:      #0e1a22;  /* paneles (igual al fondo, separados por borde) */
+    --card-alt:      #15232d;   /* cabeceras de tabla / avatar / hover */
+    --input-bg:      #0b161d;   /* inputs, como el buscador */
+
+    /* Bordes */
+    --borde:         #2f444f;
+    --borde-fuerte:  #3d5361;
+    --linea:         #1e303c;
+
+    /* Acentos */
+    --acento:        #1aa3f5;   /* azul de "AÑADIR NUEVO MIEMBRO" / "APLICAR FILTRO" */
+    --acento-hover:  #3bb3ff;
+    --acento-soft:   rgba(26, 163, 245, 0.12);
+    --verde:         #00c389;   /* avatar "JB" / estado ACTIVO */
+
+    /* Texto */
+    --texto:         #e8eef2;
+    --texto-suave:   #b4c2cc;
+    --texto-muted:   #7f93a1;
+
+    width: 100%;
+    height: 100%;
+    padding: 16px 20px;
+    box-sizing: border-box;
+    background: var(--bg);
+    color: var(--texto);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: 13.5px;
+    line-height: 1.4;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+.perfil-wrap {
+    width: 100%;
+    max-width: 720px;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-height: 0;
+}
+
+/* ═══════ CABECERA ═══════ */
+.cabecera {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 16px 20px;
+    background: var(--card);
+    border: 1px solid var(--borde);
+    border-radius: 2px;
+    flex-shrink: 0;
+}
+
+.cabecera-avatar-wrap {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.avatar-grande {
+    width: 150px;
+    height: 150px;
+    background: var(--card-alt);
+    color: var(--verde);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 42px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    border-radius: 2px;
+    overflow: hidden;
+    border: 1px solid var(--borde-fuerte);
+}
+
+.avatar-grande img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.btn-camara {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 35px;
+    height: 35px;
+    border-radius: 2px;
+    background: var(--acento);
+    color: #fff;
+    border: 2px solid var(--card);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 0;
+    transition: all 0.18s;
+}
+.btn-camara:hover:not(:disabled) { background: var(--acento-hover); }
+.btn-camara:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.mini-spinner {
+    width: 12px; height: 12px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: giro 0.7s linear infinite;
+}
+@keyframes giro { to { transform: rotate(360deg); } }
+
+.cabecera-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.cabecera-info h1 {
+    margin: 0 0 8px;
+    font-size: 24px;
+    font-weight: 400;
+    letter-spacing: 0.2px;
+    color: #fff;
+    line-height: 1.15;
+}
+
+.cabecera-meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    color: var(--texto-suave);
+    font-size: 13px;
+}
+
+.meta-line {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.meta-line svg {
+    color: var(--acento);
+    flex-shrink: 0;
+}
+
+.meta-sep {
+    color: var(--borde-fuerte);
+    font-weight: 700;
+}
+
+/* ═══════ GRID DE DOS ═══════ */
+.grid-dos {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    flex-shrink: 0;
+}
+@media (max-width: 800px) {
+    .grid-dos { grid-template-columns: 1fr; }
+}
+
+/* ═══════ BLOQUE ═══════ */
+.bloque {
+    background: var(--card);
+    border: 1px solid var(--borde);
+    border-radius: 2px;
+    padding: 0 18px 14px;
+    display: flex;
+    flex-direction: column;
+    min-height: auto;
+}
+
+/* Cabecera del bloque: estilo fila de encabezado de tabla */
+.bloque-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin: 0 -18px 14px;
+    padding: 10px 18px;
+    background: var(--card-alt);
+    border-bottom: 1px solid var(--borde);
+    flex-shrink: 0;
+}
+
+.bloque-titulo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--texto-suave);
+}
+
+.bloque-titulo svg {
+    color: var(--acento);
+    flex-shrink: 0;
+}
+
+.bloque-body {
+    padding-left: 2px;
+    flex: 1;
+    min-height: 0;
+}
+
+/* Botón lápiz */
+.btn-ico {
+    width: 26px;
+    height: 26px;
+    background: transparent;
+    border: 1px solid var(--borde-fuerte);
+    border-radius: 2px;
+    color: var(--texto-muted);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 0;
+    transition: all 0.18s;
+    flex-shrink: 0;
+}
+.btn-ico:hover:not(:disabled) {
+    background: var(--acento-soft);
+    border-color: var(--acento);
+    color: var(--acento);
+}
+.btn-ico:disabled { opacity: 0.3; cursor: not-allowed; }
+
+/* ═══════ DATOS EN LECTURA ═══════ */
+.grid-datos {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px 20px;
+}
+
+.dato {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.lbl {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: var(--texto-muted);
+}
+
+.val {
+    font-size: 13.5px;
+    font-weight: 400;
+    color: var(--texto);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* ═══════ MODO EDICIÓN ═══════ */
+.edit-inline {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.campos-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px 16px;
+}
+
+.campo-full { grid-column: 1 / -1; }
+
+@media (max-width: 640px) {
+    .campos-grid { grid-template-columns: 1fr; }
+}
+
+.campo {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    position: relative;
+    min-width: 0;
+}
+
+.campo label {
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+    color: var(--texto-muted);
+}
+
+/* Inputs iguales al buscador de Equipo */
+.campo input,
+.campo textarea {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 8px 10px;
+    background: var(--input-bg);
+    color: var(--texto);
+    border: 1px solid var(--borde-fuerte);
+    border-radius: 2px;
+    outline: none;
+    font-size: 13px;
+    font-family: inherit;
+    transition: border-color 0.18s, box-shadow 0.18s;
+}
+
+.campo input[type="date"] { color-scheme: dark; }
+
+.campo textarea {
+    resize: vertical;
+    min-height: 60px;
+    line-height: 1.45;
+}
+
+.campo input:focus,
+.campo textarea:focus {
+    border-color: var(--acento);
+    box-shadow: 0 0 0 2px var(--acento-soft);
+}
+
+.campo input:disabled {
+    color: var(--texto-muted);
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+/* ═══════ ACCIONES ═══════ */
+.edit-acciones {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding-top: 12px;
+    border-top: 1px solid var(--linea);
+}
+
+.btn-accion {
+    padding: 7px 18px;
+    font-size: 12px;
+    font-family: inherit;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    border-radius: 2px;
+    cursor: pointer;
+    border: 1px solid;
+    background: transparent;
+    transition: all 0.18s;
+}
+
+/* Cancelar = estilo "APLICAR FILTRO" (contorno azul) */
+.btn-accion.cancelar {
+    border-color: var(--acento);
+    color: var(--acento);
+}
+.btn-accion.cancelar:hover:not(:disabled) {
+    background: var(--acento-soft);
+}
+
+/* Guardar = estilo "AÑADIR NUEVO MIEMBRO" (azul sólido) */
+.btn-accion.guardar {
+    background: var(--acento);
+    border-color: var(--acento);
+    color: #fff;
+}
+.btn-accion.guardar:hover:not(:disabled) {
+    background: var(--acento-hover);
+    border-color: var(--acento-hover);
+}
+
+.btn-accion:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.cargando {
+    color: var(--texto-muted);
+    font-size: 13px;
+    text-align: center;
+    margin-top: 40px;
+    letter-spacing: 0.4px;
+}

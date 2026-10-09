@@ -24,7 +24,7 @@ import Etiquetas from "./pages/Etiquetas/Etiquetas.jsx";
 import InformesPage from "./pages/Informes/InformesPage.jsx";
 import GestionUsuarios from "./pages/GestionUsuarios/GestionUsuarios.jsx";
 import Auditoria from "./pages/Auditoria/Auditoria.jsx";
-
+import MiPerfil from "./components/MiPerfil/MiPerfil";
 
 function App() {
 
@@ -138,6 +138,12 @@ function App() {
             <Route
               path="etiquetas"
               element={<Etiquetas />}
+            />
+
+            {/* NUEVA RUTA PARA EL PERFIL */}
+            <Route
+              path="perfil"
+              element={<MiPerfil />}
             />
 
           </Route>
