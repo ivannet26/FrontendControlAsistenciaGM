@@ -1,12 +1,23 @@
 import { useState, useEffect, useRef } from "react";
 import {
-    Pencil, User as UserIcon, Briefcase, Camera, Mail, Shield
+    Pencil, User as UserIcon, Briefcase, Camera, Mail, Shield, CalendarDays
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { actualizarPerfil, subirAvatar } from "../../services/perfilService";
 import "./MiPerfil.css";
 
-function MiPerfil({ usuario: propUsuario }) {
+const CICLOS = Array.from({ length: 12 }, (_, i) => String(i + 1));
+
+const Dato = ({ label, value, full }) => (
+    <div className={`dato${full ? " dato-full" : ""}`}>
+        <span className="lbl">{label}</span>
+        <span className={`val${value ? "" : " vacio"}`} title={value || ""}>
+            {value || "—"}
+        </span>
+    </div>
+);
+
+function MiPerfil({ usuario: propUsuario, onVerHorario }) {
     const [usuario, setUsuario] = useState(null);
     const [subiendoAvatar, setSubiendoAvatar] = useState(false);
     const inputArchivoRef = useRef(null);
@@ -31,9 +42,10 @@ function MiPerfil({ usuario: propUsuario }) {
                 nombre: usuario.nombre || "",
                 apellido: usuario.apellido || "",
                 dni: usuario.dni || "",
-                fecha_nacimiento: usuario.fecha_nacimiento || "",
                 telefono: usuario.telefono || "",
-                direccion: usuario.direccion || ""
+                universidad: usuario.universidad || "",
+                carrera: usuario.carrera || "",
+                ciclo_actual: usuario.ciclo_actual ? String(usuario.ciclo_actual) : ""
             });
         } else if (sec === "laboral") {
             setDLaboral({ cargo: usuario.cargo || "", area: usuario.area || "" });
@@ -56,9 +68,10 @@ function MiPerfil({ usuario: propUsuario }) {
                 nombre: dPersonal.nombre.trim(),
                 apellido: dPersonal.apellido.trim(),
                 dni: dPersonal.dni || null,
-                fecha_nacimiento: dPersonal.fecha_nacimiento || null,
                 telefono: dPersonal.telefono || null,
-                direccion: dPersonal.direccion || null
+                universidad: dPersonal.universidad?.trim() || null,
+                carrera: dPersonal.carrera?.trim() || null,
+                ciclo_actual: dPersonal.ciclo_actual ? Number(dPersonal.ciclo_actual) : null
             };
         } else if (sec === "laboral") {
             payload = { cargo: dLaboral.cargo || null, area: dLaboral.area || null };
@@ -102,6 +115,11 @@ function MiPerfil({ usuario: propUsuario }) {
         }
     };
 
+    const handleVerHorario = () => {
+        if (onVerHorario) onVerHorario(usuario);
+        else toast("Horario de prácticas: pendiente de conectar.");
+    };
+
     if (!usuario) return <div className="perfil-pantalla"><p className="cargando">Cargando…</p></div>;
 
     const iniciales = ((usuario.nombre?.charAt(0) || "?") + (usuario.apellido?.charAt(0) || "")).toUpperCase();
@@ -115,7 +133,7 @@ function MiPerfil({ usuario: propUsuario }) {
     const Acciones = ({ sec }) => (
         <div className="edit-acciones">
             <button className="btn-accion cancelar" onClick={cancelarEdicion} disabled={guardando}>Cancelar</button>
-            <button className="btn-accion guardar" onClick={() => guardarSeccion(sec)} disabled={guardando}>
+            <button className="btn-accion guardar" >
                 {guardando ? "Guardando…" : "Guardar"}
             </button>
         </div>
@@ -148,13 +166,13 @@ function MiPerfil({ usuario: propUsuario }) {
                     <div className="cabecera-info">
                         <h1>{usuario.nombre} {usuario.apellido}</h1>
                         <div className="cabecera-meta">
-                            <span className="meta-line"><Mail size={11} />{usuario.email || "—"}</span>
+                            <span className="meta-line"><Mail size={12} />{usuario.email || "—"}</span>
                             <span className="meta-sep">·</span>
-                            <span className="meta-line"><Shield size={11} />{usuario.rol || "Usuario"}</span>
+                            <span className="meta-line"><Shield size={12} />{usuario.rol || "Usuario"}</span>
                             {usuario.cargo && (
                                 <>
                                     <span className="meta-sep">·</span>
-                                    <span className="meta-line"><Briefcase size={11} />{usuario.cargo}</span>
+                                    <span className="meta-line"><Briefcase size={12} />{usuario.cargo}</span>
                                 </>
                             )}
                         </div>
@@ -171,54 +189,55 @@ function MiPerfil({ usuario: propUsuario }) {
                                 <UserIcon size={12} />
                                 <span>Datos Personales</span>
                             </div>
-                            {seccion !== "personal" && <BtnEditar sec="personal" />}
+                            {seccion !== "personal" && (
+                                <div className="bloque-head-acciones">
+                                    <BtnEditar sec="personal" />
+                                </div>
+                            )}
                         </div>
                         <div className="bloque-body">
                             {seccion !== "personal" ? (
                                 <div className="grid-datos">
-                                    <div className="dato">
-                                        <span className="lbl">DNI</span>
-                                        <span className="val">{usuario.dni || "—"}</span>
-                                    </div>
-                                    <div className="dato">
-                                        <span className="lbl">F. Nacimiento</span>
-                                        <span className="val">{usuario.fecha_nacimiento || "—"}</span>
-                                    </div>
-                                    <div className="dato">
-                                        <span className="lbl">Teléfono</span>
-                                        <span className="val">{usuario.telefono || "—"}</span>
-                                    </div>
-                                    <div className="dato">
-                                        <span className="lbl">Dirección</span>
-                                        <span className="val">{usuario.direccion || "—"}</span>
-                                    </div>
+                                    <Dato label="DNI" value={usuario.dni} />
+                                    <Dato label="Teléfono" value={usuario.telefono} />
+                                    <Dato label="Correo" value={usuario.email} full />
+                                    <Dato label="Universidad" value={usuario.universidad} full />
+                                    <Dato label="Carrera" value={usuario.carrera} />
+                                    <Dato label="Ciclo actual" value={usuario.ciclo_actual ? String(usuario.ciclo_actual) : ""} />
                                 </div>
                             ) : (
                                 <div className="edit-inline">
                                     <div className="campos-grid">
                                         <div className="campo">
                                             <label>Nombre *</label>
-                                            <input value={dPersonal.nombre} onChange={(e) => setDPersonal(p => ({...p, nombre: e.target.value}))} />
+                                            <input value={dPersonal.nombre} onChange={(e) => setDPersonal(p => ({ ...p, nombre: e.target.value }))} />
                                         </div>
                                         <div className="campo">
                                             <label>Apellido *</label>
-                                            <input value={dPersonal.apellido} onChange={(e) => setDPersonal(p => ({...p, apellido: e.target.value}))} />
+                                            <input value={dPersonal.apellido} onChange={(e) => setDPersonal(p => ({ ...p, apellido: e.target.value }))} />
                                         </div>
                                         <div className="campo">
                                             <label>DNI</label>
-                                            <input maxLength={8} value={dPersonal.dni} onChange={(e) => setDPersonal(p => ({...p, dni: e.target.value.replace(/\D/g, "")}))} />
-                                        </div>
-                                        <div className="campo">
-                                            <label>F. Nacimiento</label>
-                                            <input type="date" value={dPersonal.fecha_nacimiento} onChange={(e) => setDPersonal(p => ({...p, fecha_nacimiento: e.target.value}))} />
+                                            <input maxLength={8} value={dPersonal.dni} onChange={(e) => setDPersonal(p => ({ ...p, dni: e.target.value.replace(/\D/g, "") }))} />
                                         </div>
                                         <div className="campo">
                                             <label>Teléfono</label>
-                                            <input value={dPersonal.telefono} onChange={(e) => setDPersonal(p => ({...p, telefono: e.target.value}))} />
+                                            <input value={dPersonal.telefono} onChange={(e) => setDPersonal(p => ({ ...p, telefono: e.target.value }))} />
+                                        </div>
+                                        <div className="campo campo-full">
+                                            <label>Universidad</label>
+                                            <input value={dPersonal.universidad} onChange={(e) => setDPersonal(p => ({ ...p, universidad: e.target.value }))} />
                                         </div>
                                         <div className="campo">
-                                            <label>Dirección</label>
-                                            <input value={dPersonal.direccion} onChange={(e) => setDPersonal(p => ({...p, direccion: e.target.value}))} />
+                                            <label>Carrera</label>
+                                            <input value={dPersonal.carrera} onChange={(e) => setDPersonal(p => ({ ...p, carrera: e.target.value }))} />
+                                        </div>
+                                        <div className="campo">
+                                            <label>Ciclo actual</label>
+                                            <select value={dPersonal.ciclo_actual} onChange={(e) => setDPersonal(p => ({ ...p, ciclo_actual: e.target.value }))}>
+                                                <option value="">Seleccionar…</option>
+                                                {CICLOS.map(c => <option key={c} value={c}>{c}</option>)}
+                                            </select>
                                         </div>
                                     </div>
                                     <Acciones sec="personal" />
@@ -234,42 +253,42 @@ function MiPerfil({ usuario: propUsuario }) {
                                 <Briefcase size={12} />
                                 <span>Datos Laborales</span>
                             </div>
-                            {seccion !== "laboral" && <BtnEditar sec="laboral" />}
+                            {seccion !== "laboral" && (
+                                <div className="bloque-head-acciones">
+                                    <button type="button" className="btn-horario" onClick={handleVerHorario}>
+                                        <CalendarDays size={12} />
+                                        Ver horario
+                                    </button>
+                                    <BtnEditar sec="laboral" />
+                                </div>
+                            )}
                         </div>
                         <div className="bloque-body">
                             {seccion !== "laboral" ? (
                                 <div className="grid-datos">
-                                    <div className="dato">
-                                        <span className="lbl">Correo</span>
-                                        <span className="val">{usuario.email || "—"}</span>
-                                    </div>
-                                    <div className="dato">
-                                        <span className="lbl">Rol</span>
-                                        <span className="val">{usuario.rol || "Usuario"}</span>
-                                    </div>
-                                    <div className="dato">
-                                        <span className="lbl">Cargo</span>
-                                        <span className="val">{usuario.cargo || "—"}</span>
-                                    </div>
-                                    <div className="dato">
-                                        <span className="lbl">Área</span>
-                                        <span className="val">{usuario.area || "—"}</span>
-                                    </div>
+                                    <Dato label="Rol" value={usuario.rol || "Usuario"} />
+                                    <Dato label="Cargo" value={usuario.cargo} />
+                                    <Dato label="Área" value={usuario.area} />
+                                    <Dato label="Fecha de inicio" value={usuario.fecha_inicio} />
                                 </div>
                             ) : (
                                 <div className="edit-inline">
                                     <div className="campos-grid">
-                                        <div className="campo campo-full">
-                                            <label>Correo (bloqueado)</label>
-                                            <input value={usuario.email || ""} disabled />
+                                        <div className="campo">
+                                            <label>Rol (bloqueado)</label>
+                                            <input value={usuario.rol || ""} disabled />
+                                        </div>
+                                        <div className="campo">
+                                            <label>Fecha de inicio (bloqueado)</label>
+                                            <input value={usuario.fecha_inicio || ""} disabled />
                                         </div>
                                         <div className="campo">
                                             <label>Cargo</label>
-                                            <input value={dLaboral.cargo} onChange={(e) => setDLaboral(p => ({...p, cargo: e.target.value}))} />
+                                            <input value={dLaboral.cargo} onChange={(e) => setDLaboral(p => ({ ...p, cargo: e.target.value }))} />
                                         </div>
                                         <div className="campo">
                                             <label>Área</label>
-                                            <input value={dLaboral.area} onChange={(e) => setDLaboral(p => ({...p, area: e.target.value}))} />
+                                            <input value={dLaboral.area} onChange={(e) => setDLaboral(p => ({ ...p, area: e.target.value }))} />
                                         </div>
                                     </div>
                                     <Acciones sec="laboral" />

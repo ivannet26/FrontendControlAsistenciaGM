@@ -1,24 +1,24 @@
 /* ============================================================
-   MI PERFIL · Mismos colores que la pantalla Equipo
+   MI PERFIL · Estructura mejorada (colores intactos)
 ============================================================ */
 
 .perfil-pantalla {
-    /* Fondos (de más oscuro a más claro) */
-    --bg: #24343D;   /* fondo del contenido principal */
-    --card:      #0e1a22;  /* paneles (igual al fondo, separados por borde) */
-    --card-alt:      #15232d;   /* cabeceras de tabla / avatar / hover */
-    --input-bg:      #0b161d;   /* inputs, como el buscador */
+    /* Fondos */
+    --bg:            #24343D;
+    --card:      #1c2931; 
+    --card-alt:  #14222b;
+    --input-bg:  #142029;
 
     /* Bordes */
     --borde:         #2f444f;
     --borde-fuerte:  #3d5361;
-    --linea:         #1e303c;
+    --linea:     #191b1d;
 
     /* Acentos */
-    --acento:        #1aa3f5;   /* azul de "AÑADIR NUEVO MIEMBRO" / "APLICAR FILTRO" */
+    --acento:        #2986b8;
     --acento-hover:  #3bb3ff;
-    --acento-soft:   rgba(26, 163, 245, 0.12);
-    --verde:         #00c389;   /* avatar "JB" / estado ACTIVO */
+    --acento-soft:   rgba(70, 102, 81, 0.12);
+    --verde:         #e8eeec;
 
     /* Texto */
     --texto:         #e8eef2;
@@ -27,13 +27,13 @@
 
     width: 100%;
     height: 100%;
-    padding: 16px 20px;
+    padding: 20px 24px;
     box-sizing: border-box;
     background: var(--bg);
     color: var(--texto);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-family: -apple-system, 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     font-size: 13.5px;
-    line-height: 1.4;
+    line-height: 1.65;
     display: flex;
     flex-direction: column;
     overflow-y: auto;
@@ -41,20 +41,22 @@
 
 .perfil-wrap {
     width: 100%;
-    max-width: 720px;
+    max-width: 880px;
     margin: 0;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 16px;
     min-height: 0;
 }
 
-/* ═══════ CABECERA ═══════ */
+/* ═══════════════════════════════════════════
+   CABECERA
+═══════════════════════════════════════════ */
 .cabecera {
     display: flex;
     align-items: center;
-    gap: 20px;
-    padding: 16px 20px;
+    gap: 22px;
+    padding: 18px 22px;
     background: var(--card);
     border: 1px solid var(--borde);
     border-radius: 2px;
@@ -74,7 +76,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 42px;
+    font-size: 38px;
     font-weight: 700;
     letter-spacing: 1.5px;
     border-radius: 2px;
@@ -92,8 +94,8 @@
     position: absolute;
     bottom: 0;
     right: 0;
-    width: 35px;
-    height: 35px;
+    width: 32px;
+    height: 32px;
     border-radius: 2px;
     background: var(--acento);
     color: #fff;
@@ -103,7 +105,7 @@
     justify-content: center;
     cursor: pointer;
     padding: 0;
-    transition: all 0.18s;
+    transition: background 0.18s;
 }
 .btn-camara:hover:not(:disabled) { background: var(--acento-hover); }
 .btn-camara:disabled { opacity: 0.6; cursor: not-allowed; }
@@ -120,22 +122,25 @@
 .cabecera-info {
     flex: 1;
     min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
 .cabecera-info h1 {
-    margin: 0 0 8px;
-    font-size: 24px;
-    font-weight: 400;
+    margin: 0;
+    font-size: 22px;
+    font-weight: 500;
     letter-spacing: 0.2px;
     color: #fff;
-    line-height: 1.15;
+    line-height: 1.2;
 }
 
 .cabecera-meta {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    gap: 10px;
+    gap: 14px;
     color: var(--texto-suave);
     font-size: 13px;
 }
@@ -153,38 +158,42 @@
 .meta-sep {
     color: var(--borde-fuerte);
     font-weight: 700;
+    opacity: 0.7;
 }
 
-/* ═══════ GRID DE DOS ═══════ */
+/* ═══════════════════════════════════════════
+   GRID DE DOS
+═══════════════════════════════════════════ */
 .grid-dos {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 12px;
+    gap: 10px;
     flex-shrink: 0;
 }
 @media (max-width: 800px) {
     .grid-dos { grid-template-columns: 1fr; }
 }
 
-/* ═══════ BLOQUE ═══════ */
+/* ═══════════════════════════════════════════
+   BLOQUE
+═══════════════════════════════════════════ */
 .bloque {
     background: var(--card);
     border: 1px solid var(--borde);
     border-radius: 2px;
-    padding: 0 18px 14px;
     display: flex;
     flex-direction: column;
+    overflow: hidden;
     min-height: auto;
 }
 
-/* Cabecera del bloque: estilo fila de encabezado de tabla */
+/* Cabecera del bloque */
 .bloque-head {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 10px;
-    margin: 0 -18px 14px;
-    padding: 10px 18px;
+    gap: 12px;
+    padding: 10px 16px;
     background: var(--card-alt);
     border-bottom: 1px solid var(--borde);
     flex-shrink: 0;
@@ -199,6 +208,9 @@
     letter-spacing: 1px;
     text-transform: uppercase;
     color: var(--texto-suave);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .bloque-titulo svg {
@@ -206,11 +218,48 @@
     flex-shrink: 0;
 }
 
+/* Contenedor de acciones en el head: Ver horario + lápiz */
+.bloque-head-acciones {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
 .bloque-body {
-    padding-left: 2px;
+    padding: 16px 18px;
     flex: 1;
     min-height: 0;
 }
+
+/* ═══════════════════════════════════════════
+   BOTONES DE CABECERA DEL BLOQUE
+═══════════════════════════════════════════ */
+
+/* Botón "Ver horario" — contorno azul compacto */
+.btn-horario {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 26px;
+    padding: 0 10px;
+    font-size: 10.5px;
+    font-family: inherit;
+    font-weight: 600;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    color: var(--acento);
+    background: transparent;
+    border: 1px solid var(--acento);
+    border-radius: 2px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.18s;
+}
+.btn-horario:hover {
+    background: var(--acento-soft);
+}
+.btn-horario svg { flex-shrink: 0; }
 
 /* Botón lápiz */
 .btn-ico {
@@ -235,24 +284,28 @@
 }
 .btn-ico:disabled { opacity: 0.3; cursor: not-allowed; }
 
-/* ═══════ DATOS EN LECTURA ═══════ */
+/* ═══════════════════════════════════════════
+   DATOS EN LECTURA
+═══════════════════════════════════════════ */
 .grid-datos {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 12px 20px;
+    gap: 14px 24px;
 }
 
 .dato {
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 3px;
     min-width: 0;
 }
+
+.dato-full { grid-column: 1 / -1; }
 
 .lbl {
     font-size: 10px;
     font-weight: 600;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.6px;
     text-transform: uppercase;
     color: var(--texto-muted);
 }
@@ -264,19 +317,22 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    line-height: 1.4;
 }
 
-/* ═══════ MODO EDICIÓN ═══════ */
+/* ═══════════════════════════════════════════
+   MODO EDICIÓN
+═══════════════════════════════════════════ */
 .edit-inline {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 16px;
 }
 
 .campos-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 12px 16px;
+    gap: 14px 16px;
 }
 
 .campo-full { grid-column: 1 / -1; }
@@ -288,7 +344,7 @@
 .campo {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 5px;
     position: relative;
     min-width: 0;
 }
@@ -296,17 +352,17 @@
 .campo label {
     font-size: 10.5px;
     font-weight: 600;
-    letter-spacing: 0.3px;
+    letter-spacing: 0.4px;
     text-transform: uppercase;
     color: var(--texto-muted);
 }
 
-/* Inputs iguales al buscador de Equipo */
 .campo input,
-.campo textarea {
+.campo textarea,
+.campo select {
     width: 100%;
     box-sizing: border-box;
-    padding: 8px 10px;
+    padding: 9px 11px;
     background: var(--input-bg);
     color: var(--texto);
     border: 1px solid var(--borde-fuerte);
@@ -317,18 +373,19 @@
     transition: border-color 0.18s, box-shadow 0.18s;
 }
 
+.campo input:focus,
+.campo textarea:focus,
+.campo select:focus {
+    border-color: var(--acento);
+    box-shadow: 0 0 0 2px var(--acento-soft);
+}
+
 .campo input[type="date"] { color-scheme: dark; }
 
 .campo textarea {
     resize: vertical;
     min-height: 60px;
-    line-height: 1.45;
-}
-
-.campo input:focus,
-.campo textarea:focus {
-    border-color: var(--acento);
-    box-shadow: 0 0 0 2px var(--acento-soft);
+    line-height: 1.65;
 }
 
 .campo input:disabled {
@@ -337,20 +394,22 @@
     opacity: 0.7;
 }
 
-/* ═══════ ACCIONES ═══════ */
+/* ═══════════════════════════════════════════
+   ACCIONES (Cancelar / Guardar)
+═══════════════════════════════════════════ */
 .edit-acciones {
     display: flex;
     justify-content: flex-end;
     gap: 8px;
-    padding-top: 12px;
+    padding-top: 14px;
     border-top: 1px solid var(--linea);
 }
 
 .btn-accion {
-    padding: 7px 18px;
-    font-size: 12px;
+    padding: 8px 20px;
+    font-size: 11.5px;
     font-family: inherit;
-    font-weight: 500;
+    font-weight: 600;
     letter-spacing: 0.5px;
     text-transform: uppercase;
     border-radius: 2px;
@@ -388,4 +447,18 @@
     text-align: center;
     margin-top: 40px;
     letter-spacing: 0.4px;
+}/* Valores vacíos más tenues */
+.val.vacio { color: var(--texto-muted); }
+
+/* Filas separadas por línea fina */
+.grid-datos {
+    gap: 0 24px;
+}
+.grid-datos .dato {
+    padding: 10px 0;
+    border-bottom: 1px solid var(--linea);
+}
+.grid-datos .dato:nth-last-child(-n+2):not(.dato-full),
+.grid-datos .dato:last-child {
+    border-bottom: none;
 }
