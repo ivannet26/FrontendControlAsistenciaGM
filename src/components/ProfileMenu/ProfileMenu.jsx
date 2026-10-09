@@ -3,7 +3,7 @@ import { User, LogOut, Shield, Download } from "lucide-react";
 import "./ProfileMenu.css";
 
 const URL_DESCARGA =
-  "https://github.com/ivannet26/ControlAsistenciaDesktopGM/releases/download/bckend/ControlAsistencia_Setup_v1.0.4.exe";
+  "https://github.com/ivannet26/ControlAsistenciaDesktopGM/releases/download/bckend/ControlAsistencia_Setup_v1.0.5.exe";
 
 function ProfileMenu({ usuario }) {
   const navigate = useNavigate();
