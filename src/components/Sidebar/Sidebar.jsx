@@ -8,7 +8,6 @@ import { useNavigate, useLocation } from "react-router-dom";
 
 import {
     Clock3,
-    CalendarCheck,
     LayoutDashboard,
     ChartNoAxesColumnIncreasing,
     Users,
@@ -16,14 +15,11 @@ import {
     ChevronsRight,
     CircleUserRound,
     Tag,
-    ChevronDown,
-    ChevronUp,
     FileText,
     UserCog,
 } from "lucide-react";
 
 import "./Sidebar.css";
-
 
 // Hook para detectar el ancho de pantalla
 function useWindowWidth() {
@@ -36,60 +32,12 @@ function useWindowWidth() {
     return width;
 }
 
-
-// 
-const estilosBase = {
-    button: {
-        backgroundColor: "transparent",
-        color: "#a9bcc7",
-        height: "32px",              // 
-        paddingLeft: "18px",
-        "&:hover": {
-            backgroundColor: "#1a2a32",
-            color: "#ffffff",
-        },
-    },
-    icon: {
-        color: "#a9bcc7",
-    },
-    label: {
-        color: "inherit",
-        fontSize: "11px",            // 
-        letterSpacing: "0.5px",
-    },
-};
-
-// 
-const estilosActivo = {
-    button: {
-        backgroundColor: "#2a3a42",
-        color: "#ffffff",
-        height: "38px",
-        paddingLeft: "18px",
-        "&:hover": {
-            backgroundColor: "#2a3a42",
-            color: "#ffffff",
-        },
-    },
-    icon: {
-        color: "#ffffff",
-    },
-    label: {
-        color: "#ffffff",
-        fontSize: "11px",            // 
-        letterSpacing: "0.5px",
-    },
-};
-
-
 function Sidebar({ usuario }) {
-
     const width = useWindowWidth();
     const esTablet = width <= 1200 && width > 768;
     const esMovil = width <= 768;
 
     const [collapsed, setCollapsed] = useState(esTablet);
-    const [mostrarMas, setMostrarMas] = useState(false);
     const [movilAbierto, setMovilAbierto] = useState(false);
 
     const rol = usuario?.rol;
@@ -103,23 +51,16 @@ function Sidebar({ usuario }) {
         else if (!esMovil) setCollapsed(false);
     }, [esTablet, esMovil]);
 
-
-    // Detectar si una ruta está activa
-    const esActivo = (ruta) => location.pathname === ruta;
-
-    // Devuelve los estilos según si el item está activo
-    const estilos = (ruta) => esActivo(ruta) ? estilosActivo : estilosBase;
-
+    // Detectar si una ruta está activa (soporta sub-rutas)
+    const esActivo = (ruta) => location.pathname.startsWith(ruta);
 
     const irA = (ruta) => {
         navigate(ruta);
         if (esMovil) setMovilAbierto(false);
     };
 
-
     return (
         <div className={`sidebar-container ${esMovil && movilAbierto ? "sidebar-movil-abierto" : ""}`}>
-
             {/* Overlay móvil */}
             {esMovil && movilAbierto && (
                 <div
@@ -143,9 +84,9 @@ function Sidebar({ usuario }) {
 
                     {/* RASTREADOR */}
                     <MenuItem
-                        icon={<Clock3 size={22} />}              // 
+                        icon={<Clock3 size={22} />}
                         onClick={() => irA("/app/rastreador")}
-                        menuItemStyles={estilos("/app/rastreador")}
+                        active={esActivo("/app/rastreador")}
                     >
                         RASTREADOR
                     </MenuItem>
@@ -159,18 +100,18 @@ function Sidebar({ usuario }) {
 
                     {/* PANEL */}
                     <MenuItem
-                        icon={<LayoutDashboard size={22} />}     // 
+                        icon={<LayoutDashboard size={22} />}
                         onClick={() => irA("/app/panel")}
-                        menuItemStyles={estilos("/app/panel")}
+                        active={esActivo("/app/panel")}
                     >
                         PANEL
                     </MenuItem>
 
                     {/* INFORMES */}
                     <MenuItem
-                        icon={<ChartNoAxesColumnIncreasing size={22} />}   // 
+                        icon={<ChartNoAxesColumnIncreasing size={22} />}
                         onClick={() => irA("/app/informes")}
-                        menuItemStyles={estilos("/app/informes")}
+                        active={esActivo("/app/informes")}
                     >
                         INFORMES
                     </MenuItem>
@@ -184,62 +125,60 @@ function Sidebar({ usuario }) {
 
                     {/* PROYECTOS */}
                     <MenuItem
-                        icon={<LayoutDashboard size={22} />}     // 
+                        icon={<LayoutDashboard size={22} />}
                         onClick={() => irA("/app/proyectos")}
-                        menuItemStyles={estilos("/app/proyectos")}
+                        active={esActivo("/app/proyectos")}
                     >
                         PROYECTOS
                     </MenuItem>
 
                     {/* EQUIPO */}
                     <MenuItem
-                        icon={<Users size={22} />}               // 
+                        icon={<Users size={22} />}
                         onClick={() => irA("/app/equipo")}
-                        menuItemStyles={estilos("/app/equipo")}
+                        active={esActivo("/app/equipo")}
                     >
                         EQUIPO
                     </MenuItem>
 
                     {/* CLIENTES */}
                     <MenuItem
-                        icon={<CircleUserRound size={22} />}     // 
+                        icon={<CircleUserRound size={22} />}
                         onClick={() => irA("/app/clientes")}
-                        menuItemStyles={estilos("/app/clientes")}
+                        active={esActivo("/app/clientes")}
                     >
                         CLIENTES
                     </MenuItem>
 
                     {/* ETIQUETAS */}
                     <MenuItem
-                        icon={<Tag size={22} />}                 // 
+                        icon={<Tag size={22} />}
                         onClick={() => irA("/app/etiquetas")}
-                        menuItemStyles={estilos("/app/etiquetas")}
+                        active={esActivo("/app/etiquetas")}
                     >
                         ETIQUETAS
                     </MenuItem>
-
 
                     {/* GESTIÓN DE USUARIOS (SOLO ADMINISTRADORES) */}
                     {esAdmin && (
                         <MenuItem
                             icon={<UserCog size={22} />}
                             onClick={() => irA("/app/gestion-usuarios")}
-                            menuItemStyles={estilos("/app/gestion-usuarios")}
+                            active={esActivo("/app/gestion-usuarios")}
                         >
                             USUARIOS
                         </MenuItem>
-
                     )}
+
                     {esAdmin && (
                         <MenuItem
                             icon={<FileText size={22} />}
                             onClick={() => irA("/app/auditoria")}
-                            menuItemStyles={estilos("/app/auditoria")}
+                            active={esActivo("/app/auditoria")}
                         >
                             AUDITORÍA
                         </MenuItem>
                     )}
-
 
                 </Menu>
 
@@ -265,7 +204,6 @@ function Sidebar({ usuario }) {
                     {movilAbierto ? "‹‹" : "››"}
                 </button>
             )}
-
         </div>
     );
 }
