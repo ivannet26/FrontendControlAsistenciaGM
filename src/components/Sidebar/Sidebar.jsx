@@ -17,6 +17,8 @@ import {
     Tag,
     FileText,
     UserCog,
+    Clock,
+    UserCheck,
 } from "lucide-react";
 
 import "./Sidebar.css";
@@ -89,6 +91,15 @@ function Sidebar({ usuario }) {
                         active={esActivo("/app/rastreador")}
                     >
                         RASTREADOR
+                    </MenuItem>
+
+                    {/* ASISTENCIA — disponible para todos los usuarios */}
+                    <MenuItem
+                        icon={<UserCheck size={22} />}
+                        onClick={() => irA("/app/asistencia")}
+                        active={location.pathname === "/app/asistencia"}
+                    >
+                        ASISTENCIA
                     </MenuItem>
 
                     {!collapsed && !esMovil && (
@@ -177,6 +188,16 @@ function Sidebar({ usuario }) {
                             active={esActivo("/app/auditoria")}
                         >
                             AUDITORÍA
+                        </MenuItem>
+                    )}
+
+                    {esAdmin && (
+                        <MenuItem
+                            icon={<UserCheck size={22} />}
+                            onClick={() => irA("/app/asistencia/admin")}
+                            active={esActivo("/app/asistencia/admin")}
+                        >
+                            CONTROL ASISTENCIA
                         </MenuItem>
                     )}
 

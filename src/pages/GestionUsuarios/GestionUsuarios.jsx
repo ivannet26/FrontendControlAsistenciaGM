@@ -265,7 +265,8 @@ const GestionUsuarios = () => {
 
             {/* HEADER */}
             <div className="usuarios-header">
-                <h1>Gestión de Usuarios</h1>
+               
+                <h1>Gestión de cuentas del Personal</h1>
                 <button onClick={abrirCrear}>CREAR NUEVO USUARIO</button>
             </div>
 

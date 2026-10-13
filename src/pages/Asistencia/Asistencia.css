@@ -1,0 +1,480 @@
+/* =========================
+   CONTENEDOR PRINCIPAL
+========================= */
+.asistencia-container {
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 20px;
+    box-sizing: border-box;
+    color: #d3dde3;
+}
+
+.asistencia-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.asistencia-eyebrow {
+    margin: 0 0 5px;
+    color: #10a5f5;
+    font-size: 11px;
+    letter-spacing: 1px;
+    font-weight: 650;
+    text-transform: uppercase;
+}
+
+.asistencia-header h1 {
+    margin: 0;
+    color: #ffffff;
+    font-size: 26px;
+    font-weight: 450;
+    letter-spacing: 0.3px;
+}
+
+.asistencia-fecha {
+    margin: 6px 0 0;
+    color: #8ea0af;
+    font-size: 13px;
+}
+
+
+/* =========================
+   LAYOUT 2 COLUMNAS
+========================= */
+.asistencia-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+    align-items: start;
+    gap: 16px;
+}
+
+.asistencia-columna-izquierda {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+
+/* =========================
+   RELOJ
+========================= */
+.asistencia-reloj {
+    padding: 20px;
+    text-align: center;
+    background: #101b22;
+    border: 1px solid #263740;
+}
+
+.asistencia-reloj-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.asistencia-reloj-label svg { color: #10a5f5; }
+
+.asistencia-reloj-label span {
+    color: #9eacb5;
+    font-size: 10px;
+    letter-spacing: 0.7px;
+    font-weight: 600;
+}
+
+.asistencia-reloj > strong {
+    color: #ffffff;
+    font-size: 32px;
+    line-height: 1.15;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.5px;
+}
+
+.asistencia-solo-lectura {
+    margin: -4px 0 0;
+    color: #8ea0af;
+    font-size: 10px;
+}
+
+
+/* =========================
+   BOTONES DE ACCIÓN (paleta quemada)
+========================= */
+.asistencia-acciones {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.asistencia-accion {
+    min-width: 0;
+    min-height: 74px;
+    padding: 16px;
+    border: 1px solid;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-align: left;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.asistencia-accion > svg { flex: 0 0 22px; }
+
+.asistencia-accion-entrada {
+    border-color: #0d7a5f;
+    background: #0d7a5f;
+    color: #ffffff;
+}
+
+.asistencia-accion-descanso {
+    border-color: #b45309;
+    background: #b45309;
+    color: #ffffff;
+}
+
+.asistencia-accion-salida {
+    border-color: #991b1b;
+    background: #991b1b;
+    color: #ffffff;
+}
+
+.asistencia-accion:not(:disabled):hover { filter: brightness(1.15); }
+
+.asistencia-accion-texto {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.asistencia-accion-titulo {
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.asistencia-accion-sub {
+    color: #ffffff;
+    font-size: 10px;
+    opacity: 0.75;
+}
+
+.asistencia-accion:disabled {
+    border-color: #263740;
+    background: #16242c;
+    color: #4a5c66;
+    cursor: not-allowed;
+    opacity: 0.7;
+    filter: none;
+}
+
+.asistencia-accion:disabled .asistencia-accion-titulo,
+.asistencia-accion:disabled .asistencia-accion-sub { color: #4a5c66; }
+
+
+/* =========================
+   PANEL DE REGISTROS
+========================= */
+.asistencia-registros {
+    min-width: 0;
+    overflow: hidden;
+    background: #101b22;
+    border: 1px solid #263740;
+}
+
+.asistencia-error-carga {
+    padding: 10px 14px;
+    border-bottom: 1px solid #dc2626;
+    background: rgba(220, 38, 38, 0.15);
+    color: #dc2626;
+    font-size: 12px;
+}
+
+.asistencia-aviso-historico {
+    min-height: 34px;
+    padding: 6px 10px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    border-bottom: 1px solid #273943;
+    background: #111d24;
+    color: #8ea0af;
+    font-size: 11px;
+}
+
+.asistencia-aviso-historico button {
+    padding: 2px 0;
+    border: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: transparent;
+    color: #10a5f5;
+    font: inherit;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.asistencia-aviso-historico button:hover {
+    color: #10a5f5;
+    text-decoration: underline;
+}
+
+
+/* =========================
+   HEADER DE LA SECCIÓN
+========================= */
+.asistencia-seccion-header {
+    min-height: 48px;
+    padding: 8px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    border-bottom: 1px solid #263740;
+}
+
+.asistencia-seccion-header h2 {
+    margin: 0;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.asistencia-seccion-header-derecha {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+
+/* =========================
+   BADGES DE ESTADO
+========================= */
+.asistencia-estado {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border: 1px solid #64748b;
+    background: rgba(100, 116, 139, 0.15);
+    color: #64748b;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.estado-trabajando { border-color: #10b981; background: rgba(16, 185, 129, 0.15); color: #10b981; }
+.estado-en-break { border-color: #f59e0b; background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
+.estado-finalizado { border-color: #9eacb5; background: rgba(158, 172, 181, 0.15); color: #9eacb5; }
+.estado-sin-entrada { border-color: #64748b; background: rgba(100, 116, 139, 0.15); color: #64748b; }
+
+
+/* =========================
+   SELECTOR DE FECHA (calendario nativo)
+========================= */
+.asistencia-selector-fecha {
+    position: relative;
+    display: inline-flex;
+}
+
+.asistencia-ver-dias {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 28px;
+    padding: 0;
+    background: transparent;
+    border: 1px solid #344650;
+    color: #b5c4cc;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.asistencia-ver-dias:hover,
+.asistencia-ver-dias:focus-visible {
+    border-color: #10a5f5;
+    color: #10a5f5;
+    outline: none;
+}
+
+/* Input nativo invisible — solo sirve para abrir el calendario */
+.asistencia-input-fecha-oculto {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    border: 0;
+    opacity: 0;
+    pointer-events: none;
+    color-scheme: dark;
+}
+
+
+/* =========================
+   TABLA
+========================= */
+.asistencia-tabla-scroll {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.asistencia-registros table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.asistencia-registros th {
+    padding: 12px 20px;
+    background: #16242c;
+    border-bottom: 1px solid #263740;
+    color: #9eacb5;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    white-space: nowrap;
+}
+
+.asistencia-registros td {
+    padding: 16px 20px;
+    border-top: 1px solid #263740;
+    color: #d3dde3;
+    font-size: 14px;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.asistencia-registros tbody tr { transition: all 0.15s ease; }
+.asistencia-registros tbody tr:hover { background: #1d303a; }
+
+.asistencia-hora {
+    color: #ffffff;
+}
+
+.asistencia-duracion {
+    color: #10a5f5 !important;
+    font-weight: 600;
+}
+
+
+/* =========================
+   ESTADO VACÍO
+========================= */
+.asistencia-vacio {
+    height: 220px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #4a5c66;
+    text-align: center;
+}
+
+.asistencia-vacio svg {
+    margin-bottom: 12px;
+    color: #4a5c66;
+}
+
+.asistencia-vacio span {
+    font-size: 13px;
+}
+
+
+/* =========================
+   RESPONSIVE
+========================= */
+@media (max-width: 900px) {
+    .asistencia-layout { grid-template-columns: 1fr; }
+    .asistencia-registros { grid-row: 2; }
+}
+
+@media (max-width: 600px) {
+    .asistencia-container { padding: 14px 10px; }
+    .asistencia-header { align-items: flex-start; }
+    .asistencia-header h1 { font-size: 23px; }
+    .asistencia-reloj > strong { font-size: 29px; }
+    .asistencia-accion { padding: 12px 9px; gap: 8px; }
+    .asistencia-accion > svg { flex-basis: 20px; width: 20px; }
+    .asistencia-accion-titulo { font-size: 10px; }
+    .asistencia-accion-sub { font-size: 9px; }
+    .asistencia-registros th,
+    .asistencia-registros td { padding-right: 12px; padding-left: 12px; font-size: 12px; }
+}
+
+/* =========================
+   CONFIRMACIÓN DE FICHAJE
+========================= */
+.asistencia-alerta-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.6);
+}
+
+.asistencia-alerta-caja {
+    width: min(100%, 460px);
+    padding: 40px 60px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: #101b22;
+    border: 1px solid #263740;
+    text-align: center;
+    animation: asistencia-alerta-entrada 0.3s ease both;
+}
+
+.asistencia-alerta-icono {
+    margin-bottom: 16px;
+    color: #10b981;
+    animation: asistencia-alerta-icono-entrada 0.45s ease-out both;
+}
+
+.asistencia-alerta-titulo {
+    margin: 0;
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.asistencia-alerta-subtitulo {
+    margin: 8px 0 0;
+    color: #8ea0af;
+    font-size: 14px;
+}
+
+@keyframes asistencia-alerta-entrada {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes asistencia-alerta-icono-entrada {
+    0% { opacity: 0; transform: scale(0.7); }
+    65% { opacity: 1; transform: scale(1.12); }
+    100% { transform: scale(1); }
+}
+
+@media (max-width: 600px) {
+    .asistencia-alerta-caja { padding: 32px 24px; }
+}
