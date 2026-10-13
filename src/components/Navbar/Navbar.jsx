@@ -3,8 +3,10 @@ import logoGM from "../../assets/logo-mg.png";
 import { useState, useRef, useEffect } from "react";
 import ProfileMenu from "../ProfileMenu/ProfileMenu";
 import HelpMenu from "../HelpMenu/HelpMenu";
+import { construirUrlAvatar, useUsuarioActual } from "../../hooks/useUsuarioActual";
 
-function Navbar({ usuario }) {
+function Navbar() {
+  const usuario = useUsuarioActual();
 
   const [profileOpen, setProfileOpen] = useState(false);
   const refPerfil = useRef(null);
@@ -25,6 +27,10 @@ function Navbar({ usuario }) {
     (usuario?.nombre?.charAt(0) || "?") +
     (usuario?.apellido?.charAt(0) || "")
   ).toUpperCase();
+  const urlAvatar = construirUrlAvatar(
+    usuario?.avatar_url || usuario?.avatar,
+    usuario?._ts
+  );
 
   return (
     <header className="navbar-principal">
@@ -45,13 +51,17 @@ function Navbar({ usuario }) {
           <button
             className="navbar-avatar"
             onClick={() => setProfileOpen(!profileOpen)}
+            type="button"
+            aria-label="Abrir menú de perfil"
           >
-            {iniciales}
+            {urlAvatar
+              ? <img src={urlAvatar} alt="" />
+              : iniciales}
           </button>
 
           {profileOpen && (
             /* Ya no recibe onAbrirPerfil */
-            <ProfileMenu usuario={usuario} />
+            <ProfileMenu />
           )}
 
         </div>

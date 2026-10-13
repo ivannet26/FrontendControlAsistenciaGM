@@ -1,12 +1,14 @@
 import { useNavigate } from "react-router-dom";
 import { User, LogOut, Shield, Download } from "lucide-react";
+import { construirUrlAvatar, useUsuarioActual } from "../../hooks/useUsuarioActual";
 import "./ProfileMenu.css";
 
 const URL_DESCARGA =
   "https://github.com/ivannet26/ControlAsistenciaDesktopGM/releases/download/bckend/ControlAsistencia_Setup_v1.0.5.exe";
 
-function ProfileMenu({ usuario }) {
+function ProfileMenu() {
   const navigate = useNavigate();
+  const usuario = useUsuarioActual();
 
   const handleCerrarSesion = () => {
     localStorage.removeItem("token");
@@ -26,6 +28,10 @@ function ProfileMenu({ usuario }) {
     (usuario?.nombre?.charAt(0) || "?") +
     (usuario?.apellido?.charAt(0) || "")
   ).toUpperCase();
+  const urlAvatar = construirUrlAvatar(
+    usuario?.avatar_url || usuario?.avatar,
+    usuario?._ts
+  );
 
   return (
     <div className="profile-menu">
@@ -33,7 +39,9 @@ function ProfileMenu({ usuario }) {
       {/* Cabecera */}
       <div className="profile-menu-header">
         <div className="profile-menu-avatar">
-          {iniciales}
+          {urlAvatar
+            ? <img src={urlAvatar} alt="" />
+            : iniciales}
         </div>
         <div className="profile-menu-info">
           <strong>

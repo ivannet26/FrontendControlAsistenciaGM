@@ -1,306 +1,406 @@
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
-    Pencil, User as UserIcon, Briefcase, Camera, Mail, Shield, CalendarDays
-} from "lucide-react";
+    Briefcase,
+    CalendarBlank,
+    Camera,
+    Check,
+    EnvelopeSimple,
+    IdentificationCard,
+    MapPinLine,
+    PencilSimple,
+    Phone,
+    User,
+    X,
+} from "@phosphor-icons/react";
 import toast from "react-hot-toast";
-import { actualizarPerfil, subirAvatar } from "../../services/perfilService";
+import {
+    actualizarUsuarioActual,
+    construirUrlAvatar,
+} from "../../hooks/useUsuarioActual";
+import {
+    actualizarMiPerfil,
+    obtenerMiPerfil,
+    subirAvatar,
+} from "../../services/perfilService";
 import "./MiPerfil.css";
 
-const CICLOS = Array.from({ length: 12 }, (_, i) => String(i + 1));
+const API_BASE_URL = (import.meta.env.VITE_API_URL || "").replace(/\/+$/, "");
 
-const Dato = ({ label, value, full }) => (
-    <div className={`dato${full ? " dato-full" : ""}`}>
-        <span className="lbl">{label}</span>
-        <span className={`val${value ? "" : " vacio"}`} title={value || ""}>
-            {value || "—"}
-        </span>
-    </div>
-);
+const PERFIL_VACIO = {
+    nombre: "",
+    apellido: "",
+    email: "",
+    rol: "",
+    telefono: "",
+    dni: "",
+    direccion: "",
+    fecha_nacimiento: "",
+    puesto: "",
+    avatar_url: "",
+};
 
-function MiPerfil({ usuario: propUsuario, onVerHorario }) {
-    const [usuario, setUsuario] = useState(null);
-    const [subiendoAvatar, setSubiendoAvatar] = useState(false);
-    const inputArchivoRef = useRef(null);
-
-    const [seccion, setSeccion] = useState(null);
-    const [dPersonal, setDPersonal] = useState({});
-    const [dLaboral, setDLaboral] = useState({});
-    const [guardando, setGuardando] = useState(false);
-
-    useEffect(() => {
-        if (propUsuario) setUsuario(propUsuario);
-        else {
-            const g = localStorage.getItem("usuario");
-            if (g) try { setUsuario(JSON.parse(g)); } catch {}
-        }
-    }, [propUsuario]);
-
-    const abrirEdicion = (sec) => {
-        if (!usuario || seccion !== null) return;
-        if (sec === "personal") {
-            setDPersonal({
-                nombre: usuario.nombre || "",
-                apellido: usuario.apellido || "",
-                dni: usuario.dni || "",
-                telefono: usuario.telefono || "",
-                universidad: usuario.universidad || "",
-                carrera: usuario.carrera || "",
-                ciclo_actual: usuario.ciclo_actual ? String(usuario.ciclo_actual) : ""
-            });
-        } else if (sec === "laboral") {
-            setDLaboral({ cargo: usuario.cargo || "", area: usuario.area || "" });
-        }
-        setSeccion(sec);
+const normalizarPerfil = (respuesta = {}) => {
+    const datos = {
+        ...(respuesta.usuario || {}),
+        ...(respuesta.perfil || {}),
+        ...respuesta,
     };
 
-    const cancelarEdicion = () => setSeccion(null);
+    return {
+        nombre: datos.nombre ?? datos.nombres ?? "",
+        apellido: datos.apellido ?? datos.apellidos ?? "",
+        email: datos.email ?? datos.correo ?? "",
+        rol: datos.rol ?? "",
+        telefono: datos.telefono ?? "",
+        dni: datos.dni ?? "",
+        direccion: datos.direccion ?? "",
+        fecha_nacimiento: datos.fecha_nacimiento
+            ? String(datos.fecha_nacimiento).slice(0, 10)
+            : "",
+        puesto: datos.puesto ?? datos.cargo ?? "",
+        avatar_url: datos.avatar_url ?? datos.avatar ?? "",
+    };
+};
 
-    const guardarSeccion = async (sec) => {
-        if (!usuario) return;
-        let payload = {};
+const validarDatos = (datos) => {
+    const errores = {};
+    const nombre = datos.nombre.trim();
+    const apellido = datos.apellido.trim();
+    const email = datos.email.trim();
 
-        if (sec === "personal") {
-            if (!dPersonal.nombre?.trim() || !dPersonal.apellido?.trim())
-                return toast.error("Nombre y apellido son obligatorios.");
-            if (dPersonal.dni && !/^\d{8}$/.test(dPersonal.dni))
-                return toast.error("El DNI debe tener 8 dígitos.");
-            payload = {
-                nombre: dPersonal.nombre.trim(),
-                apellido: dPersonal.apellido.trim(),
-                dni: dPersonal.dni || null,
-                telefono: dPersonal.telefono || null,
-                universidad: dPersonal.universidad?.trim() || null,
-                carrera: dPersonal.carrera?.trim() || null,
-                ciclo_actual: dPersonal.ciclo_actual ? Number(dPersonal.ciclo_actual) : null
-            };
-        } else if (sec === "laboral") {
-            payload = { cargo: dLaboral.cargo || null, area: dLaboral.area || null };
-        }
+    if (nombre.length < 2) errores.nombre = "Ingresa al menos 2 caracteres.";
+    if (apellido.length < 2) errores.apellido = "Ingresa al menos 2 caracteres.";
+    if (!email) errores.email = "El correo electrónico es obligatorio.";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        errores.email = "Ingresa un correo electrónico válido.";
+    }
+
+    if (datos.telefono && !/^\+?\d+$/.test(datos.telefono)) {
+        errores.telefono = "Usa solo números y un signo + inicial.";
+    }
+    if (datos.dni && !/^\d{8}$/.test(datos.dni)) {
+        errores.dni = "El DNI debe tener 8 dígitos.";
+    }
+    if (datos.fecha_nacimiento && datos.fecha_nacimiento > fechaLocalActual()) {
+        errores.fecha_nacimiento = "La fecha no puede ser futura.";
+    }
+
+    return errores;
+};
+
+const fechaLocalActual = () => {
+    const hoy = new Date();
+    const mes = String(hoy.getMonth() + 1).padStart(2, "0");
+    const dia = String(hoy.getDate()).padStart(2, "0");
+    return `${hoy.getFullYear()}-${mes}-${dia}`;
+};
+
+const obtenerMensajeError = (error, fallback) => {
+    const detail = error.response?.data?.detail;
+    if (typeof detail === "string" && detail.trim()) return detail;
+    if (Array.isArray(detail)) return detail.map((item) => item.msg).join(". ");
+    return error.message || fallback;
+};
+
+const guardarRutaRelativaAvatar = (url) => (
+    url.startsWith(API_BASE_URL) && API_BASE_URL
+        ? url.slice(API_BASE_URL.length)
+        : url
+);
+
+const MiPerfil = () => {
+    const [datos, setDatos] = useState(PERFIL_VACIO);
+    const [originales, setOriginales] = useState(PERFIL_VACIO);
+    const [errores, setErrores] = useState({});
+    const [editando, setEditando] = useState(false);
+    const [cargando, setCargando] = useState(true);
+    const [guardando, setGuardando] = useState(false);
+    const [subiendoAvatar, setSubiendoAvatar] = useState(false);
+    const [avatarVersion, setAvatarVersion] = useState(() => Date.now());
+    const [avatarFallidoUrl, setAvatarFallidoUrl] = useState(null);
+    const inputArchivoRef = useRef(null);
+
+    useEffect(() => {
+        let activo = true;
+
+        const cargarPerfil = async () => {
+            setCargando(true);
+            try {
+                const respuesta = normalizarPerfil(await obtenerMiPerfil());
+                if (!activo) return;
+                setDatos(respuesta);
+                setOriginales(respuesta);
+            } catch (error) {
+                if (activo) {
+                    toast.error(obtenerMensajeError(error, "No se pudo cargar el perfil."));
+                }
+            } finally {
+                if (activo) setCargando(false);
+            }
+        };
+
+        cargarPerfil();
+        return () => {
+            activo = false;
+        };
+    }, []);
+
+    const cambiarCampo = (campo, valor) => {
+        setDatos((actuales) => ({ ...actuales, [campo]: valor }));
+        setErrores((actuales) => ({ ...actuales, [campo]: "" }));
+    };
+
+    const iniciarEdicion = () => {
+        setDatos({ ...originales });
+        setErrores({});
+        setEditando(true);
+    };
+
+    const cancelarEdicion = () => {
+        setDatos({ ...originales });
+        setErrores({});
+        setEditando(false);
+    };
+
+    const guardarCambios = async (evento) => {
+        evento.preventDefault();
+        const nuevosErrores = validarDatos(datos);
+        setErrores(nuevosErrores);
+        if (Object.keys(nuevosErrores).length > 0) return;
+
+        const payload = {
+            nombre: datos.nombre.trim(),
+            apellido: datos.apellido.trim(),
+            email: datos.email.trim(),
+            telefono: datos.telefono || null,
+            dni: datos.dni || null,
+            direccion: datos.direccion.trim() || null,
+            fecha_nacimiento: datos.fecha_nacimiento || null,
+            puesto: datos.puesto.trim() || null,
+        };
 
         setGuardando(true);
         try {
-            const actualizado = await actualizarPerfil(payload);
-            const nuevo = { ...usuario, ...actualizado };
-            localStorage.setItem("usuario", JSON.stringify(nuevo));
-            setUsuario(nuevo);
-            toast.success("Cambios guardados.");
-            setSeccion(null);
+            const respuesta = await actualizarMiPerfil(payload);
+            const actualizado = normalizarPerfil({ ...datos, ...respuesta });
+            setDatos(actualizado);
+            setOriginales(actualizado);
+            setEditando(false);
+
+            actualizarUsuarioActual({
+                nombre: actualizado.nombre,
+                apellido: actualizado.apellido,
+                email: actualizado.email,
+                rol: actualizado.rol,
+                avatar_url: actualizado.avatar_url,
+            });
+
+            toast.success("Perfil actualizado correctamente");
         } catch (error) {
-            toast.error(error.response?.data?.detail || "No se pudo guardar.");
+            const mensaje = obtenerMensajeError(error, "No se pudo actualizar el perfil.");
+            if (error.response?.status === 409 || /correo|email/i.test(mensaje)) {
+                setErrores((actuales) => ({ ...actuales, email: mensaje }));
+            }
+            toast.error(mensaje);
         } finally {
             setGuardando(false);
         }
     };
 
-    const handleSeleccionarImagen = () => inputArchivoRef.current?.click();
+    const seleccionarFoto = () => inputArchivoRef.current?.click();
 
-    const handleArchivoChange = async (e) => {
-        const archivo = e.target.files?.[0];
+    const cambiarFoto = async (evento) => {
+        const archivo = evento.target.files?.[0];
         if (!archivo) return;
-        if (!archivo.type.startsWith("image/")) return toast.error("Selecciona una imagen válida.");
-        if (archivo.size > 2 * 1024 * 1024) return toast.error("La imagen no debe superar 2 MB.");
+        if (!archivo.type.startsWith("image/")) {
+            toast.error("Selecciona un archivo de imagen válido.");
+            evento.target.value = "";
+            return;
+        }
+        if (archivo.size > 2 * 1024 * 1024) {
+            toast.error("La imagen no debe superar 2 MB.");
+            evento.target.value = "";
+            return;
+        }
+
         setSubiendoAvatar(true);
         try {
-            const r = await subirAvatar(archivo);
-            const url = r.avatar_url || r.avatar || r.url;
-            const n = { ...usuario, avatar: url };
-            localStorage.setItem("usuario", JSON.stringify(n));
-            setUsuario(n);
+            const respuesta = await subirAvatar(archivo);
+            const nuevoAvatarUrl = respuesta.avatar_url || respuesta.avatar || respuesta.url;
+            if (typeof nuevoAvatarUrl !== "string" || !nuevoAvatarUrl.trim()) {
+                throw new Error("El servidor no devolvió la URL de la nueva foto.");
+            }
+
+            const avatarUrlGuardada = guardarRutaRelativaAvatar(nuevoAvatarUrl.trim());
+            setDatos((prev) => ({ ...prev, avatar_url: avatarUrlGuardada }));
+            setOriginales((prev) => ({ ...prev, avatar_url: avatarUrlGuardada }));
+            setAvatarVersion(Date.now());
+            actualizarUsuarioActual({ avatar_url: avatarUrlGuardada });
             toast.success("Foto actualizada.");
         } catch (error) {
-            toast.error(error.response?.data?.detail || "No se pudo subir la imagen.");
+            toast.error(obtenerMensajeError(error, "No se pudo cambiar la foto."));
         } finally {
             setSubiendoAvatar(false);
-            if (inputArchivoRef.current) inputArchivoRef.current.value = "";
+            evento.target.value = "";
         }
     };
 
-    const handleVerHorario = () => {
-        if (onVerHorario) onVerHorario(usuario);
-        else toast("Horario de prácticas: pendiente de conectar.");
+    const iniciales = `${datos.nombre.charAt(0) || "?"}${datos.apellido.charAt(0)}`.toUpperCase();
+    const urlAvatar = construirUrlAvatar(
+        datos.avatar_url,
+        avatarVersion
+    );
+
+    if (cargando) {
+        return (
+            <main className="perfil-pantalla">
+                <div className="perfil-wrap">
+                    <p className="perfil-cargando">Cargando perfil...</p>
+                </div>
+            </main>
+        );
+    }
+
+    const campo = (id, etiqueta, icono, tipo = "text", opciones = {}) => {
+        const Icono = icono;
+        return (
+            <div className={`perfil-campo${opciones.completo ? " perfil-campo-completo" : ""}`}>
+                <label htmlFor={`perfil-${id}`}>{etiqueta}</label>
+                <div className={[
+                    "perfil-input-wrap",
+                    errores[id] && "perfil-input-error",
+                    (!editando || guardando) && "perfil-input-deshabilitado",
+                ].filter(Boolean).join(" ")}>
+                    {Icono && <Icono size={16} weight="regular" aria-hidden="true" />}
+                    <input
+                        id={`perfil-${id}`}
+                        type={tipo}
+                        value={datos[id]}
+                        disabled={!editando || guardando}
+                        maxLength={opciones.maxLength}
+                        onChange={(evento) => cambiarCampo(id, evento.target.value)}
+                        autoComplete={opciones.autoComplete}
+                    />
+                </div>
+                {errores[id] && <span className="perfil-error">{errores[id]}</span>}
+            </div>
+        );
     };
 
-    if (!usuario) return <div className="perfil-pantalla"><p className="cargando">Cargando…</p></div>;
-
-    const iniciales = ((usuario.nombre?.charAt(0) || "?") + (usuario.apellido?.charAt(0) || "")).toUpperCase();
-
-    const BtnEditar = ({ sec }) => (
-        <button className="btn-ico" onClick={() => abrirEdicion(sec)} disabled={seccion !== null} title="Editar">
-            <Pencil size={11} />
-        </button>
-    );
-
-    const Acciones = ({ sec }) => (
-        <div className="edit-acciones">
-            <button className="btn-accion cancelar" onClick={cancelarEdicion} disabled={guardando}>Cancelar</button>
-            <button className="btn-accion guardar" >
-                {guardando ? "Guardando…" : "Guardar"}
-            </button>
-        </div>
-    );
-
     return (
-        <div className="perfil-pantalla">
+        <main className="perfil-pantalla">
             <div className="perfil-wrap">
-
-                {/* ═══════ CABECERA ═══════ */}
-                <header className="cabecera">
-                    <div className="cabecera-avatar-wrap">
-                        <div className="avatar-grande">
-                            {usuario.avatar
-                                ? <img src={usuario.avatar} alt="Avatar" />
-                                : <span>{iniciales}</span>}
-                        </div>
-                        <button
-                            type="button"
-                            className="btn-camara"
-                            onClick={handleSeleccionarImagen}
-                            disabled={subiendoAvatar}
-                            title="Cambiar foto"
-                        >
-                            {subiendoAvatar ? <span className="mini-spinner"></span> : <Camera size={12} />}
-                        </button>
-                        <input ref={inputArchivoRef} type="file" accept="image/*" onChange={handleArchivoChange} style={{ display: "none" }} />
-                    </div>
-
-                    <div className="cabecera-info">
-                        <h1>{usuario.nombre} {usuario.apellido}</h1>
-                        <div className="cabecera-meta">
-                            <span className="meta-line"><Mail size={12} />{usuario.email || "—"}</span>
-                            <span className="meta-sep">·</span>
-                            <span className="meta-line"><Shield size={12} />{usuario.rol || "Usuario"}</span>
-                            {usuario.cargo && (
-                                <>
-                                    <span className="meta-sep">·</span>
-                                    <span className="meta-line"><Briefcase size={12} />{usuario.cargo}</span>
-                                </>
-                            )}
-                        </div>
-                    </div>
+                <header className="perfil-header">
+                    <p className="perfil-eyebrow">CONTROL PERSONAL</p>
+                    <h1>Mi perfil</h1>
+                    <p>Consulta y actualiza tu información personal.</p>
                 </header>
 
-                {/* ═══════ GRID: PERSONAL + LABORAL ═══════ */}
-                <div className="grid-dos">
-
-                    {/* PERSONAL */}
-                    <section className="bloque">
-                        <div className="bloque-head">
-                            <div className="bloque-titulo">
-                                <UserIcon size={12} />
-                                <span>Datos Personales</span>
+                <div className="perfil-layout">
+                    <aside className="perfil-tarjeta perfil-identidad">
+                        <div className="perfil-avatar-wrap">
+                            <div className="perfil-avatar">
+                                {urlAvatar && avatarFallidoUrl !== urlAvatar
+                                    ? <img
+                                        src={urlAvatar}
+                                        alt={`Foto de ${datos.nombre}`}
+                                        onError={() => setAvatarFallidoUrl(urlAvatar)}
+                                    />
+                                    : <span>{iniciales}</span>}
                             </div>
-                            {seccion !== "personal" && (
-                                <div className="bloque-head-acciones">
-                                    <BtnEditar sec="personal" />
-                                </div>
+                            <span className="perfil-avatar-estado" title="En línea" aria-label="En línea" />
+                        </div>
+                        <h2>{datos.nombre} {datos.apellido}</h2>
+                        <span className="perfil-rol">{datos.rol || "Usuario"}</span>
+                        <span className="perfil-identidad-email">
+                            <EnvelopeSimple size={15} aria-hidden="true" />
+                            {datos.email || "—"}
+                        </span>
+
+                        <input
+                            ref={inputArchivoRef}
+                            className="perfil-archivo-oculto"
+                            type="file"
+                            accept="image/*"
+                            onChange={cambiarFoto}
+                            aria-label="Seleccionar foto de perfil"
+                        />
+                        <button
+                            className="perfil-boton perfil-boton-secundario perfil-cambiar-foto"
+                            type="button"
+                            onClick={seleccionarFoto}
+                            disabled={subiendoAvatar}
+                        >
+                            <Camera size={17} aria-hidden="true" />
+                            {subiendoAvatar ? "Subiendo..." : "Cambiar foto"}
+                        </button>
+                        <button
+                            className="perfil-boton perfil-boton-secundario perfil-horario"
+                            type="button"
+                            onClick={() => toast("Horario: próximamente.")}
+                        >
+                            <CalendarBlank size={17} aria-hidden="true" />
+                            Horario
+                        </button>
+                    </aside>
+
+                    <section className="perfil-tarjeta perfil-formulario-tarjeta">
+                        <div className="perfil-tarjeta-header">
+                            <div>
+                                <h2>Datos personales</h2>
+                                <p>Información asociada a tu cuenta.</p>
+                            </div>
+                            {!editando && (
+                                <button
+                                    className="perfil-boton perfil-boton-editar"
+                                    type="button"
+                                    onClick={iniciarEdicion}
+                                >
+                                    <PencilSimple size={16} aria-hidden="true" />
+                                    Editar perfil
+                                </button>
                             )}
                         </div>
-                        <div className="bloque-body">
-                            {seccion !== "personal" ? (
-                                <div className="grid-datos">
-                                    <Dato label="DNI" value={usuario.dni} />
-                                    <Dato label="Teléfono" value={usuario.telefono} />
-                                    <Dato label="Correo" value={usuario.email} full />
-                                    <Dato label="Universidad" value={usuario.universidad} full />
-                                    <Dato label="Carrera" value={usuario.carrera} />
-                                    <Dato label="Ciclo actual" value={usuario.ciclo_actual ? String(usuario.ciclo_actual) : ""} />
-                                </div>
-                            ) : (
-                                <div className="edit-inline">
-                                    <div className="campos-grid">
-                                        <div className="campo">
-                                            <label>Nombre *</label>
-                                            <input value={dPersonal.nombre} onChange={(e) => setDPersonal(p => ({ ...p, nombre: e.target.value }))} />
-                                        </div>
-                                        <div className="campo">
-                                            <label>Apellido *</label>
-                                            <input value={dPersonal.apellido} onChange={(e) => setDPersonal(p => ({ ...p, apellido: e.target.value }))} />
-                                        </div>
-                                        <div className="campo">
-                                            <label>DNI</label>
-                                            <input maxLength={8} value={dPersonal.dni} onChange={(e) => setDPersonal(p => ({ ...p, dni: e.target.value.replace(/\D/g, "") }))} />
-                                        </div>
-                                        <div className="campo">
-                                            <label>Teléfono</label>
-                                            <input value={dPersonal.telefono} onChange={(e) => setDPersonal(p => ({ ...p, telefono: e.target.value }))} />
-                                        </div>
-                                        <div className="campo campo-full">
-                                            <label>Universidad</label>
-                                            <input value={dPersonal.universidad} onChange={(e) => setDPersonal(p => ({ ...p, universidad: e.target.value }))} />
-                                        </div>
-                                        <div className="campo">
-                                            <label>Carrera</label>
-                                            <input value={dPersonal.carrera} onChange={(e) => setDPersonal(p => ({ ...p, carrera: e.target.value }))} />
-                                        </div>
-                                        <div className="campo">
-                                            <label>Ciclo actual</label>
-                                            <select value={dPersonal.ciclo_actual} onChange={(e) => setDPersonal(p => ({ ...p, ciclo_actual: e.target.value }))}>
-                                                <option value="">Seleccionar…</option>
-                                                {CICLOS.map(c => <option key={c} value={c}>{c}</option>)}
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <Acciones sec="personal" />
-                                </div>
-                            )}
-                        </div>
-                    </section>
 
-                    {/* LABORAL */}
-                    <section className="bloque">
-                        <div className="bloque-head">
-                            <div className="bloque-titulo">
-                                <Briefcase size={12} />
-                                <span>Datos Laborales</span>
+                        <form className="perfil-formulario" onSubmit={guardarCambios} noValidate>
+                            <div className="perfil-campos-grid">
+                                {campo("nombre", "Nombres", User, "text", { autoComplete: "given-name", maxLength: 100 })}
+                                {campo("apellido", "Apellidos", User, "text", { autoComplete: "family-name", maxLength: 100 })}
+                                {campo("email", "Correo electrónico", EnvelopeSimple, "email", { autoComplete: "email", maxLength: 255, completo: true })}
+                                {campo("telefono", "Teléfono", Phone, "tel", { autoComplete: "tel", maxLength: 30 })}
+                                {campo("dni", "Documento / DNI", IdentificationCard, "text", { maxLength: 8 })}
+                                {campo("direccion", "Dirección", MapPinLine, "text", { autoComplete: "street-address", maxLength: 255, completo: true })}
+                                {campo("fecha_nacimiento", "Fecha de nacimiento", CalendarBlank, "date")}
+                                {campo("puesto", "Carrera", Briefcase, "text", { maxLength: 100 })}
                             </div>
-                            {seccion !== "laboral" && (
-                                <div className="bloque-head-acciones">
-                                    <button type="button" className="btn-horario" onClick={handleVerHorario}>
-                                        <CalendarDays size={12} />
-                                        Ver horario
+
+                            {editando && (
+                                <div className="perfil-acciones">
+                                    <button
+                                        className="perfil-boton perfil-boton-secundario"
+                                        type="button"
+                                        onClick={cancelarEdicion}
+                                        disabled={guardando}
+                                    >
+                                        <X size={17} aria-hidden="true" />
+                                        Cancelar
                                     </button>
-                                    <BtnEditar sec="laboral" />
+                                    <button
+                                        className="perfil-boton perfil-boton-guardar"
+                                        type="submit"
+                                        disabled={guardando}
+                                    >
+                                        <Check size={17} aria-hidden="true" />
+                                        {guardando ? "Guardando..." : "Guardar cambios"}
+                                    </button>
                                 </div>
                             )}
-                        </div>
-                        <div className="bloque-body">
-                            {seccion !== "laboral" ? (
-                                <div className="grid-datos">
-                                    <Dato label="Rol" value={usuario.rol || "Usuario"} />
-                                    <Dato label="Cargo" value={usuario.cargo} />
-                                    <Dato label="Área" value={usuario.area} />
-                                    <Dato label="Fecha de inicio" value={usuario.fecha_inicio} />
-                                </div>
-                            ) : (
-                                <div className="edit-inline">
-                                    <div className="campos-grid">
-                                        <div className="campo">
-                                            <label>Rol (bloqueado)</label>
-                                            <input value={usuario.rol || ""} disabled />
-                                        </div>
-                                        <div className="campo">
-                                            <label>Fecha de inicio (bloqueado)</label>
-                                            <input value={usuario.fecha_inicio || ""} disabled />
-                                        </div>
-                                        <div className="campo">
-                                            <label>Cargo</label>
-                                            <input value={dLaboral.cargo} onChange={(e) => setDLaboral(p => ({ ...p, cargo: e.target.value }))} />
-                                        </div>
-                                        <div className="campo">
-                                            <label>Área</label>
-                                            <input value={dLaboral.area} onChange={(e) => setDLaboral(p => ({ ...p, area: e.target.value }))} />
-                                        </div>
-                                    </div>
-                                    <Acciones sec="laboral" />
-                                </div>
-                            )}
-                        </div>
+                        </form>
                     </section>
                 </div>
-
             </div>
-        </div>
+        </main>
     );
-}
+};
 
 export default MiPerfil;
