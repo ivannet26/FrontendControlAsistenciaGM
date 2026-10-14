@@ -172,12 +172,14 @@
 }
 
 .perfil-cambiar-foto,
-.perfil-horario {
+.perfil-horario,
+.perfil-crear-horario {
     width: 100%;
     max-width: 220px;
 }
 
-.perfil-horario {
+.perfil-horario,
+.perfil-crear-horario {
     margin-top: 8px;
 }
 

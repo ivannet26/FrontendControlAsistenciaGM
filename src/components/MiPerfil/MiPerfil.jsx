@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
     Briefcase,
     CalendarBlank,
@@ -22,6 +22,9 @@ import {
     obtenerMiPerfil,
     subirAvatar,
 } from "../../services/perfilService";
+import { obtenerMiHorario } from "../../services/horarioService";
+import ModalCrearHorario from "../ModalCrearHorario/ModalCrearHorario";
+import ModalVerHorario from "../ModalVerHorario/ModalVerHorario";
 import "./MiPerfil.css";
 
 const API_BASE_URL = (import.meta.env.VITE_API_URL || "").replace(/\/+$/, "");
@@ -118,6 +121,10 @@ const MiPerfil = () => {
     const [subiendoAvatar, setSubiendoAvatar] = useState(false);
     const [avatarVersion, setAvatarVersion] = useState(() => Date.now());
     const [avatarFallidoUrl, setAvatarFallidoUrl] = useState(null);
+    const [modalVerHorario, setModalVerHorario] = useState(false);
+    const [modalCrearHorario, setModalCrearHorario] = useState(false);
+    const [miHorario, setMiHorario] = useState(null);
+    const [cargandoHorario, setCargandoHorario] = useState(true);
     const inputArchivoRef = useRef(null);
 
     useEffect(() => {
@@ -143,6 +150,40 @@ const MiPerfil = () => {
         return () => {
             activo = false;
         };
+    }, []);
+
+    const recargarHorario = useCallback(async () => {
+        const data = await obtenerMiHorario();
+        setMiHorario(data);
+        return data;
+    }, []);
+
+    useEffect(() => {
+        let activo = true;
+        obtenerMiHorario()
+            .then((data) => {
+                if (activo) setMiHorario(data);
+            })
+            .catch(() => {
+                if (activo) setMiHorario(null);
+            })
+            .finally(() => {
+                if (activo) setCargandoHorario(false);
+            });
+        return () => {
+            activo = false;
+        };
+    }, []);
+
+    const abrirVerHorario = useCallback(() => setModalVerHorario(true), []);
+    const abrirCrearHorario = useCallback(() => setModalCrearHorario(true), []);
+    const cerrarModales = useCallback(() => {
+        setModalVerHorario(false);
+        setModalCrearHorario(false);
+    }, []);
+    const editarHorarioDesdeVista = useCallback(() => {
+        setModalVerHorario(false);
+        setModalCrearHorario(true);
     }, []);
 
     const cambiarCampo = (campo, valor) => {
@@ -337,10 +378,18 @@ const MiPerfil = () => {
                         <button
                             className="perfil-boton perfil-boton-secundario perfil-horario"
                             type="button"
-                            onClick={() => toast("Horario: próximamente.")}
+                            onClick={abrirVerHorario}
                         >
                             <CalendarBlank size={17} aria-hidden="true" />
                             Horario
+                        </button>
+                        <button
+                            className="perfil-boton perfil-boton-secundario perfil-crear-horario"
+                            type="button"
+                            onClick={abrirCrearHorario}
+                        >
+                            <PencilSimple size={17} aria-hidden="true" />
+                            Crear Horario
                         </button>
                     </aside>
 
@@ -399,6 +448,22 @@ const MiPerfil = () => {
                     </section>
                 </div>
             </div>
+            {modalVerHorario && (
+                <ModalVerHorario
+                    horario={miHorario}
+                    cargando={cargandoHorario}
+                    onClose={cerrarModales}
+                    onEdit={editarHorarioDesdeVista}
+                    onHorarioActualizado={setMiHorario}
+                />
+            )}
+            {modalCrearHorario && (
+                <ModalCrearHorario
+                    horario={miHorario}
+                    onClose={cerrarModales}
+                    onSaved={recargarHorario}
+                />
+            )}
         </main>
     );
 };
