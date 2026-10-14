@@ -14,6 +14,7 @@ import {
     obtenerResumenAdminHoy,
     obtenerResumenAdminPorFecha,
 } from "../../services/asistenciaService";
+import { construirUrlAvatar } from "../../hooks/useUsuarioActual";
 import "./AsistenciaAdmin.css";
 
 // ── Formateadores ─────────────────────────────────────
@@ -64,8 +65,85 @@ const obtenerMensajeError = (error, mensajePredeterminado) => {
     return error.message || mensajePredeterminado;
 };
 
+function useEsMovil() {
+    const [esMovil, setEsMovil] = useState(() => window.innerWidth < 900);
+
+    useEffect(() => {
+        const handler = () => setEsMovil(window.innerWidth < 900);
+        window.addEventListener("resize", handler);
+        return () => window.removeEventListener("resize", handler);
+    }, []);
+
+    return esMovil;
+}
+
+const TarjetaUsuario = ({ fila }) => {
+    const urlAvatar = construirUrlAvatar(fila.avatar_url, fila.avatarVersion);
+    const iniciales = `${(fila.nombre[0] || "?").toUpperCase()}${(fila.apellido[0] || "").toUpperCase()}`;
+
+    return (
+        <article className={`admin-card${!fila.tieneEntrada ? " admin-card-sin-entrada" : ""}`}>
+            <div className="admin-card-usuario">
+                <div className="admin-avatar admin-card-avatar">
+                    {urlAvatar ? (
+                        <img
+                            src={urlAvatar}
+                            alt={`${fila.nombre} ${fila.apellido}`}
+                            loading="lazy"
+                            onError={(e) => {
+                                e.currentTarget.style.display = "none";
+                                e.currentTarget.parentElement.textContent = iniciales;
+                            }}
+                        />
+                    ) : (
+                        iniciales
+                    )}
+                </div>
+                <div className="admin-card-usuario-info">
+                    <span className="admin-card-nombre">{fila.nombre} {fila.apellido}</span>
+                    <span className="admin-card-email">{fila.email}</span>
+                    <span className={`admin-rol rol-${fila.rol === "Administrador" ? "administrador" : "practicante"}`}>
+                        {fila.rol}
+                    </span>
+                </div>
+                <span
+                    className={`admin-card-check${fila.tieneEntrada ? " admin-card-check-ok" : " admin-card-check-error"}`}
+                    aria-label={fila.tieneEntrada ? "Tiene entrada" : "Sin entrada"}
+                    title={fila.tieneEntrada ? "Tiene entrada" : "Sin entrada"}
+                >
+                    {fila.tieneEntrada ? "✓" : "✗"}
+                </span>
+            </div>
+
+            <div className="admin-card-horarios">
+                <div className="admin-card-horario">
+                    <span>Entrada:</span>
+                    <strong>{formatearHora(fila.entrada)}</strong>
+                </div>
+                <div className="admin-card-horario admin-card-descanso">
+                    <span>Descanso:</span>
+                    <strong>
+                        {formatearHora(fila.breakInicio)} → {formatearHora(fila.breakFin)} ({fila.duracion})
+                    </strong>
+                </div>
+                <div className="admin-card-horario">
+                    <span>Salida:</span>
+                    <strong>{formatearHora(fila.salida)}</strong>
+                </div>
+            </div>
+
+            <div className="admin-card-estado">
+                <span className={`admin-estado estado-${claseEstado(fila.estado)}`}>
+                    {textoEstado(fila.estado)}
+                </span>
+            </div>
+        </article>
+    );
+};
+
 // ── Componente principal ──────────────────────────────
 const AsistenciaAdmin = () => {
+    const esMovil = useEsMovil();
     const [fecha, setFecha] = useState(() => obtenerFechaLocal());
     const [filas, setFilas] = useState([]);
     const [cargandoInicial, setCargandoInicial] = useState(true);
@@ -107,6 +185,8 @@ const AsistenciaAdmin = () => {
                     apellido: (r.usuario_nombre || "").split(" ").slice(1).join(" ") || "",
                     email: r.usuario_email || "",
                     rol: normalizarRol(r.rol),
+                    avatar_url: r.avatar_url || null,   // ← NUEVO
+                    avatarVersion: Date.now(),
                     estado: r.estado || "SIN_ENTRADA",
                     tieneEntrada: Boolean(r.tiene_entrada),
                     entrada: r.entrada,
@@ -348,77 +428,106 @@ const AsistenciaAdmin = () => {
                     )}
                 </div>
 
-                <div className="admin-tabla-scroll">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Usuario</th>
-                                <th>Rol</th>
-                                <th>Entrada</th>
-                                <th>Inicio descanso</th>
-                                <th>Fin descanso</th>
-                                <th>Tiempo descanso</th>
-                                <th>Salida</th>
-                                <th>Estado</th>
-                                <th className="col-check">Check</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {cargandoInicial ? (
+                {esMovil ? (
+                    <div className="admin-cards-lista">
+                        {cargandoInicial ? (
+                            <div className="admin-card-vacia">Cargando registros...</div>
+                        ) : filasFiltradas.length === 0 ? (
+                            <div className="admin-card-vacia">No hay usuarios con esos filtros.</div>
+                        ) : filasFiltradas.map((f) => (
+                            <TarjetaUsuario key={f.id} fila={f} />
+                        ))}
+                    </div>
+                ) : (
+                    <div className="admin-tabla-scroll">
+                        <table>
+                            <thead>
                                 <tr>
-                                    <td colSpan="9" className="admin-tabla-vacia">
-                                        Cargando registros...
-                                    </td>
+                                    <th>Usuario</th>
+                                    <th>Rol</th>
+                                    <th className="col-centrada">Entrada</th>
+                                    <th className="col-centrada">Inicio desc.</th>
+                                    <th className="col-centrada">Fin desc.</th>
+                                    <th className="col-centrada">Duración</th>
+                                    <th className="col-centrada">Salida</th>
+                                    <th>Estado</th>
+                                    <th className="col-check">Check</th>
                                 </tr>
-                            ) : filasFiltradas.length === 0 ? (
-                                <tr>
-                                    <td colSpan="9" className="admin-tabla-vacia">
-                                        No hay usuarios con esos filtros.
-                                    </td>
-                                </tr>
-                            ) : filasFiltradas.map((f) => (
-                                <tr className={!f.tieneEntrada ? "fila-sin-entrada" : ""} key={f.id}>
-                                    <td>
-                                        <div className="admin-usuario">
-                                            <div className="admin-avatar">
-                                                {(f.nombre[0] || "?").toUpperCase()}
-                                                {(f.apellido[0] || "").toUpperCase()}
-                                            </div>
-                                            <div className="admin-usuario-info">
-                                                <span className="admin-usuario-nombre">
-                                                    {f.nombre} {f.apellido}
+                            </thead>
+                            <tbody>
+                                {cargandoInicial ? (
+                                    <tr>
+                                        <td colSpan="9" className="admin-tabla-vacia">
+                                            Cargando registros...
+                                        </td>
+                                    </tr>
+                                ) : filasFiltradas.length === 0 ? (
+                                    <tr>
+                                        <td colSpan="9" className="admin-tabla-vacia">
+                                            No hay usuarios con esos filtros.
+                                        </td>
+                                    </tr>
+                                ) : filasFiltradas.map((f) => {
+                                    const urlAvatar = construirUrlAvatar(f.avatar_url, f.avatarVersion);
+                                    const iniciales = `${(f.nombre[0] || "?").toUpperCase()}${(f.apellido[0] || "").toUpperCase()}`;
+
+                                    return (
+                                        <tr className={!f.tieneEntrada ? "fila-sin-entrada" : ""} key={f.id}>
+                                            <td>
+                                                <div className="admin-usuario">
+                                                    <div className="admin-avatar">
+                                                        {urlAvatar ? (
+                                                            <img
+                                                                src={urlAvatar}
+                                                                alt={`${f.nombre} ${f.apellido}`}
+                                                                loading="lazy"
+                                                                onError={(e) => {
+                                                                    // Si la imagen falla, ocultamos el img para que se vean las iniciales.
+                                                                    e.currentTarget.style.display = "none";
+                                                                    e.currentTarget.parentElement.textContent = iniciales;
+                                                                }}
+                                                            />
+                                                        ) : (
+                                                            iniciales
+                                                        )}
+                                                    </div>
+                                                    <div className="admin-usuario-info">
+                                                        <span className="admin-usuario-nombre">
+                                                            {f.nombre} {f.apellido}
+                                                        </span>
+                                                        <span className="admin-usuario-email">{f.email}</span>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span className={`admin-rol rol-${f.rol === "Administrador" ? "administrador" : "practicante"}`}>
+                                                    {f.rol}
                                                 </span>
-                                                <span className="admin-usuario-email">{f.email}</span>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <span className={`admin-rol rol-${f.rol === "Administrador" ? "administrador" : "practicante"}`}>
-                                            {f.rol}
-                                        </span>
-                                    </td>
-                                    <td className="admin-hora">{formatearHora(f.entrada)}</td>
-                                    <td className="admin-hora">{formatearHora(f.breakInicio)}</td>
-                                    <td className="admin-hora">{formatearHora(f.breakFin)}</td>
-                                    <td className="admin-hora admin-duracion">{f.duracion}</td>
-                                    <td className="admin-hora">{formatearHora(f.salida)}</td>
-                                    <td>
-                                        <span className={`admin-estado estado-${claseEstado(f.estado)}`}>
-                                            {textoEstado(f.estado)}
-                                        </span>
-                                    </td>
-                                    <td className="col-check">
-                                        {f.tieneEntrada ? (
-                                            <CheckCircle size={24} weight="fill" color="#10b981" />
-                                        ) : (
-                                            <XCircle size={24} weight="fill" color="#dc2626" />
-                                        )}
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
+                                            </td>
+                                            <td className="admin-hora">{formatearHora(f.entrada)}</td>
+                                            <td className="admin-hora">{formatearHora(f.breakInicio)}</td>
+                                            <td className="admin-hora">{formatearHora(f.breakFin)}</td>
+                                            <td className="admin-hora admin-duracion">{f.duracion}</td>
+                                            <td className="admin-hora">{formatearHora(f.salida)}</td>
+                                            <td>
+                                                <span className={`admin-estado estado-${claseEstado(f.estado)}`}>
+                                                    {textoEstado(f.estado)}
+                                                </span>
+                                            </td>
+                                            <td className="col-check">
+                                                {f.tieneEntrada ? (
+                                                    <CheckCircle size={20} weight="fill" color="#10b981" />
+                                                ) : (
+                                                    <XCircle size={20} weight="fill" color="#dc2626" />
+                                                )}
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
             </section>
         </div>
     );
