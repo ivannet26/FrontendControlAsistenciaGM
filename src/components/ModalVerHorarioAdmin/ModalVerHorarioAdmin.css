@@ -1,0 +1,104 @@
+.horario-admin-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 12000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3vw;
+    box-sizing: border-box;
+    background: rgba(0, 0, 0, 0.7);
+}
+
+.horario-admin-modal {
+    width: 90vw;
+    max-width: 1200px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid #263740;
+    background: #101b22;
+    color: #d3dde3;
+}
+
+.horario-admin-header {
+    min-height: 64px;
+    padding: 12px 18px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    border-bottom: 1px solid #263740;
+    background: #16242c;
+}
+
+.horario-admin-header h2 {
+    margin: 0;
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.horario-admin-header p {
+    margin: 4px 0 0;
+    color: #9eacb5;
+    font-size: 12px;
+}
+
+.horario-admin-cerrar {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    display: inline-flex;
+    flex: 0 0 36px;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #344650;
+    background: transparent;
+    color: #9eacb5;
+    font-family: inherit;
+    font-size: 25px;
+    font-weight: 400;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.horario-admin-cerrar:hover {
+    border-color: #10a5f5;
+    color: #10a5f5;
+}
+
+.horario-admin-cuerpo {
+    min-height: 220px;
+    padding: 20px;
+    display: flex;
+    flex: 1;
+    align-items: center;
+    justify-content: center;
+    overflow: auto;
+}
+
+.horario-admin-imagen {
+    display: block;
+    max-width: 100%;
+    width: auto;
+    height: auto;
+    max-height: calc(90vh - 110px);
+    margin: 0 auto;
+    object-fit: contain;
+}
+
+.horario-admin-mensaje {
+    margin: 0;
+    color: #9eacb5;
+    font-size: 14px;
+    text-align: center;
+}
+
+@media (max-width: 600px) {
+    .horario-admin-header { padding: 12px; }
+    .horario-admin-header h2 { font-size: 16px; }
+    .horario-admin-cuerpo { padding: 12px; }
+}

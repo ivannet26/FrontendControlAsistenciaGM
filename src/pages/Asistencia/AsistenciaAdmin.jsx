@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import {
     CalendarBlank,
@@ -14,7 +14,9 @@ import {
     obtenerResumenAdminHoy,
     obtenerResumenAdminPorFecha,
 } from "../../services/asistenciaService";
+import { obtenerHorarioDeUsuario } from "../../services/horarioService";
 import { construirUrlAvatar } from "../../hooks/useUsuarioActual";
+import ModalVerHorarioAdmin from "../../components/ModalVerHorarioAdmin/ModalVerHorarioAdmin";
 import "./AsistenciaAdmin.css";
 
 // ── Formateadores ─────────────────────────────────────
@@ -77,7 +79,7 @@ function useEsMovil() {
     return esMovil;
 }
 
-const TarjetaUsuario = ({ fila }) => {
+const TarjetaUsuario = ({ fila, onVerHorario }) => {
     const urlAvatar = construirUrlAvatar(fila.avatar_url, fila.avatarVersion);
     const iniciales = `${(fila.nombre[0] || "?").toUpperCase()}${(fila.apellido[0] || "").toUpperCase()}`;
 
@@ -114,6 +116,15 @@ const TarjetaUsuario = ({ fila }) => {
                     {fila.tieneEntrada ? "✓" : "✗"}
                 </span>
             </div>
+
+            <button
+                type="button"
+                className="btn-ver-horario admin-card-ver-horario"
+                onClick={() => onVerHorario(fila.id, `${fila.nombre} ${fila.apellido}`)}
+                title="Ver horario de este usuario"
+            >
+                Ver horario
+            </button>
 
             <div className="admin-card-horarios">
                 <div className="admin-card-horario">
@@ -157,6 +168,9 @@ const AsistenciaAdmin = () => {
     const [filtroRol, setFiltroRol] = useState("");
     const [filtroEstado, setFiltroEstado] = useState("");
     const [busqueda, setBusqueda] = useState("");
+    const [modalHorarioAbierto, setModalHorarioAbierto] = useState(false);
+    const [horarioUsuario, setHorarioUsuario] = useState(null);
+    const [cargandoHorario, setCargandoHorario] = useState(false);
 
     const hoy = obtenerFechaLocal();
 
@@ -286,6 +300,33 @@ const AsistenciaAdmin = () => {
         setBusqueda("");
         setFecha(hoy);
     };
+
+    const verHorarioUsuario = async (usuarioId, nombreCompleto) => {
+        setCargandoHorario(true);
+        setModalHorarioAbierto(true);
+        setHorarioUsuario({ nombre: nombreCompleto, imagen_url: null });
+
+        try {
+            const data = await obtenerHorarioDeUsuario(usuarioId);
+            setHorarioUsuario({
+                nombre: nombreCompleto,
+                imagen_url: data.imagen_url,
+            });
+        } catch (error) {
+            toast.error(
+                error.response?.data?.detail
+                    || "Ese usuario aún no tiene horario creado."
+            );
+            setModalHorarioAbierto(false);
+        } finally {
+            setCargandoHorario(false);
+        }
+    };
+
+    const cerrarModalHorario = useCallback(() => {
+        setModalHorarioAbierto(false);
+        setHorarioUsuario(null);
+    }, []);
 
     return (
         <div className="admin-asistencia-container">
@@ -435,7 +476,11 @@ const AsistenciaAdmin = () => {
                         ) : filasFiltradas.length === 0 ? (
                             <div className="admin-card-vacia">No hay usuarios con esos filtros.</div>
                         ) : filasFiltradas.map((f) => (
-                            <TarjetaUsuario key={f.id} fila={f} />
+                            <TarjetaUsuario
+                                key={f.id}
+                                fila={f}
+                                onVerHorario={verHorarioUsuario}
+                            />
                         ))}
                     </div>
                 ) : (
@@ -444,6 +489,7 @@ const AsistenciaAdmin = () => {
                             <thead>
                                 <tr>
                                     <th>Usuario</th>
+                                    <th className="col-horario">Horario</th>
                                     <th>Rol</th>
                                     <th className="col-centrada">Entrada</th>
                                     <th className="col-centrada">Inicio desc.</th>
@@ -457,13 +503,13 @@ const AsistenciaAdmin = () => {
                             <tbody>
                                 {cargandoInicial ? (
                                     <tr>
-                                        <td colSpan="9" className="admin-tabla-vacia">
+                                        <td colSpan="10" className="admin-tabla-vacia">
                                             Cargando registros...
                                         </td>
                                     </tr>
                                 ) : filasFiltradas.length === 0 ? (
                                     <tr>
-                                        <td colSpan="9" className="admin-tabla-vacia">
+                                        <td colSpan="10" className="admin-tabla-vacia">
                                             No hay usuarios con esos filtros.
                                         </td>
                                     </tr>
@@ -499,6 +545,19 @@ const AsistenciaAdmin = () => {
                                                     </div>
                                                 </div>
                                             </td>
+                                            <td className="col-horario">
+                                                <button
+                                                    type="button"
+                                                    className="btn-ver-horario"
+                                                    onClick={() => verHorarioUsuario(
+                                                        f.id,
+                                                        `${f.nombre} ${f.apellido}`
+                                                    )}
+                                                    title="Ver horario de este usuario"
+                                                >
+                                                    Ver horario
+                                                </button>
+                                            </td>
                                             <td>
                                                 <span className={`admin-rol rol-${f.rol === "Administrador" ? "administrador" : "practicante"}`}>
                                                     {f.rol}
@@ -529,6 +588,15 @@ const AsistenciaAdmin = () => {
                     </div>
                 )}
             </section>
+            {modalHorarioAbierto && (
+                <ModalVerHorarioAdmin
+                    abierto={modalHorarioAbierto}
+                    usuarioNombre={horarioUsuario?.nombre}
+                    imagenUrl={horarioUsuario?.imagen_url}
+                    cargando={cargandoHorario}
+                    onCerrar={cerrarModalHorario}
+                />
+            )}
         </div>
     );
 };

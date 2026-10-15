@@ -13,7 +13,7 @@ const DIAS_SEMANA = [
     { numero: 7, nombre: "Dom", completo: "Domingo" },
 ];
 
-const HORAS_POSIBLES = Array.from({ length: 16 }, (_, indice) => indice + 6);
+const HORAS_POSIBLES = Array.from({ length: 17 }, (_, indice) => indice + 6);
 
 const ModalCrearHorario = ({ horario, onClose, onSaved }) => {
     const [diasActivos, setDiasActivos] = useState(() => DIAS_SEMANA.map((dia) => dia.numero));

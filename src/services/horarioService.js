@@ -42,3 +42,11 @@ export const descargarHorarioBlob = async () => {
 
     return response.blob();
 };
+
+export async function obtenerHorarioDeUsuario(usuarioId) {
+    const response = await axios.get(
+        `${API_URL}/usuarios/${usuarioId}/imagen`,
+        getAuthHeaders()
+    );
+    return response.data;
+}

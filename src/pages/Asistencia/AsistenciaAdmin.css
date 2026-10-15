@@ -333,6 +333,12 @@
 
 .admin-tabla-container th.col-centrada { text-align: center; }
 
+.admin-tabla-container .col-horario {
+    width: 13%;
+    padding: 0 4px;
+    text-align: center;
+}
+
 .admin-tabla-container td {
     padding: 12px 14px;
     border-top: 1px solid #263740;
@@ -348,23 +354,49 @@
 }
 
 .admin-tabla-container th:nth-child(1),
-.admin-tabla-container td:nth-child(1) { width: 20%; }
+.admin-tabla-container td:nth-child(1) { width: 17%; }
 .admin-tabla-container th:nth-child(2),
-.admin-tabla-container td:nth-child(2) { width: 10%; }
+.admin-tabla-container td:nth-child(2) { width: 13%; }
 .admin-tabla-container th:nth-child(3),
-.admin-tabla-container td:nth-child(3) { width: 9%; }
+.admin-tabla-container td:nth-child(3) { width: 10%; }
 .admin-tabla-container th:nth-child(4),
-.admin-tabla-container td:nth-child(4) { width: 11%; }
+.admin-tabla-container td:nth-child(4) { width: 8%; }
 .admin-tabla-container th:nth-child(5),
-.admin-tabla-container td:nth-child(5) { width: 11%; }
+.admin-tabla-container td:nth-child(5) { width: 8%; }
 .admin-tabla-container th:nth-child(6),
-.admin-tabla-container td:nth-child(6) { width: 9%; }
+.admin-tabla-container td:nth-child(6) { width: 8%; }
 .admin-tabla-container th:nth-child(7),
 .admin-tabla-container td:nth-child(7) { width: 9%; }
 .admin-tabla-container th:nth-child(8),
-.admin-tabla-container td:nth-child(8) { width: 13%; }
+.admin-tabla-container td:nth-child(8) { width: 8%; }
 .admin-tabla-container th:nth-child(9),
-.admin-tabla-container td:nth-child(9) { width: 8%; text-align: center; }
+.admin-tabla-container td:nth-child(9) { width: 13%; }
+.admin-tabla-container th:nth-child(10),
+.admin-tabla-container td:nth-child(10) { width: 6%; text-align: center; }
+
+.btn-ver-horario {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    width: 100%;
+    max-width: 110px;
+    padding: 6px 10px;
+    border: 1px solid #344650;
+    background: transparent;
+    color: #b5c4cc;
+    font-family: inherit;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+}
+
+.btn-ver-horario:hover {
+    border-color: #10a5f5;
+    color: #10a5f5;
+    background: rgba(16, 165, 245, 0.08);
+}
 
 .admin-tabla-container tbody tr { transition: all 0.15s ease; }
 .admin-tabla-container tbody tr:hover { background: #1d303a; }
@@ -619,6 +651,12 @@
 
 .admin-card-estado {
     margin-top: 13px;
+}
+
+.admin-card-ver-horario {
+    margin-top: 12px;
+    padding: 7px 10px;
+    font-size: 11px;
 }
 
 @media (max-width: 900px) {
