@@ -4,7 +4,7 @@ import { construirUrlAvatar, useUsuarioActual } from "../../hooks/useUsuarioActu
 import "./ProfileMenu.css";
 
 const URL_DESCARGA =
-  "https://github.com/ivannet26/ControlAsistenciaDesktopGM/releases/download/bckend/ControlAsistencia_Setup_v1.0.5.exe";
+  "https://github.com/ivannet26/ControlAsistenciaDesktopGM/releases/download/bckend/ControlAsistencia_Setup_v1.0.6.exe";
 
 function ProfileMenu() {
   const navigate = useNavigate();
