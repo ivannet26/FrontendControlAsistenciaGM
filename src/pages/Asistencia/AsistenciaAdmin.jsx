@@ -4,7 +4,6 @@ import {
     CalendarBlank,
     ArrowClockwise,
     CheckCircle,
-    Clock,
     MagnifyingGlass,
     XCircle,
 } from "@phosphor-icons/react";
@@ -14,8 +13,10 @@ import {
     obtenerResumenAdminPorFecha,
 } from "../../services/asistenciaService";
 import { obtenerHorarioDeUsuario } from "../../services/horarioService";
+import { obtenerTodas as obtenerTodasLasJustificaciones } from "../../services/justificacionesService";
 import { construirUrlAvatar } from "../../hooks/useUsuarioActual";
 import ModalVerHorarioAdmin from "../../components/ModalVerHorarioAdmin/ModalVerHorarioAdmin";
+import ModalVerJustificacion from "../../components/ModalVerJustificacion/ModalVerJustificacion";
 import "./AsistenciaAdmin.css";
 
 // ── Formateadores ─────────────────────────────────────
@@ -39,25 +40,19 @@ const formatearDuracion = (segundos) => {
     return [h, m, s].map((n) => String(n).padStart(2, "0")).join(":");
 };
 
-// Estado del día calculado por el backend (tolerancia, faltas y justificaciones).
-const TEXTO_ESTADO_DIA = {
-    A_TIEMPO: "A tiempo",
-    TARDANZA: "Tardanza",
-    TARDANZA_GRAVE: "Tardanza",
-    FALTA: "Falta",
-    FALTA_JUSTIFICADA: "Falta justificada",
-    TARDANZA_JUSTIFICADA: "Tardanza justificada",
-};
+const textoEstado = (estado) => ({
+    SIN_ENTRADA: "Sin entrada",
+    TRABAJANDO: "Trabajando",
+    EN_BREAK: "En descanso",
+    FINALIZADO: "Finalizado",
+}[estado] || "Sin entrada");
 
-const textoEstadoDia = (estado, minutosTarde) => {
-    if (estado === "TARDANZA" || estado === "TARDANZA_GRAVE") {
-        return minutosTarde === null || minutosTarde === undefined
-            ? "Tardanza"
-            : `Tardanza · ${minutosTarde} min`;
-    }
-
-    return TEXTO_ESTADO_DIA[estado] || "—";
-};
+const claseEstado = (estado) => ({
+    SIN_ENTRADA: "sin-entrada",
+    TRABAJANDO: "trabajando",
+    EN_BREAK: "en-break",
+    FINALIZADO: "finalizado",
+}[estado] || "sin-entrada");
 
 const normalizarRol = (rol) => {
     const r = (rol || "").toUpperCase();
@@ -84,7 +79,7 @@ function useEsMovil() {
     return esMovil;
 }
 
-const TarjetaUsuario = ({ fila, onVerHorario }) => {
+const TarjetaUsuario = ({ fila, onVerHorario, justificacion, onVerJustificacion }) => {
     const urlAvatar = construirUrlAvatar(fila.avatar_url, fila.avatarVersion);
     const iniciales = `${(fila.nombre[0] || "?").toUpperCase()}${(fila.apellido[0] || "").toUpperCase()}`;
 
@@ -149,20 +144,24 @@ const TarjetaUsuario = ({ fila, onVerHorario }) => {
             </div>
 
             <div className="admin-card-estado">
-                <span className="admin-card-estado-label">Estado del día</span>
-                <span className="admin-estado-dia">
-                    {textoEstadoDia(fila.estadoDia, fila.minutosTarde)}
-                    {fila.justificacionPendiente && (
-                        <span
-                            className="admin-estado-reloj"
-                            role="img"
-                            aria-label="Justificación pendiente"
-                            title="Justificación pendiente"
-                        >
-                            <Clock size={13} weight="bold" aria-hidden="true" />
-                        </span>
-                    )}
+                <span className={`admin-estado estado-${claseEstado(fila.estado)}`}>
+                    {textoEstado(fila.estado)}
                 </span>
+            </div>
+
+            <div className="admin-card-justificacion">
+                <span className="admin-card-justificacion-label">Justificación</span>
+                {justificacion ? (
+                    <button
+                        type="button"
+                        className="btn-ver-justificacion"
+                        onClick={() => onVerJustificacion(justificacion)}
+                    >
+                        Ver justificación
+                    </button>
+                ) : (
+                    <span className="admin-sin-justificacion">---</span>
+                )}
             </div>
         </article>
     );
@@ -187,6 +186,8 @@ const AsistenciaAdmin = () => {
     const [modalHorarioAbierto, setModalHorarioAbierto] = useState(false);
     const [horarioUsuario, setHorarioUsuario] = useState(null);
     const [cargandoHorario, setCargandoHorario] = useState(false);
+    const [justificacionesAceptadas, setJustificacionesAceptadas] = useState([]);
+    const [justificacionVer, setJustificacionVer] = useState(null);
 
     const hoy = obtenerFechaLocal();
 
@@ -218,15 +219,6 @@ const AsistenciaAdmin = () => {
                     avatar_url: r.avatar_url || null,   // ← NUEVO
                     avatarVersion: Date.now(),
                     estado: r.estado || "SIN_ENTRADA",
-                    estadoDia: String(
-                        r.estado_dia || r.estado_asistencia || ""
-                    ).toUpperCase(),
-                    minutosTarde: r.minutos_tarde ?? r.minutosTardanza ?? null,
-                    justificacionPendiente: Boolean(
-                        r.justificacion_pendiente
-                        ?? r.tiene_justificacion_pendiente
-                        ?? r.pendiente_justificacion
-                    ),
                     tieneEntrada: Boolean(r.tiene_entrada),
                     entrada: r.entrada,
                     breakInicio: r.break_inicio,
@@ -281,10 +273,63 @@ const AsistenciaAdmin = () => {
         };
     }, [fecha, hoy]);
 
+    // Justificaciones aceptadas de la fecha elegida: solo se muestran las aprobadas.
+    useEffect(() => {
+        let cancelado = false;
+
+        const cargarJustificaciones = async () => {
+            try {
+                const datos = await obtenerTodasLasJustificaciones({
+                    estado: "ACEPTADA",
+                    desde: fecha,
+                    hasta: fecha,
+                });
+                if (cancelado) return;
+                setJustificacionesAceptadas(Array.isArray(datos) ? datos : []);
+            } catch {
+                if (!cancelado) setJustificacionesAceptadas([]);
+            }
+        };
+
+        void cargarJustificaciones();
+
+        return () => {
+            cancelado = true;
+        };
+    }, [fecha]);
+
     useEffect(() => {
         const intervalo = window.setInterval(() => setRelojActualizacion(Date.now()), 1000);
         return () => window.clearInterval(intervalo);
     }, []);
+
+    // Índice por usuario y por correo para resolver la justificación de cada fila.
+    const indiceJustificaciones = useMemo(() => {
+        const porUsuario = new Map();
+        const porCorreo = new Map();
+
+        justificacionesAceptadas.forEach((justificacion) => {
+            if (justificacion.estado !== "ACEPTADA") return;
+            if (String(justificacion.fecha || "").slice(0, 10) !== fecha) return;
+
+            if (justificacion.usuario_id !== null && justificacion.usuario_id !== undefined) {
+                porUsuario.set(Number(justificacion.usuario_id), justificacion);
+            }
+            if (justificacion.correo) {
+                porCorreo.set(String(justificacion.correo).toLowerCase(), justificacion);
+            }
+        });
+
+        return { porUsuario, porCorreo };
+    }, [justificacionesAceptadas, fecha]);
+
+    const buscarJustificacion = (fila) => {
+        const porId = indiceJustificaciones.porUsuario.get(Number(fila.id));
+        if (porId) return porId;
+
+        const correo = String(fila.email || "").toLowerCase();
+        return correo ? indiceJustificaciones.porCorreo.get(correo) || null : null;
+    };
 
     // ── Filtrado ───────────────────────────────────────
     const filasFiltradas = useMemo(() => {
@@ -458,6 +503,8 @@ const AsistenciaAdmin = () => {
                             <TarjetaUsuario
                                 key={f.id}
                                 fila={f}
+                                justificacion={buscarJustificacion(f)}
+                                onVerJustificacion={setJustificacionVer}
                                 onVerHorario={verHorarioUsuario}
                             />
                         ))}
@@ -476,25 +523,27 @@ const AsistenciaAdmin = () => {
                                     <th className="col-centrada">Duración</th>
                                     <th className="col-centrada">Salida</th>
                                     <th>Estado</th>
+                                    <th className="col-justificacion">Justificación</th>
                                     <th className="col-check">Check</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {cargandoInicial ? (
                                     <tr>
-                                        <td colSpan="10" className="admin-tabla-vacia">
+                                        <td colSpan="11" className="admin-tabla-vacia">
                                             Cargando registros...
                                         </td>
                                     </tr>
                                 ) : filasFiltradas.length === 0 ? (
                                     <tr>
-                                        <td colSpan="10" className="admin-tabla-vacia">
+                                        <td colSpan="11" className="admin-tabla-vacia">
                                             No hay usuarios con esos filtros.
                                         </td>
                                     </tr>
                                 ) : filasFiltradas.map((f) => {
                                     const urlAvatar = construirUrlAvatar(f.avatar_url, f.avatarVersion);
                                     const iniciales = `${(f.nombre[0] || "?").toUpperCase()}${(f.apellido[0] || "").toUpperCase()}`;
+                                    const justificacion = buscarJustificacion(f);
 
                                     return (
                                         <tr className={!f.tieneEntrada ? "fila-sin-entrada" : ""} key={f.id}>
@@ -548,19 +597,22 @@ const AsistenciaAdmin = () => {
                                             <td className="admin-hora admin-duracion">{f.duracion}</td>
                                             <td className="admin-hora">{formatearHora(f.salida)}</td>
                                             <td>
-                                                <span className="admin-estado-dia">
-                                                    {textoEstadoDia(f.estadoDia, f.minutosTarde)}
-                                                    {f.justificacionPendiente && (
-                                                        <span
-                                                            className="admin-estado-reloj"
-                                                            role="img"
-                                                            aria-label="Justificación pendiente"
-                                                            title="Justificación pendiente"
-                                                        >
-                                                            <Clock size={13} weight="bold" aria-hidden="true" />
-                                                        </span>
-                                                    )}
+                                                <span className={`admin-estado estado-${claseEstado(f.estado)}`}>
+                                                    {textoEstado(f.estado)}
                                                 </span>
+                                            </td>
+                                            <td className="col-justificacion">
+                                                {justificacion ? (
+                                                    <button
+                                                        type="button"
+                                                        className="btn-ver-justificacion"
+                                                        onClick={() => setJustificacionVer(justificacion)}
+                                                    >
+                                                        Ver justificación
+                                                    </button>
+                                                ) : (
+                                                    <span className="admin-sin-justificacion">---</span>
+                                                )}
                                             </td>
                                             <td className="col-check">
                                                 {f.tieneEntrada ? (
@@ -584,6 +636,13 @@ const AsistenciaAdmin = () => {
                     imagenUrl={horarioUsuario?.imagen_url}
                     cargando={cargandoHorario}
                     onCerrar={cerrarModalHorario}
+                />
+            )}
+            {justificacionVer && (
+                <ModalVerJustificacion
+                    abierto={Boolean(justificacionVer)}
+                    justificacion={justificacionVer}
+                    onCerrar={() => setJustificacionVer(null)}
                 />
             )}
         </div>
