@@ -1,6 +1,9 @@
 // src/components/MisJustificaciones/MisJustificaciones.jsx
-import { FilePlus, NoteBlank } from "@phosphor-icons/react";
+import { useState } from "react";
+import { CaretLeft, CaretRight, FilePlus, NoteBlank } from "@phosphor-icons/react";
 import "./MisJustificaciones.css";
+
+const POR_PAGINA = 10;
 
 const TEXTO_TIPO = {
     TARDANZA: "Tardanza",
@@ -22,30 +25,78 @@ const formatearFecha = (fechaIso) => {
     return `${dia}/${mes}/${año}`;
 };
 
+// El tipo y los minutos comparten un mismo chip neutro: "Tardanza · 45 min".
+const textoTipo = (justificacion) => {
+    const nombre = TEXTO_TIPO[justificacion.tipo] || "Justificación";
+    const minutos = justificacion.minutos_tarde;
+
+    if (justificacion.tipo !== "TARDANZA" || minutos === null || minutos === undefined) {
+        return nombre;
+    }
+
+    return `${nombre} · ${minutos} min`;
+};
+
 const MisJustificaciones = ({
     justificaciones = [],
     cargando = false,
     error = "",
     onJustificarFalta,
 }) => {
+    const [pagina, setPagina] = useState(1);
+
     const lista = Array.isArray(justificaciones) ? justificaciones : [];
+    const totalPaginas = Math.max(1, Math.ceil(lista.length / POR_PAGINA));
+    const paginaActual = Math.min(pagina, totalPaginas);
+    const listaPagina = lista.slice(
+        (paginaActual - 1) * POR_PAGINA,
+        paginaActual * POR_PAGINA
+    );
 
     return (
         <section className="mis-justificaciones" aria-labelledby="mis-justificaciones-titulo">
             <header className="mis-justificaciones-header">
-                <div>
+                <div className="mis-justificaciones-titulo">
                     <h2 id="mis-justificaciones-titulo">Mis justificaciones</h2>
                     <p>Revisa el estado de las tardanzas, faltas y olvidos que enviaste.</p>
                 </div>
 
-                <button
-                    type="button"
-                    className="mis-justificaciones-boton"
-                    onClick={onJustificarFalta}
-                >
-                    <FilePlus size={17} weight="bold" aria-hidden="true" />
-                    Justificar una falta
-                </button>
+                <div className="mis-justificaciones-acciones-cabecera">
+                    {lista.length > 0 && (
+                        <div className="mis-justificaciones-paginacion">
+                            <button
+                                type="button"
+                                className="mis-justificaciones-pagina-boton"
+                                onClick={() => setPagina(paginaActual - 1)}
+                                disabled={paginaActual <= 1}
+                                aria-label="Página anterior"
+                            >
+                                <CaretLeft size={12} weight="bold" aria-hidden="true" />
+                            </button>
+                            <span className="mis-justificaciones-pagina-texto">
+                                {paginaActual} de {totalPaginas}
+                            </span>
+                            <button
+                                type="button"
+                                className="mis-justificaciones-pagina-boton"
+                                onClick={() => setPagina(paginaActual + 1)}
+                                disabled={paginaActual >= totalPaginas}
+                                aria-label="Página siguiente"
+                            >
+                                <CaretRight size={12} weight="bold" aria-hidden="true" />
+                            </button>
+                        </div>
+                    )}
+
+                    <button
+                        type="button"
+                        className="mis-justificaciones-boton"
+                        onClick={onJustificarFalta}
+                    >
+                        <FilePlus size={17} weight="bold" aria-hidden="true" />
+                        Justificar una falta
+                    </button>
+                </div>
             </header>
 
             {error && (
@@ -63,13 +114,13 @@ const MisJustificaciones = ({
                 </div>
             ) : (
                 <ul className="mis-justificaciones-lista">
-                    {lista.map((justificacion) => {
+                    {listaPagina.map((justificacion) => {
                         const estado = justificacion.estado || "PENDIENTE";
 
                         return (
                             <li className="mis-justificaciones-item" key={justificacion.id}>
-                                <span className={`mis-justificaciones-tipo tipo-${(justificacion.tipo || "").toLowerCase()}`}>
-                                    {TEXTO_TIPO[justificacion.tipo] || "Justificación"}
+                                <span className="mis-justificaciones-tipo">
+                                    {textoTipo(justificacion)}
                                 </span>
 
                                 <span className="mis-justificaciones-fecha">
@@ -80,7 +131,7 @@ const MisJustificaciones = ({
                                     {justificacion.asunto || "Sin asunto"}
                                 </span>
 
-                                <span className={`mis-justificaciones-estado estado-${estado.toLowerCase()}`}>
+                                <span className="mis-justificaciones-estado">
                                     {TEXTO_ESTADO[estado] || estado}
                                 </span>
                             </li>

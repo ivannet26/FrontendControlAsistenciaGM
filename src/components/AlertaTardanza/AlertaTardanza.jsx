@@ -50,7 +50,7 @@ const AlertaTardanza = ({
 
     return (
         <section
-            className={`alerta-tardanza${esGrave ? " alerta-tardanza-grave" : ""}`}
+            className="alerta-tardanza"
             role="alert"
             aria-labelledby="alerta-tardanza-titulo"
         >

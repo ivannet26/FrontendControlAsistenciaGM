@@ -2,24 +2,19 @@
 import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import toast from "react-hot-toast";
-import {
-    CheckCircle,
-    Clock,
-    NotePencil,
-    Paperclip,
-    X,
-    XCircle,
-} from "@phosphor-icons/react";
+import { Paperclip, X } from "@phosphor-icons/react";
 import { obtenerTodas, resolver as resolverJustificacion } from "../../services/justificacionesService";
 import { useJustificaciones } from "../../hooks/useJustificaciones";
 import ModalConfirm from "../../components/ModalConfirm/ModalConfirm";
 import "./Justificaciones.css";
 
-const PESTANAS = [
-    { id: "PENDIENTE", texto: "Pendientes" },
-    { id: "ACEPTADA", texto: "Aceptadas" },
-    { id: "RECHAZADA", texto: "Rechazadas" },
-    { id: "TODAS", texto: "Todas" },
+const POR_PAGINA = 10;
+
+const OPCIONES_ESTADO = [
+    { valor: "PENDIENTE", texto: "Pendientes" },
+    { valor: "ACEPTADA", texto: "Aceptadas" },
+    { valor: "RECHAZADA", texto: "Rechazadas" },
+    { valor: "TODAS", texto: "Todas" },
 ];
 
 const TEXTO_TIPO = {
@@ -34,19 +29,6 @@ const TEXTO_ESTADO = {
     RECHAZADA: "Rechazada",
 };
 
-const fechaLocal = (fecha = new Date()) => {
-    const año = fecha.getFullYear();
-    const mes = String(fecha.getMonth() + 1).padStart(2, "0");
-    const dia = String(fecha.getDate()).padStart(2, "0");
-    return `${año}-${mes}-${dia}`;
-};
-
-const fechaHaceDias = (dias) => {
-    const fecha = new Date();
-    fecha.setDate(fecha.getDate() - dias);
-    return fechaLocal(fecha);
-};
-
 const formatearFecha = (fechaIso) => {
     if (!fechaIso) return "—";
 
@@ -55,11 +37,17 @@ const formatearFecha = (fechaIso) => {
     return `${dia}/${mes}/${año}`;
 };
 
-const minutosTardanza = (justificacion) => (
-    justificacion.tipo !== "TARDANZA" || justificacion.minutos_tarde === null || justificacion.minutos_tarde === undefined
-        ? "—"
-        : `${justificacion.minutos_tarde} min`
-);
+// El tipo y los minutos comparten un mismo chip neutro: "Tardanza · 45 min".
+const textoTipo = (justificacion) => {
+    const nombre = TEXTO_TIPO[justificacion.tipo] || "Justificación";
+    const minutos = justificacion.minutos_tarde;
+
+    if (justificacion.tipo !== "TARDANZA" || minutos === null || minutos === undefined) {
+        return nombre;
+    }
+
+    return `${nombre} · ${minutos} min`;
+};
 
 const obtenerMensajeError = (error, mensajePredeterminado) => {
     const detalle = error?.response?.data?.detail;
@@ -71,7 +59,7 @@ const TarjetaJustificacion = ({ justificacion, onAmpliar, onResolver }) => {
     const estado = justificacion.estado || "PENDIENTE";
 
     return (
-        <article className={`justificaciones-card${estado === "PENDIENTE" ? " justificaciones-card-pendiente" : ""}`}>
+        <article className="justificaciones-card">
             <header className="justificaciones-card-header">
                 <div className="justificaciones-card-usuario">
                     <span>{justificacion.usuario || "Usuario"}</span>
@@ -79,7 +67,7 @@ const TarjetaJustificacion = ({ justificacion, onAmpliar, onResolver }) => {
                         <span className="justificaciones-card-correo">{justificacion.correo}</span>
                     )}
                 </div>
-                <span className={`justificaciones-estado estado-${estado.toLowerCase()}`}>
+                <span className="justificaciones-estado">
                     {TEXTO_ESTADO[estado] || estado}
                 </span>
             </header>
@@ -87,15 +75,13 @@ const TarjetaJustificacion = ({ justificacion, onAmpliar, onResolver }) => {
             <dl className="justificaciones-card-datos">
                 <div>
                     <dt>Tipo</dt>
-                    <dd>{TEXTO_TIPO[justificacion.tipo] || "—"}</dd>
+                    <dd>
+                        <span className="justificaciones-tipo">{textoTipo(justificacion)}</span>
+                    </dd>
                 </div>
                 <div>
                     <dt>Fecha</dt>
                     <dd>{formatearFecha(justificacion.fecha)}</dd>
-                </div>
-                <div>
-                    <dt>Minutos</dt>
-                    <dd>{minutosTardanza(justificacion)}</dd>
                 </div>
             </dl>
 
@@ -108,11 +94,10 @@ const TarjetaJustificacion = ({ justificacion, onAmpliar, onResolver }) => {
                 {justificacion.evidencia_url ? (
                     <button
                         type="button"
-                        className="justificaciones-miniatura"
+                        className="justificaciones-ver-imagen"
                         onClick={() => onAmpliar(justificacion)}
-                        aria-label={`Ampliar adjunto de ${justificacion.usuario || "la justificación"}`}
                     >
-                        <img src={justificacion.evidencia_url} alt="" loading="lazy" />
+                        Ver imagen
                     </button>
                 ) : (
                     <span className="justificaciones-sin-adjunto">Sin adjunto</span>
@@ -142,48 +127,31 @@ const TarjetaJustificacion = ({ justificacion, onAmpliar, onResolver }) => {
 };
 
 const Justificaciones = () => {
-    const [pestana, setPestana] = useState("PENDIENTE");
+    const [estadoFiltro, setEstadoFiltro] = useState("PENDIENTE");
     const [filtroUsuario, setFiltroUsuario] = useState("");
     const [desde, setDesde] = useState("");
     const [hasta, setHasta] = useState("");
+    const [pagina, setPagina] = useState(1);
     const [usuarios, setUsuarios] = useState([]);
     const [confirmacion, setConfirmacion] = useState(null);
     const [resolviendo, setResolviendo] = useState(false);
     const [imagenAmpliada, setImagenAmpliada] = useState(null);
 
-    const hoy = fechaLocal();
-    const desdeSemana = fechaHaceDias(6);
-
     const filtros = useMemo(() => ({
-        estado: pestana === "TODAS" ? "" : pestana,
+        estado: estadoFiltro === "TODAS" ? "" : estadoFiltro,
         usuario_id: filtroUsuario ? Number(filtroUsuario) : "",
         desde,
         hasta,
-    }), [pestana, filtroUsuario, desde, hasta]);
-
-    const filtrosResumen = useMemo(() => ({
-        desde: desdeSemana,
-        hasta: hoy,
-    }), [desdeSemana, hoy]);
+    }), [estadoFiltro, filtroUsuario, desde, hasta]);
 
     const {
         justificaciones,
         cargando,
         error,
-        pendientes,
         recargar,
     } = useJustificaciones({
         fuente: "todas",
         filtros,
-        conContador: true,
-    });
-
-    const {
-        justificaciones: justificacionesSemana,
-        recargar: recargarResumen,
-    } = useJustificaciones({
-        fuente: "todas",
-        filtros: filtrosResumen,
     });
 
     // Opciones del filtro por usuario: se toman de las justificaciones recibidas.
@@ -226,21 +194,17 @@ const Justificaciones = () => {
         return () => document.removeEventListener("keydown", cerrarConEscape);
     }, [imagenAmpliada]);
 
-    const resumen = useMemo(() => {
-        const lista = Array.isArray(justificacionesSemana) ? justificacionesSemana : [];
-
-        return {
-            faltasJustificadas: lista.filter((fila) => fila.tipo === "FALTA" && fila.estado === "ACEPTADA").length,
-            faltasSinJustificar: lista.filter((fila) => fila.tipo === "FALTA" && fila.estado === "RECHAZADA").length,
-            tardanzas: lista.filter((fila) => fila.tipo === "TARDANZA").length,
-            olvidos: lista.filter((fila) => fila.tipo === "OLVIDO_MARCAR").length,
-        };
-    }, [justificacionesSemana]);
-
     const limpiarFiltros = () => {
+        setEstadoFiltro("PENDIENTE");
         setFiltroUsuario("");
         setDesde("");
         setHasta("");
+        setPagina(1);
+    };
+
+    const cambiarFiltro = (actualizar) => (evento) => {
+        actualizar(evento.target.value);
+        setPagina(1);
     };
 
     const abrirConfirmacion = (justificacion, estado) => {
@@ -263,10 +227,7 @@ const Justificaciones = () => {
                     : "Justificación rechazada."
             );
             setConfirmacion(null);
-            await Promise.all([
-                recargar({ silencioso: true }),
-                recargarResumen(),
-            ]);
+            await recargar({ silencioso: true });
         } catch (errorResolucion) {
             toast.error(obtenerMensajeError(
                 errorResolucion,
@@ -278,6 +239,14 @@ const Justificaciones = () => {
     };
 
     const lista = Array.isArray(justificaciones) ? justificaciones : [];
+    const totalPaginas = Math.max(1, Math.ceil(lista.length / POR_PAGINA));
+    const paginaActual = Math.min(pagina, totalPaginas);
+    const listaPagina = lista.slice(
+        (paginaActual - 1) * POR_PAGINA,
+        paginaActual * POR_PAGINA
+    );
+    const contador = `${lista.length} ${lista.length === 1 ? "justificación" : "justificaciones"}`;
+    const filtrosActivos = Boolean(filtroUsuario || desde || hasta) || estadoFiltro !== "PENDIENTE";
 
     return (
         <div className="justificaciones-container">
@@ -289,52 +258,6 @@ const Justificaciones = () => {
                 </p>
             </header>
 
-            <section className="justificaciones-resumen" aria-label="Resumen semanal">
-                <div className="justificaciones-resumen-card resumen-verde">
-                    <span className="justificaciones-resumen-icono" aria-hidden="true">
-                        <CheckCircle size={22} weight="duotone" />
-                    </span>
-                    <div className="justificaciones-resumen-datos">
-                        <span className="justificaciones-resumen-label">Faltas justificadas</span>
-                        <span className="justificaciones-resumen-valor">{resumen.faltasJustificadas}</span>
-                    </div>
-                </div>
-
-                <div className="justificaciones-resumen-card resumen-rojo">
-                    <span className="justificaciones-resumen-icono" aria-hidden="true">
-                        <XCircle size={22} weight="duotone" />
-                    </span>
-                    <div className="justificaciones-resumen-datos">
-                        <span className="justificaciones-resumen-label">Faltas sin justificar</span>
-                        <span className="justificaciones-resumen-valor">{resumen.faltasSinJustificar}</span>
-                    </div>
-                </div>
-
-                <div className="justificaciones-resumen-card resumen-amarillo">
-                    <span className="justificaciones-resumen-icono" aria-hidden="true">
-                        <Clock size={22} weight="duotone" />
-                    </span>
-                    <div className="justificaciones-resumen-datos">
-                        <span className="justificaciones-resumen-label">Tardanzas</span>
-                        <span className="justificaciones-resumen-valor">{resumen.tardanzas}</span>
-                    </div>
-                </div>
-
-                <div className="justificaciones-resumen-card resumen-azul">
-                    <span className="justificaciones-resumen-icono" aria-hidden="true">
-                        <NotePencil size={22} weight="duotone" />
-                    </span>
-                    <div className="justificaciones-resumen-datos">
-                        <span className="justificaciones-resumen-label">Olvidos</span>
-                        <span className="justificaciones-resumen-valor">{resumen.olvidos}</span>
-                    </div>
-                </div>
-            </section>
-
-            <p className="justificaciones-resumen-nota">
-                Resumen de los últimos 7 días, según la fecha de cada justificación.
-            </p>
-
             <section className="justificaciones-filtros" aria-label="Filtros de justificaciones">
                 <span className="justificaciones-filtros-titulo">FILTRAR</span>
 
@@ -343,7 +266,7 @@ const Justificaciones = () => {
                     <select
                         id="justificaciones-usuario"
                         value={filtroUsuario}
-                        onChange={(evento) => setFiltroUsuario(evento.target.value)}
+                        onChange={cambiarFiltro(setFiltroUsuario)}
                     >
                         <option value="">Todos los usuarios</option>
                         {usuarios.map((usuario) => (
@@ -355,13 +278,29 @@ const Justificaciones = () => {
                 </div>
 
                 <div className="justificaciones-filtro">
+                    <label htmlFor="justificaciones-estado">Estado</label>
+                    <select
+                        id="justificaciones-estado"
+                        value={estadoFiltro}
+                        onChange={cambiarFiltro(setEstadoFiltro)}
+                    >
+                        {OPCIONES_ESTADO.map((opcion) => (
+                            <option key={opcion.valor} value={opcion.valor}>
+                                {opcion.texto}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+
+                <div className="justificaciones-filtro">
                     <label htmlFor="justificaciones-desde">Desde</label>
                     <input
                         id="justificaciones-desde"
                         type="date"
+                        lang="es-PE"
                         value={desde}
                         max={hasta || undefined}
-                        onChange={(evento) => setDesde(evento.target.value)}
+                        onChange={cambiarFiltro(setDesde)}
                     />
                 </div>
 
@@ -370,9 +309,10 @@ const Justificaciones = () => {
                     <input
                         id="justificaciones-hasta"
                         type="date"
+                        lang="es-PE"
                         value={hasta}
                         min={desde || undefined}
-                        onChange={(evento) => setHasta(evento.target.value)}
+                        onChange={cambiarFiltro(setHasta)}
                     />
                 </div>
 
@@ -380,39 +320,23 @@ const Justificaciones = () => {
                     type="button"
                     className="justificaciones-limpiar"
                     onClick={limpiarFiltros}
-                    disabled={!filtroUsuario && !desde && !hasta}
+                    disabled={!filtrosActivos}
                 >
                     Limpiar filtros
                 </button>
             </section>
 
-            <div className="justificaciones-tabs" role="tablist" aria-label="Estado de las justificaciones">
-                {PESTANAS.map((opcion) => (
-                    <button
-                        key={opcion.id}
-                        type="button"
-                        role="tab"
-                        id={`justificaciones-tab-${opcion.id.toLowerCase()}`}
-                        aria-selected={pestana === opcion.id}
-                        aria-controls="justificaciones-panel"
-                        className={`justificaciones-tab${pestana === opcion.id ? " justificaciones-tab-activa" : ""}`}
-                        onClick={() => setPestana(opcion.id)}
-                    >
-                        {opcion.texto}
-                        {opcion.id === "PENDIENTE" && pendientes > 0 && (
-                            <span className="justificaciones-tab-contador">{pendientes}</span>
-                        )}
-                    </button>
-                ))}
-            </div>
-
             <section
                 className="justificaciones-panel"
-                id="justificaciones-panel"
-                role="tabpanel"
-                aria-labelledby={`justificaciones-tab-${pestana.toLowerCase()}`}
                 aria-busy={cargando}
+                aria-label="Lista de justificaciones"
             >
+                {!cargando && lista.length > 0 && (
+                    <div className="justificaciones-panel-header">
+                        <span className="justificaciones-contador">{contador}</span>
+                    </div>
+                )}
+
                 {error && (
                     <p className="justificaciones-error" role="alert">{error}</p>
                 )}
@@ -431,17 +355,15 @@ const Justificaciones = () => {
                                     <tr>
                                         <th>Usuario</th>
                                         <th>Tipo</th>
-                                        <th className="col-centrada">Minutos</th>
-                                        <th className="col-centrada">Fecha</th>
-                                        <th>Asunto</th>
-                                        <th>Mensaje</th>
-                                        <th className="col-centrada">Imagen</th>
+                                        <th>Fecha</th>
+                                        <th>Asunto y mensaje</th>
+                                        <th>Imagen</th>
                                         <th>Estado</th>
                                         <th>Acciones</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {lista.map((justificacion) => {
+                                    {listaPagina.map((justificacion) => {
                                         const estado = justificacion.estado || "PENDIENTE";
 
                                         return (
@@ -459,42 +381,36 @@ const Justificaciones = () => {
                                                     </div>
                                                 </td>
                                                 <td>
-                                                    <span className={`justificaciones-tipo tipo-${(justificacion.tipo || "").toLowerCase()}`}>
-                                                        {TEXTO_TIPO[justificacion.tipo] || "—"}
+                                                    <span className="justificaciones-tipo">
+                                                        {textoTipo(justificacion)}
                                                     </span>
                                                 </td>
-                                                <td className="col-centrada justificaciones-minutos">
-                                                    {minutosTardanza(justificacion)}
-                                                </td>
-                                                <td className="col-centrada justificaciones-fecha">
+                                                <td className="justificaciones-fecha">
                                                     {formatearFecha(justificacion.fecha)}
                                                 </td>
-                                                <td className="justificaciones-asunto">
-                                                    {justificacion.asunto || "—"}
+                                                <td className="justificaciones-asunto-mensaje">
+                                                    <strong className="justificaciones-asunto">
+                                                        {justificacion.asunto || "Sin asunto"}
+                                                    </strong>
+                                                    <p className="justificaciones-mensaje">
+                                                        {justificacion.mensaje || "Sin mensaje"}
+                                                    </p>
                                                 </td>
-                                                <td className="justificaciones-mensaje">
-                                                    {justificacion.mensaje || "—"}
-                                                </td>
-                                                <td className="col-centrada">
+                                                <td>
                                                     {justificacion.evidencia_url ? (
                                                         <button
                                                             type="button"
-                                                            className="justificaciones-miniatura"
+                                                            className="justificaciones-ver-imagen"
                                                             onClick={() => setImagenAmpliada(justificacion)}
-                                                            aria-label={`Ampliar adjunto de ${justificacion.usuario || "la justificación"}`}
                                                         >
-                                                            <img
-                                                                src={justificacion.evidencia_url}
-                                                                alt=""
-                                                                loading="lazy"
-                                                            />
+                                                            Ver imagen
                                                         </button>
                                                     ) : (
                                                         <span className="justificaciones-sin-adjunto">Sin adjunto</span>
                                                     )}
                                                 </td>
                                                 <td>
-                                                    <span className={`justificaciones-estado estado-${estado.toLowerCase()}`}>
+                                                    <span className="justificaciones-estado">
                                                         {TEXTO_ESTADO[estado] || estado}
                                                     </span>
                                                 </td>
@@ -532,7 +448,7 @@ const Justificaciones = () => {
                         </div>
 
                         <div className="justificaciones-cards">
-                            {lista.map((justificacion) => (
+                            {listaPagina.map((justificacion) => (
                                 <TarjetaJustificacion
                                     key={justificacion.id}
                                     justificacion={justificacion}
@@ -541,6 +457,28 @@ const Justificaciones = () => {
                                 />
                             ))}
                         </div>
+
+                        <footer className="justificaciones-paginacion">
+                            <button
+                                type="button"
+                                className="justificaciones-paginacion-boton"
+                                onClick={() => setPagina(paginaActual - 1)}
+                                disabled={paginaActual <= 1}
+                            >
+                                Anterior
+                            </button>
+                            <span className="justificaciones-paginacion-texto">
+                                {paginaActual} de {totalPaginas}
+                            </span>
+                            <button
+                                type="button"
+                                className="justificaciones-paginacion-boton"
+                                onClick={() => setPagina(paginaActual + 1)}
+                                disabled={paginaActual >= totalPaginas}
+                            >
+                                Siguiente
+                            </button>
+                        </footer>
                     </>
                 )}
             </section>
@@ -555,7 +493,7 @@ const Justificaciones = () => {
                     : ""}
                 textoConfirmar={confirmacion?.estado === "ACEPTADA" ? "Aceptar" : "Rechazar"}
                 textoCancelar="Cancelar"
-                tipo={confirmacion?.estado === "ACEPTADA" ? "info" : "danger"}
+                tipo="info"
                 onConfirmar={confirmarResolucion}
                 onCancelar={() => {
                     if (!resolviendo) setConfirmacion(null);

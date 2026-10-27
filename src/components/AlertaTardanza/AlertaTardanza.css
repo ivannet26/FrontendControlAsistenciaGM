@@ -9,24 +9,16 @@
     gap: 14px;
     margin-bottom: 16px;
     padding: 16px 44px 16px 16px;
-    background: rgba(245, 158, 11, 0.08);
-    border: 1px solid #b45309;
+    background: #101b22;
+    border: 1px solid #344650;
     color: #d3dde3;
-    animation: alerta-tardanza-entrada 0.25s ease both;
-}
-
-.alerta-tardanza-grave {
-    background: rgba(220, 38, 38, 0.08);
-    border-color: #b91c1c;
 }
 
 .alerta-tardanza-icono {
     flex: 0 0 auto;
     display: inline-flex;
-    color: #f59e0b;
+    color: #b5c4cc;
 }
-
-.alerta-tardanza-grave .alerta-tardanza-icono { color: #ef4444; }
 
 .alerta-tardanza-contenido {
     min-width: 0;
@@ -35,17 +27,15 @@
 
 .alerta-tardanza-eyebrow {
     margin: 0 0 4px;
-    color: #f59e0b;
+    color: #9eacb5;
     font-size: 10px;
     font-weight: 700;
     letter-spacing: 0.8px;
 }
 
-.alerta-tardanza-grave .alerta-tardanza-eyebrow { color: #ef4444; }
-
 .alerta-tardanza-titulo {
     margin: 0;
-    color: #ffffff;
+    color: #f8f9fa;
     font-size: 16px;
     font-weight: 600;
     line-height: 1.3;
@@ -81,7 +71,7 @@
 
 .alerta-tardanza-detalle dd {
     margin: 0;
-    color: #ffffff;
+    color: #f8f9fa;
     font-size: 14px;
     font-weight: 600;
     font-variant-numeric: tabular-nums;
@@ -95,26 +85,24 @@
 }
 
 .alerta-tardanza-boton {
-    min-height: 36px;
+    min-height: 34px;
     display: inline-flex;
     align-items: center;
     gap: 8px;
     padding: 0 14px;
-    border: 1px solid #d97706;
-    background: #b45309;
+    border: 1px solid #10a5f5;
+    background: #10a5f5;
     color: #ffffff;
     font-family: inherit;
     font-size: 13px;
     font-weight: 600;
     cursor: pointer;
-    transition: filter 0.15s ease, border-color 0.15s ease;
+    transition: background 0.15s ease, border-color 0.15s ease;
 }
 
-.alerta-tardanza-boton:hover { filter: brightness(1.12); }
-
-.alerta-tardanza-grave .alerta-tardanza-boton {
-    border-color: #dc2626;
-    background: #b91c1c;
+.alerta-tardanza-boton:hover {
+    background: #1eb5ff;
+    border-color: #1eb5ff;
 }
 
 .alerta-tardanza-cerrar {
@@ -145,11 +133,6 @@
     outline-offset: 2px;
 }
 
-@keyframes alerta-tardanza-entrada {
-    from { opacity: 0; transform: translateY(-6px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
 @media (max-width: 600px) {
     .alerta-tardanza {
         gap: 10px;
@@ -164,8 +147,9 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .alerta-tardanza {
-        animation: none;
+    .alerta-tardanza,
+    .alerta-tardanza-boton,
+    .alerta-tardanza-cerrar {
         transition: none;
     }
 }

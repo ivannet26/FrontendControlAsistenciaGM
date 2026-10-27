@@ -140,21 +140,22 @@
 }
 
 .modal-justificacion-campo [aria-invalid="true"] {
-    border-color: #dc2626;
+    border-color: #b5c4cc;
 }
 
 .modal-justificacion-error {
-    color: #f56c6c;
+    color: #f8f9fa;
     font-size: 11.5px;
+    font-weight: 500;
     line-height: 1.4;
 }
 
 .modal-justificacion-nota {
     margin: 0;
     padding: 8px 10px;
-    border-left: 2px solid #f59e0b;
-    background: rgba(245, 158, 11, 0.1);
-    color: #d8c8a8;
+    border-left: 2px solid #344650;
+    background: transparent;
+    color: #9eacb5;
     font-size: 12px;
 }
 
@@ -228,11 +229,15 @@
     padding: 0;
     border: 0;
     background: transparent;
-    color: #f56c6c;
+    color: #b5c4cc;
     font-family: inherit;
     font-size: 12px;
     cursor: pointer;
     text-decoration: underline;
+}
+
+.modal-justificacion-previa-info button:hover {
+    color: #ffffff;
 }
 
 .modal-justificacion-footer {

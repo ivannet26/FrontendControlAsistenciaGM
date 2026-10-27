@@ -36,10 +36,10 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid #0f1a20;
+    border: 1px solid rgba(129, 126, 126, 0.4);
     border-radius: 9px;
-    background: #dc2626;
-    color: #ffffff;
+    background: #101b22;
+    color: #f8f9fa;
     font-family: inherit;
     font-size: 10px;
     font-weight: 700;

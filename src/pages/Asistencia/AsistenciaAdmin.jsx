@@ -4,9 +4,8 @@ import {
     CalendarBlank,
     ArrowClockwise,
     CheckCircle,
-    Coffee,
+    Clock,
     MagnifyingGlass,
-    Users,
     XCircle,
 } from "@phosphor-icons/react";
 import {
@@ -40,20 +39,6 @@ const formatearDuracion = (segundos) => {
     return [h, m, s].map((n) => String(n).padStart(2, "0")).join(":");
 };
 
-const textoEstado = (estado) => ({
-    SIN_ENTRADA: "Sin entrada",
-    TRABAJANDO: "Trabajando",
-    EN_BREAK: "En descanso",
-    FINALIZADO: "Finalizado",
-}[estado] || "Sin entrada");
-
-const claseEstado = (estado) => ({
-    SIN_ENTRADA: "sin-entrada",
-    TRABAJANDO: "trabajando",
-    EN_BREAK: "en-break",
-    FINALIZADO: "finalizado",
-}[estado] || "sin-entrada");
-
 // Estado del día calculado por el backend (tolerancia, faltas y justificaciones).
 const TEXTO_ESTADO_DIA = {
     A_TIEMPO: "A tiempo",
@@ -64,18 +49,15 @@ const TEXTO_ESTADO_DIA = {
     TARDANZA_JUSTIFICADA: "Tardanza justificada",
 };
 
-const CLASE_ESTADO_DIA = {
-    A_TIEMPO: "dia-a-tiempo",
-    TARDANZA: "dia-tardanza",
-    TARDANZA_GRAVE: "dia-tardanza",
-    FALTA: "dia-falta",
-    FALTA_JUSTIFICADA: "dia-falta-justificada",
-    TARDANZA_JUSTIFICADA: "dia-tardanza-justificada",
+const textoEstadoDia = (estado, minutosTarde) => {
+    if (estado === "TARDANZA" || estado === "TARDANZA_GRAVE") {
+        return minutosTarde === null || minutosTarde === undefined
+            ? "Tardanza"
+            : `Tardanza · ${minutosTarde} min`;
+    }
+
+    return TEXTO_ESTADO_DIA[estado] || "—";
 };
-
-const textoEstadoDia = (estado) => TEXTO_ESTADO_DIA[estado] || "—";
-
-const claseEstadoDia = (estado) => CLASE_ESTADO_DIA[estado] || "";
 
 const normalizarRol = (rol) => {
     const r = (rol || "").toUpperCase();
@@ -167,15 +149,19 @@ const TarjetaUsuario = ({ fila, onVerHorario }) => {
             </div>
 
             <div className="admin-card-estado">
-                <span className={`admin-estado estado-${claseEstado(fila.estado)}`}>
-                    {textoEstado(fila.estado)}
-                </span>
-            </div>
-
-            <div className="admin-card-estado-dia">
-                <span className="admin-card-estado-dia-label">Estado del día</span>
-                <span className={`admin-estado-dia ${claseEstadoDia(fila.estadoDia)}`}>
-                    {textoEstadoDia(fila.estadoDia)}
+                <span className="admin-card-estado-label">Estado del día</span>
+                <span className="admin-estado-dia">
+                    {textoEstadoDia(fila.estadoDia, fila.minutosTarde)}
+                    {fila.justificacionPendiente && (
+                        <span
+                            className="admin-estado-reloj"
+                            role="img"
+                            aria-label="Justificación pendiente"
+                            title="Justificación pendiente"
+                        >
+                            <Clock size={13} weight="bold" aria-hidden="true" />
+                        </span>
+                    )}
                 </span>
             </div>
         </article>
@@ -235,6 +221,12 @@ const AsistenciaAdmin = () => {
                     estadoDia: String(
                         r.estado_dia || r.estado_asistencia || ""
                     ).toUpperCase(),
+                    minutosTarde: r.minutos_tarde ?? r.minutosTardanza ?? null,
+                    justificacionPendiente: Boolean(
+                        r.justificacion_pendiente
+                        ?? r.tiene_justificacion_pendiente
+                        ?? r.pendiente_justificacion
+                    ),
                     tieneEntrada: Boolean(r.tiene_entrada),
                     entrada: r.entrada,
                     breakInicio: r.break_inicio,
@@ -310,11 +302,7 @@ const AsistenciaAdmin = () => {
         });
     }, [filas, filtroUsuario, filtroRol, filtroEstado, busqueda]);
 
-    // ── Resumen ────────────────────────────────────────
-    const totalUsuarios = filas.length;
-    const conEntrada = filas.filter((f) => f.tieneEntrada).length;
-    const sinEntrada = totalUsuarios - conEntrada;
-    const enDescanso = filas.filter((f) => f.estado === "EN_BREAK").length;
+    // ── Actualización ──────────────────────────────────
     const segundosDesdeActualizacion = ultimaActualizacion
         ? Math.max(0, Math.floor((relojActualizacion - ultimaActualizacion.getTime()) / 1000))
         : null;
@@ -374,49 +362,6 @@ const AsistenciaAdmin = () => {
                 </div>
             </header>
 
-            {/* PANELES RESUMEN */}
-            <section className="admin-resumen">
-                <div className="admin-resumen-card">
-                    <div className="admin-resumen-icono">
-                        <Users size={24} weight="duotone" />
-                    </div>
-                    <div className="admin-resumen-datos">
-                        <span className="admin-resumen-label">Total usuarios</span>
-                        <span className="admin-resumen-valor">{totalUsuarios}</span>
-                    </div>
-                </div>
-
-                <div className="admin-resumen-card card-verde">
-                    <div className="admin-resumen-icono">
-                        <CheckCircle size={24} weight="duotone" />
-                    </div>
-                    <div className="admin-resumen-datos">
-                        <span className="admin-resumen-label">Con entrada</span>
-                        <span className="admin-resumen-valor">{conEntrada}</span>
-                    </div>
-                </div>
-
-                <div className="admin-resumen-card card-rojo">
-                    <div className="admin-resumen-icono">
-                        <XCircle size={24} weight="duotone" />
-                    </div>
-                    <div className="admin-resumen-datos">
-                        <span className="admin-resumen-label">Sin entrada</span>
-                        <span className="admin-resumen-valor">{sinEntrada}</span>
-                    </div>
-                </div>
-
-                <div className="admin-resumen-card card-amarillo">
-                    <div className="admin-resumen-icono">
-                        <Coffee size={24} weight="duotone" />
-                    </div>
-                    <div className="admin-resumen-datos">
-                        <span className="admin-resumen-label">En descanso</span>
-                        <span className="admin-resumen-valor">{enDescanso}</span>
-                    </div>
-                </div>
-            </section>
-
             {/* FILTROS */}
             <section className="admin-filtros">
                 <span className="admin-filtros-titulo">FILTRAR</span>
@@ -449,6 +394,7 @@ const AsistenciaAdmin = () => {
                     <input
                         id="asistencia-admin-fecha"
                         type="date"
+                        lang="es-PE"
                         value={fecha}
                         max={hoy}
                         onChange={(e) => setFecha(e.target.value)}
@@ -524,7 +470,6 @@ const AsistenciaAdmin = () => {
                                     <th>Usuario</th>
                                     <th className="col-horario">Horario</th>
                                     <th>Rol</th>
-                                    <th>Estado del día</th>
                                     <th className="col-centrada">Entrada</th>
                                     <th className="col-centrada">Inicio desc.</th>
                                     <th className="col-centrada">Fin desc.</th>
@@ -537,13 +482,13 @@ const AsistenciaAdmin = () => {
                             <tbody>
                                 {cargandoInicial ? (
                                     <tr>
-                                        <td colSpan="11" className="admin-tabla-vacia">
+                                        <td colSpan="10" className="admin-tabla-vacia">
                                             Cargando registros...
                                         </td>
                                     </tr>
                                 ) : filasFiltradas.length === 0 ? (
                                     <tr>
-                                        <td colSpan="11" className="admin-tabla-vacia">
+                                        <td colSpan="10" className="admin-tabla-vacia">
                                             No hay usuarios con esos filtros.
                                         </td>
                                     </tr>
@@ -597,19 +542,24 @@ const AsistenciaAdmin = () => {
                                                     {f.rol}
                                                 </span>
                                             </td>
-                                            <td>
-                                                <span className={`admin-estado-dia ${claseEstadoDia(f.estadoDia)}`}>
-                                                    {textoEstadoDia(f.estadoDia)}
-                                                </span>
-                                            </td>
                                             <td className="admin-hora">{formatearHora(f.entrada)}</td>
                                             <td className="admin-hora">{formatearHora(f.breakInicio)}</td>
                                             <td className="admin-hora">{formatearHora(f.breakFin)}</td>
                                             <td className="admin-hora admin-duracion">{f.duracion}</td>
                                             <td className="admin-hora">{formatearHora(f.salida)}</td>
                                             <td>
-                                                <span className={`admin-estado estado-${claseEstado(f.estado)}`}>
-                                                    {textoEstado(f.estado)}
+                                                <span className="admin-estado-dia">
+                                                    {textoEstadoDia(f.estadoDia, f.minutosTarde)}
+                                                    {f.justificacionPendiente && (
+                                                        <span
+                                                            className="admin-estado-reloj"
+                                                            role="img"
+                                                            aria-label="Justificación pendiente"
+                                                            title="Justificación pendiente"
+                                                        >
+                                                            <Clock size={13} weight="bold" aria-hidden="true" />
+                                                        </span>
+                                                    )}
                                                 </span>
                                             </td>
                                             <td className="col-check">

@@ -290,6 +290,7 @@ const ModalJustificacion = ({
                             <input
                                 id="justificacion-fecha"
                                 type="date"
+                                lang="es-PE"
                                 value={form.fecha}
                                 min={form.tipo === "FALTA" ? manana() : undefined}
                                 max={form.tipo === "FALTA" ? undefined : hoy()}
