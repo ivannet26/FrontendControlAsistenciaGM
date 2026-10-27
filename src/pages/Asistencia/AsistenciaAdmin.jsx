@@ -54,6 +54,29 @@ const claseEstado = (estado) => ({
     FINALIZADO: "finalizado",
 }[estado] || "sin-entrada");
 
+// Estado del día calculado por el backend (tolerancia, faltas y justificaciones).
+const TEXTO_ESTADO_DIA = {
+    A_TIEMPO: "A tiempo",
+    TARDANZA: "Tardanza",
+    TARDANZA_GRAVE: "Tardanza",
+    FALTA: "Falta",
+    FALTA_JUSTIFICADA: "Falta justificada",
+    TARDANZA_JUSTIFICADA: "Tardanza justificada",
+};
+
+const CLASE_ESTADO_DIA = {
+    A_TIEMPO: "dia-a-tiempo",
+    TARDANZA: "dia-tardanza",
+    TARDANZA_GRAVE: "dia-tardanza",
+    FALTA: "dia-falta",
+    FALTA_JUSTIFICADA: "dia-falta-justificada",
+    TARDANZA_JUSTIFICADA: "dia-tardanza-justificada",
+};
+
+const textoEstadoDia = (estado) => TEXTO_ESTADO_DIA[estado] || "—";
+
+const claseEstadoDia = (estado) => CLASE_ESTADO_DIA[estado] || "";
+
 const normalizarRol = (rol) => {
     const r = (rol || "").toUpperCase();
     if (r.includes("ADMIN")) return "Administrador";
@@ -148,6 +171,13 @@ const TarjetaUsuario = ({ fila, onVerHorario }) => {
                     {textoEstado(fila.estado)}
                 </span>
             </div>
+
+            <div className="admin-card-estado-dia">
+                <span className="admin-card-estado-dia-label">Estado del día</span>
+                <span className={`admin-estado-dia ${claseEstadoDia(fila.estadoDia)}`}>
+                    {textoEstadoDia(fila.estadoDia)}
+                </span>
+            </div>
         </article>
     );
 };
@@ -202,6 +232,9 @@ const AsistenciaAdmin = () => {
                     avatar_url: r.avatar_url || null,   // ← NUEVO
                     avatarVersion: Date.now(),
                     estado: r.estado || "SIN_ENTRADA",
+                    estadoDia: String(
+                        r.estado_dia || r.estado_asistencia || ""
+                    ).toUpperCase(),
                     tieneEntrada: Boolean(r.tiene_entrada),
                     entrada: r.entrada,
                     breakInicio: r.break_inicio,
@@ -491,6 +524,7 @@ const AsistenciaAdmin = () => {
                                     <th>Usuario</th>
                                     <th className="col-horario">Horario</th>
                                     <th>Rol</th>
+                                    <th>Estado del día</th>
                                     <th className="col-centrada">Entrada</th>
                                     <th className="col-centrada">Inicio desc.</th>
                                     <th className="col-centrada">Fin desc.</th>
@@ -503,13 +537,13 @@ const AsistenciaAdmin = () => {
                             <tbody>
                                 {cargandoInicial ? (
                                     <tr>
-                                        <td colSpan="10" className="admin-tabla-vacia">
+                                        <td colSpan="11" className="admin-tabla-vacia">
                                             Cargando registros...
                                         </td>
                                     </tr>
                                 ) : filasFiltradas.length === 0 ? (
                                     <tr>
-                                        <td colSpan="10" className="admin-tabla-vacia">
+                                        <td colSpan="11" className="admin-tabla-vacia">
                                             No hay usuarios con esos filtros.
                                         </td>
                                     </tr>
@@ -561,6 +595,11 @@ const AsistenciaAdmin = () => {
                                             <td>
                                                 <span className={`admin-rol rol-${f.rol === "Administrador" ? "administrador" : "practicante"}`}>
                                                     {f.rol}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span className={`admin-estado-dia ${claseEstadoDia(f.estadoDia)}`}>
+                                                    {textoEstadoDia(f.estadoDia)}
                                                 </span>
                                             </td>
                                             <td className="admin-hora">{formatearHora(f.entrada)}</td>

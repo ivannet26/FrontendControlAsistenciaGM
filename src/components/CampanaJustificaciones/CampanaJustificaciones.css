@@ -1,0 +1,65 @@
+/* =========================================================
+   CAMPANA DE JUSTIFICACIONES (NAVBAR)
+   ========================================================= */
+
+.campana-justificaciones {
+    position: relative;
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    background: transparent;
+    border: 0;
+    color: #8799a5;
+    cursor: pointer;
+    transition: color 0.15s ease;
+}
+
+.campana-justificaciones:hover { color: #ffffff; }
+
+.campana-justificaciones:focus-visible {
+    outline: 2px solid #10a5f5;
+    outline-offset: 2px;
+}
+
+.campana-justificaciones-contador {
+    position: absolute;
+    top: 2px;
+    right: 0;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #0f1a20;
+    border-radius: 9px;
+    background: #dc2626;
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    pointer-events: none;
+}
+
+@media (max-width: 600px) {
+    .campana-justificaciones {
+        width: 34px;
+        height: 34px;
+    }
+
+    .campana-justificaciones-contador {
+        top: 0;
+        right: -2px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .campana-justificaciones { transition: none; }
+}

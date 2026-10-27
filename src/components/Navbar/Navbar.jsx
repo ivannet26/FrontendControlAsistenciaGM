@@ -3,6 +3,7 @@ import logoGM from "../../assets/logo-mg.png";
 import { useState, useRef, useEffect } from "react";
 import ProfileMenu from "../ProfileMenu/ProfileMenu";
 import HelpMenu from "../HelpMenu/HelpMenu";
+import CampanaJustificaciones from "../CampanaJustificaciones/CampanaJustificaciones";
 import { construirUrlAvatar, useUsuarioActual } from "../../hooks/useUsuarioActual";
 
 function Navbar() {
@@ -10,6 +11,9 @@ function Navbar() {
 
   const [profileOpen, setProfileOpen] = useState(false);
   const refPerfil = useRef(null);
+
+  const rol = usuario?.rol;
+  const esAdmin = rol === "ADMINISTRADOR" || rol === "ADMINISTRACION";
 
   // Cerrar el menú al hacer clic fuera
   useEffect(() => {
@@ -42,6 +46,9 @@ function Navbar() {
       <div className="navbar-info">
 
         <span>{usuario?.nombre}</span>
+
+        {/* Justificaciones pendientes (solo administración) */}
+        {esAdmin && <CampanaJustificaciones />}
 
         {/* Ayuda */}
         <HelpMenu />

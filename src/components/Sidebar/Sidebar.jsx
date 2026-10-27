@@ -19,6 +19,7 @@ import {
     UserCog,
     Clock,
     UserCheck,
+    ClipboardList,
 } from "lucide-react";
 
 import "./Sidebar.css";
@@ -198,6 +199,16 @@ function Sidebar({ usuario }) {
                             active={esActivo("/app/asistencia/admin")}
                         >
                             CONTROL ASISTENCIA
+                        </MenuItem>
+                    )}
+
+                    {esAdmin && (
+                        <MenuItem
+                            icon={<ClipboardList size={22} />}
+                            onClick={() => irA("/app/justificaciones")}
+                            active={esActivo("/app/justificaciones")}
+                        >
+                            JUSTIFICACIONES
                         </MenuItem>
                     )}
 

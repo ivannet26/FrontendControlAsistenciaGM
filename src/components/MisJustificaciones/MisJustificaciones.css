@@ -1,0 +1,207 @@
+/* =========================================================
+   MIS JUSTIFICACIONES
+   ========================================================= */
+
+.mis-justificaciones {
+    margin-top: 16px;
+    background: #101b22;
+    border: 1px solid #263740;
+}
+
+.mis-justificaciones-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 16px;
+    border-bottom: 1px solid #263740;
+}
+
+.mis-justificaciones-header h2 {
+    margin: 0;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.mis-justificaciones-header p {
+    margin: 4px 0 0;
+    color: #8ea0af;
+    font-size: 12px;
+}
+
+.mis-justificaciones-boton {
+    flex: 0 0 auto;
+    min-height: 34px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 12px;
+    border: 1px solid #344650;
+    background: #162630;
+    color: #b5c4cc;
+    font-family: inherit;
+    font-size: 12px;
+    cursor: pointer;
+    transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.mis-justificaciones-boton:hover {
+    border-color: #10a5f5;
+    color: #10a5f5;
+}
+
+.mis-justificaciones-error {
+    margin: 0;
+    padding: 10px 16px;
+    border-bottom: 1px solid #dc2626;
+    background: rgba(220, 38, 38, 0.15);
+    color: #f56c6c;
+    font-size: 12px;
+}
+
+.mis-justificaciones-vacio {
+    min-height: 120px;
+    margin: 0;
+    padding: 24px 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    color: #4a5c66;
+    font-size: 13px;
+    text-align: center;
+}
+
+.mis-justificaciones-lista {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.mis-justificaciones-item {
+    display: grid;
+    grid-template-columns: 112px 92px minmax(0, 1fr) 104px;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-top: 1px solid #263740;
+    font-size: 13px;
+    transition: background 0.15s ease;
+}
+
+.mis-justificaciones-item:first-child { border-top: 0; }
+.mis-justificaciones-item:hover { background: #1d303a; }
+
+.mis-justificaciones-tipo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 8px;
+    border: 1px solid #64748b;
+    background: rgba(100, 116, 139, 0.15);
+    color: #9eacb5;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+}
+
+.mis-justificaciones-tipo.tipo-tardanza {
+    border-color: #f59e0b;
+    background: rgba(245, 158, 11, 0.15);
+    color: #f59e0b;
+}
+
+.mis-justificaciones-tipo.tipo-falta {
+    border-color: #dc2626;
+    background: rgba(220, 38, 38, 0.15);
+    color: #f87171;
+}
+
+.mis-justificaciones-tipo.tipo-olvido_marcar {
+    border-color: #10a5f5;
+    background: rgba(16, 165, 245, 0.15);
+    color: #10a5f5;
+}
+
+.mis-justificaciones-fecha {
+    color: #b8c5cc;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.mis-justificaciones-asunto {
+    min-width: 0;
+    overflow: hidden;
+    color: #ffffff;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.mis-justificaciones-estado {
+    justify-self: start;
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 9px;
+    border: 1px solid #64748b;
+    background: rgba(100, 116, 139, 0.15);
+    color: #64748b;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+}
+
+.mis-justificaciones-estado.estado-pendiente {
+    border-color: #f59e0b;
+    background: rgba(245, 158, 11, 0.15);
+    color: #f59e0b;
+}
+
+.mis-justificaciones-estado.estado-aceptada {
+    border-color: #10b981;
+    background: rgba(16, 185, 129, 0.15);
+    color: #10b981;
+}
+
+.mis-justificaciones-estado.estado-rechazada {
+    border-color: #dc2626;
+    background: rgba(220, 38, 38, 0.15);
+    color: #f87171;
+}
+
+.mis-justificaciones-boton:focus-visible,
+.mis-justificaciones-item:focus-within {
+    outline: 2px solid #10a5f5;
+    outline-offset: -2px;
+}
+
+@media (max-width: 700px) {
+    .mis-justificaciones-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .mis-justificaciones-boton { width: 100%; justify-content: center; }
+
+    .mis-justificaciones-item {
+        grid-template-columns: minmax(0, 1fr) auto;
+        grid-template-areas:
+            "tipo estado"
+            "asunto asunto"
+            "fecha fecha";
+        gap: 6px 10px;
+    }
+
+    .mis-justificaciones-tipo { grid-area: tipo; justify-self: start; }
+    .mis-justificaciones-estado { grid-area: estado; justify-self: end; }
+    .mis-justificaciones-asunto { grid-area: asunto; white-space: normal; }
+    .mis-justificaciones-fecha { grid-area: fecha; font-size: 12px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .mis-justificaciones-item { transition: none; }
+}

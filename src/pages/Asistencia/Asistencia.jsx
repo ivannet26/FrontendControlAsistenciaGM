@@ -11,11 +11,16 @@ import {
     SignOut,
 } from "@phosphor-icons/react";
 import {
+    interpretarMarcaje,
     obtenerFechaLocal,
     obtenerRegistrosHoy,
     obtenerRegistrosPorFecha,
     registrarEvento,
 } from "../../services/asistenciaService";
+import { useJustificaciones } from "../../hooks/useJustificaciones";
+import AlertaTardanza from "../../components/AlertaTardanza/AlertaTardanza";
+import MisJustificaciones from "../../components/MisJustificaciones/MisJustificaciones";
+import ModalJustificacion from "../../components/ModalJustificacion/ModalJustificacion";
 import {
     MENSAJES_ENTRADA,
     MENSAJES_SALIDA,
@@ -152,6 +157,8 @@ const Asistencia = () => {
     const [horaActual, setHoraActual] = useState(() => new Date());
     const [cargando, setCargando] = useState(true);
     const [alerta, setAlerta] = useState(null);
+    const [alertaTardanza, setAlertaTardanza] = useState(null);
+    const [modalJustificacion, setModalJustificacion] = useState(null);
 
     // Anti-spam
     const [accionEnProceso, setAccionEnProceso] = useState(false);
@@ -159,6 +166,15 @@ const Asistencia = () => {
 
     // Ref del input de fecha (para abrir el calendario nativo)
     const inputFechaRef = useRef(null);
+
+    // Estados previos: permiten avisar cuando administración resuelve una justificación.
+    const estadosJustificacionesRef = useRef(null);
+    const {
+        justificaciones,
+        cargando: cargandoJustificaciones,
+        error: errorJustificaciones,
+        recargar: recargarJustificaciones,
+    } = useJustificaciones({ fuente: "mias", intervaloRefresco: 60000 });
 
     const hoy = obtenerFechaLocal();
     const esHoy = fechaVista === hoy;
@@ -180,6 +196,29 @@ const Asistencia = () => {
         const timeout = window.setTimeout(() => setAlerta(null), 3000);
         return () => window.clearTimeout(timeout);
     }, [alerta]);
+
+    // Aviso cuando una justificación propia pasa de pendiente a aceptada o rechazada.
+    useEffect(() => {
+        const actuales = new Map(
+            (Array.isArray(justificaciones) ? justificaciones : [])
+                .map((justificacion) => [justificacion.id, justificacion.estado])
+        );
+        const previos = estadosJustificacionesRef.current;
+
+        if (previos) {
+            actuales.forEach((estado, id) => {
+                if (previos.get(id) !== "PENDIENTE") return;
+
+                if (estado === "ACEPTADA") {
+                    toast.success("Tu justificación fue aceptada.");
+                } else if (estado === "RECHAZADA") {
+                    toast.error("Tu justificación fue rechazada.");
+                }
+            });
+        }
+
+        estadosJustificacionesRef.current = actuales;
+    }, [justificaciones]);
 
     useEffect(() => {
         let cancelado = false;
@@ -227,7 +266,7 @@ const Asistencia = () => {
         setAccionEnProceso(true);
 
         try {
-            await registrarEvento(tipo);
+            const respuestaMarcaje = await registrarEvento(tipo);
             const respuesta = normalizarRespuestaAsistencia(
                 await leerRegistros(obtenerFechaLocal())
             );
@@ -238,6 +277,17 @@ const Asistencia = () => {
                 setRegistrosFechaVista(respuesta.registros);
             }
             if (tipo === "ENTRADA") {
+                // El estado y los minutos de tardanza vienen resueltos por el backend.
+                const marcaje = interpretarMarcaje(respuestaMarcaje);
+                setAlertaTardanza(marcaje?.esTardanza
+                    ? {
+                        estado: marcaje.estado,
+                        minutosTarde: marcaje.minutosTarde,
+                        horario: marcaje.horario,
+                        horaMarcada: marcaje.horaMarcada,
+                    }
+                    : null);
+
                 setAlerta({
                     tipo,
                     mensaje: obtenerMensajeAleatorio(MENSAJES_ENTRADA),
@@ -314,6 +364,21 @@ const Asistencia = () => {
     const breakFinReg = buscarRegistro("BREAK_FIN");
     const salidaReg = buscarRegistro("SALIDA");
 
+    const abrirJustificacionFalta = () => setModalJustificacion({ motivo: "FALTA" });
+
+    const abrirJustificacionTardanza = () => setModalJustificacion({
+        motivo: "TARDANZA",
+        fecha: hoy,
+        minutosTarde: alertaTardanza?.minutosTarde ?? null,
+    });
+
+    const cerrarJustificacion = () => setModalJustificacion(null);
+
+    const alEnviarJustificacion = () => {
+        setAlertaTardanza(null);
+        void recargarJustificaciones();
+    };
+
     return (
         <div className="asistencia-container">
             <header className="asistencia-header">
@@ -323,6 +388,17 @@ const Asistencia = () => {
                     <p className="asistencia-fecha">{formatearFechaLarga(fechaVista)}</p>
                 </div>
             </header>
+
+            {alertaTardanza && (
+                <AlertaTardanza
+                    estado={alertaTardanza.estado}
+                    minutosTarde={alertaTardanza.minutosTarde}
+                    horario={alertaTardanza.horario}
+                    horaMarcada={alertaTardanza.horaMarcada}
+                    onJustificar={abrirJustificacionTardanza}
+                    onCerrar={() => setAlertaTardanza(null)}
+                />
+            )}
 
             <main className="asistencia-layout">
                 <section className="asistencia-columna-izquierda" aria-label="Reloj y acciones">
@@ -465,6 +541,24 @@ const Asistencia = () => {
                     </div>
                 </section>
             </main>
+
+            <MisJustificaciones
+                justificaciones={justificaciones}
+                cargando={cargandoJustificaciones}
+                error={errorJustificaciones}
+                onJustificarFalta={abrirJustificacionFalta}
+            />
+
+            {modalJustificacion && (
+                <ModalJustificacion
+                    abierto={Boolean(modalJustificacion)}
+                    motivoInicial={modalJustificacion.motivo}
+                    fechaInicial={modalJustificacion.fecha}
+                    minutosTarde={modalJustificacion.minutosTarde}
+                    onCerrar={cerrarJustificacion}
+                    onEnviada={alEnviarJustificacion}
+                />
+            )}
 
             {alerta && (
                 <div className="asistencia-alerta-overlay" role="presentation">

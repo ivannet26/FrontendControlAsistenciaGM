@@ -354,25 +354,27 @@
 }
 
 .admin-tabla-container th:nth-child(1),
-.admin-tabla-container td:nth-child(1) { width: 17%; }
+.admin-tabla-container td:nth-child(1) { width: 15%; }
 .admin-tabla-container th:nth-child(2),
-.admin-tabla-container td:nth-child(2) { width: 13%; }
+.admin-tabla-container td:nth-child(2) { width: 11%; }
 .admin-tabla-container th:nth-child(3),
-.admin-tabla-container td:nth-child(3) { width: 10%; }
+.admin-tabla-container td:nth-child(3) { width: 8%; }
 .admin-tabla-container th:nth-child(4),
-.admin-tabla-container td:nth-child(4) { width: 8%; }
+.admin-tabla-container td:nth-child(4) { width: 11%; }
 .admin-tabla-container th:nth-child(5),
 .admin-tabla-container td:nth-child(5) { width: 8%; }
 .admin-tabla-container th:nth-child(6),
 .admin-tabla-container td:nth-child(6) { width: 8%; }
 .admin-tabla-container th:nth-child(7),
-.admin-tabla-container td:nth-child(7) { width: 9%; }
+.admin-tabla-container td:nth-child(7) { width: 8%; }
 .admin-tabla-container th:nth-child(8),
-.admin-tabla-container td:nth-child(8) { width: 8%; }
+.admin-tabla-container td:nth-child(8) { width: 9%; }
 .admin-tabla-container th:nth-child(9),
-.admin-tabla-container td:nth-child(9) { width: 13%; }
+.admin-tabla-container td:nth-child(9) { width: 8%; }
 .admin-tabla-container th:nth-child(10),
-.admin-tabla-container td:nth-child(10) { width: 6%; text-align: center; }
+.admin-tabla-container td:nth-child(10) { width: 9%; }
+.admin-tabla-container th:nth-child(11),
+.admin-tabla-container td:nth-child(11) { width: 5%; text-align: center; }
 
 .btn-ver-horario {
     display: inline-flex;
@@ -540,6 +542,65 @@
     border-color: #dc2626;
     background: rgba(220, 38, 38, 0.15);
     color: #dc2626;
+}
+
+/* ---------- ESTADO DEL DÍA (tolerancia, faltas y justificaciones) ---------- */
+
+.admin-estado-dia {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 9px;
+    border: 1px solid #64748b;
+    background: rgba(100, 116, 139, 0.15);
+    color: #9eacb5;
+    font-size: 10.5px;
+    font-weight: 600;
+    line-height: 1.2;
+    white-space: normal;
+}
+
+.admin-estado-dia.dia-a-tiempo {
+    border-color: #10b981;
+    background: rgba(16, 185, 129, 0.15);
+    color: #10b981;
+}
+
+.admin-estado-dia.dia-tardanza {
+    border-color: #f59e0b;
+    background: rgba(245, 158, 11, 0.15);
+    color: #f59e0b;
+}
+
+.admin-estado-dia.dia-falta {
+    border-color: #dc2626;
+    background: rgba(220, 38, 38, 0.15);
+    color: #f87171;
+}
+
+.admin-estado-dia.dia-falta-justificada {
+    border-color: #10a5f5;
+    background: rgba(16, 165, 245, 0.15);
+    color: #10a5f5;
+}
+
+.admin-estado-dia.dia-tardanza-justificada {
+    border-color: #a78bfa;
+    background: rgba(167, 139, 250, 0.15);
+    color: #a78bfa;
+}
+
+.admin-card-estado-dia {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.admin-card-estado-dia-label {
+    color: #8ea0af;
+    font-size: 11px;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
 }
 
 .admin-tabla-vacia {

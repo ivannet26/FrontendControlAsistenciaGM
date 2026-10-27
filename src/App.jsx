@@ -26,6 +26,7 @@ import GestionUsuarios from "./pages/GestionUsuarios/GestionUsuarios.jsx";
 import Auditoria from "./pages/Auditoria/Auditoria.jsx";
 import Asistencia from "./pages/Asistencia/Asistencia.jsx";
 import AsistenciaAdmin from "./pages/Asistencia/AsistenciaAdmin.jsx";
+import Justificaciones from "./pages/Justificaciones/Justificaciones.jsx";
 import MiPerfil from "./components/MiPerfil/MiPerfil";
 
 function App() {
@@ -126,6 +127,11 @@ function App() {
               <Route
                 path="asistencia/admin"
                 element={<AsistenciaAdmin />}
+              />
+
+              <Route
+                path="justificaciones"
+                element={<Justificaciones />}
               />
             </Route>
 
