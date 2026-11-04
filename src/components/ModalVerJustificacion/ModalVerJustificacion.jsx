@@ -41,8 +41,10 @@ const ModalVerJustificacion = ({ abierto = false, justificacion, onCerrar }) => 
 
     if (!abierto || !justificacion) return null;
 
-    const tipo = TEXTO_TIPO[justificacion.tipo] || "Justificación";
-    const evidencia = justificacion.evidencia_url;
+    const tipo = TEXTO_TIPO[justificacion.tipo || justificacion.justificacion_tipo] || "Justificación";
+    const asunto = justificacion.justificacion_asunto || justificacion.asunto || "Sin asunto";
+    const mensaje = justificacion.justificacion_mensaje || justificacion.mensaje || "Sin mensaje";
+    const evidencia = justificacion.justificacion_evidencia_url || justificacion.evidencia_url;
 
     return createPortal(
         <>
@@ -62,7 +64,7 @@ const ModalVerJustificacion = ({ abierto = false, justificacion, onCerrar }) => 
                         <div className="modal-ver-justificacion-titulo">
                             <p className="modal-ver-justificacion-eyebrow">JUSTIFICACIÓN ACEPTADA</p>
                             <h2 id="modal-ver-justificacion-titulo">
-                                {justificacion.asunto || "Sin asunto"}
+                                {asunto}
                             </h2>
                             <p className="modal-ver-justificacion-meta">
                                 {tipo} · {formatearFecha(justificacion.fecha)}
@@ -82,20 +84,21 @@ const ModalVerJustificacion = ({ abierto = false, justificacion, onCerrar }) => 
 
                     <div className="modal-ver-justificacion-cuerpo">
                         <p className="modal-ver-justificacion-texto">
-                            {justificacion.mensaje || "Sin mensaje"}
+                            {mensaje}
                         </p>
 
                         <div className="modal-ver-justificacion-foto">
                             <span className="modal-ver-justificacion-etiqueta">Foto</span>
 
                             {evidencia ? (
-                                <button
-                                    type="button"
-                                    className="modal-ver-justificacion-ver-imagen"
-                                    onClick={() => setImagenAbierta(true)}
-                                >
-                                    Ver imagen
-                                </button>
+                                <div className="modal-imagen-contenedor">
+                                    <img
+                                        src={evidencia}
+                                        alt="Evidencia"
+                                        className="modal-ver-justificacion-imagen"
+                                        onClick={() => setImagenAbierta(true)}
+                                    />
+                                </div>
                             ) : (
                                 <span className="modal-ver-justificacion-sin-adjunto">Sin adjunto</span>
                             )}

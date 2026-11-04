@@ -121,7 +121,7 @@ const InformeSemanal = () => {
                                 <span className="panel-bloque-titulo">
                                     Total: {formatear(totalSegundos)}
                                 </span>
-                                <button className="boton-exportar">Crear factura</button>
+                                <button className="boton-exportar"></button>
                             </div>
                         </div>
 

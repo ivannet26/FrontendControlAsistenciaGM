@@ -17,6 +17,58 @@
     border-bottom: 1px solid #263740;
 }
 
+.mis-justificaciones-calendario-controles {
+    position: relative;
+}
+
+.mis-justificaciones-calendario-boton {
+    width: 34px;
+    height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #344650;
+    background: transparent;
+    cursor: pointer;
+}
+
+.mis-justificaciones-calendario-popover {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    z-index: 3200;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+}
+
+.mis-justificaciones-calendario-popover .react-calendar {
+    width: 280px;
+    max-width: 100%;
+    border: 1px solid #344650;
+    background: #162630;
+    color: #d3dde3;
+}
+
+.mis-justificaciones-calendario .react-calendar__navigation button,
+.mis-justificaciones-calendario .react-calendar__tile {
+    background: transparent;
+    color: #d3dde3;
+}
+
+.mis-justificaciones-calendario .react-calendar__tile:disabled {
+    color: #60717d;
+}
+
+.mis-justificaciones-calendario .react-calendar__tile--now {
+    background: #263740;
+}
+
+.mis-justificaciones-calendario .react-calendar__tile--active,
+.mis-justificaciones-calendario .react-calendar__tile--active:enabled:hover,
+.mis-justificaciones-calendario .react-calendar__tile--active:enabled:focus {
+    background: #10a5f5;
+    color: #ffffff;
+}
+
 .mis-justificaciones-titulo {
     min-width: 0;
 }
@@ -60,6 +112,129 @@
 .mis-justificaciones-boton:hover {
     background: #1eb5ff;
     border-color: #1eb5ff;
+}
+
+.mis-justificaciones-boton:disabled {
+    border-color: #344650;
+    background: #263740;
+    color: #7f929d;
+    cursor: not-allowed;
+}
+
+.mis-justificaciones-limite {
+    margin: 0;
+    padding: 8px 16px;
+    border-bottom: 1px solid #263740;
+    color: #f0c674;
+    font-size: 12px;
+}
+
+.mis-justificaciones-historial-boton {
+    border-color: #344650;
+    background: transparent;
+    color: #d3dde3;
+}
+
+.mis-justificaciones-historial-boton:hover {
+    border-color: #10a5f5;
+    background: transparent;
+    color: #10a5f5;
+}
+
+.mis-justificaciones-historial-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 3000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    box-sizing: border-box;
+    background: rgba(0, 0, 0, 0.72);
+}
+
+.mis-justificaciones-historial-modal {
+    width: min(900px, 100%);
+    max-height: 70vh;
+    overflow: hidden;
+    border: 1px solid #344650;
+    background: #101b22;
+    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55);
+}
+
+.mis-justificaciones-historial-modal header {
+    height: 56px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    border-bottom: 1px solid #263740;
+}
+
+.mis-justificaciones-historial-modal header h2 {
+    margin: 0;
+    color: #ffffff;
+    font-size: 16px;
+}
+
+.mis-justificaciones-historial-modal header button {
+    border: 0;
+    background: transparent;
+    color: #b5c4cc;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+.mis-justificaciones-historial-scroll {
+    max-height: calc(70vh - 56px);
+    overflow: auto;
+}
+
+.mis-justificaciones-historial-scroll table {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+}
+
+.mis-justificaciones-historial-scroll th,
+.mis-justificaciones-historial-scroll td {
+    padding: 10px 12px;
+    border-bottom: 1px solid #263740;
+    color: #d3dde3;
+    font-size: 12px;
+    text-align: left;
+    vertical-align: middle;
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
+.mis-justificaciones-historial-scroll th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: #16242c;
+    color: #9eacb5;
+    font-size: 10px;
+    text-transform: uppercase;
+}
+
+.mis-justificaciones-historial-scroll th:nth-child(1),
+.mis-justificaciones-historial-scroll td:nth-child(1) { width: 13%; }
+.mis-justificaciones-historial-scroll th:nth-child(2),
+.mis-justificaciones-historial-scroll td:nth-child(2) { width: 15%; }
+.mis-justificaciones-historial-scroll th:nth-child(3),
+.mis-justificaciones-historial-scroll td:nth-child(3) { width: 23%; }
+.mis-justificaciones-historial-scroll th:nth-child(4),
+.mis-justificaciones-historial-scroll td:nth-child(4) { width: 14%; }
+.mis-justificaciones-historial-scroll th:nth-child(5),
+.mis-justificaciones-historial-scroll td:nth-child(5) { width: 35%; }
+
+.mis-justificaciones-historial-vacio {
+    margin: 0;
+    padding: 28px;
+    color: #8ea0af;
+    text-align: center;
 }
 
 /* ---------- Paginación en el encabezado ---------- */
@@ -136,7 +311,7 @@
 
 .mis-justificaciones-item {
     display: grid;
-    grid-template-columns: 150px 92px minmax(0, 1fr) auto;
+    grid-template-columns: 150px 92px minmax(0, 1fr) auto auto auto;
     align-items: center;
     gap: 12px;
     padding: 12px 16px;
@@ -147,6 +322,30 @@
 
 .mis-justificaciones-item:first-child { border-top: 0; }
 .mis-justificaciones-item:hover { background: #1d303a; }
+
+.mis-justificaciones-intento {
+    color: #8ea0af;
+    font-size: 11px;
+    white-space: nowrap;
+}
+
+.mis-justificaciones-editar {
+    min-height: 28px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    border: 1px solid #344650;
+    background: transparent;
+    color: #d3dde3;
+    font-family: inherit;
+    font-size: 11px;
+    cursor: pointer;
+}
+
+.mis-justificaciones-editar:hover {
+    border-color: #10a5f5;
+    color: #10a5f5;
+}
 
 /* Chip neutro, como los chips de rol de Equipo. */
 .mis-justificaciones-tipo {

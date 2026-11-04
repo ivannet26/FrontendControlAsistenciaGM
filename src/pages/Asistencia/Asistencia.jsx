@@ -138,6 +138,7 @@ const normalizarRespuestaAsistencia = (respuesta) => {
     return {
         registros,
         estado: respuesta?.estado || obtenerEstado(registros),
+        justificacionFalta: respuesta?.justificacion_falta || null,
     };
 };
 
@@ -151,6 +152,8 @@ const obtenerMensajeError = (error, mensajePredeterminado) => {
 const Asistencia = () => {
     const [registrosHoy, setRegistrosHoy] = useState([]);
     const [estadoRespuestaHoy, setEstadoRespuestaHoy] = useState("SIN_ENTRADA");
+    const [estadoFechaVista, setEstadoFechaVista] = useState("SIN_ENTRADA");
+    const [justificacionFaltaFechaVista, setJustificacionFaltaFechaVista] = useState(null);
     const [registrosFechaVista, setRegistrosFechaVista] = useState([]);
     const [errorCarga, setErrorCarga] = useState("");
     const [fechaVista, setFechaVista] = useState(() => obtenerFechaLocal());
@@ -179,6 +182,10 @@ const Asistencia = () => {
     const hoy = obtenerFechaLocal();
     const esHoy = fechaVista === hoy;
     const estadoHoy = estadoRespuestaHoy || obtenerEstado(registrosHoy);
+    const faltaJustificada = fechaVista === hoy
+        ? estadoRespuestaHoy === "FALTA_JUSTIFICADA"
+        : estadoFechaVista === "FALTA_JUSTIFICADA"
+            || Boolean(justificacionFaltaFechaVista);
 
     const leerRegistros = useCallback(async (fecha) => (
         fecha === obtenerFechaLocal()
@@ -233,6 +240,8 @@ const Asistencia = () => {
                 setRegistrosHoy(respuesta.registros);
                 setRegistrosFechaVista(respuesta.registros);
                 setEstadoRespuestaHoy(respuesta.estado);
+                setEstadoFechaVista(respuesta.estado);
+                setJustificacionFaltaFechaVista(respuesta.justificacionFalta);
                 setErrorCarga("");
             } catch (error) {
                 if (cancelado) return;
@@ -273,6 +282,8 @@ const Asistencia = () => {
             setErrorCarga("");
             setRegistrosHoy(respuesta.registros);
             setEstadoRespuestaHoy(respuesta.estado);
+            if (fechaVista === obtenerFechaLocal()) setEstadoFechaVista(respuesta.estado);
+            setJustificacionFaltaFechaVista(respuesta.justificacionFalta);
             if (fechaVista === obtenerFechaLocal()) {
                 setRegistrosFechaVista(respuesta.registros);
             }
@@ -331,6 +342,8 @@ const Asistencia = () => {
                 setRegistrosHoy(respuesta.registros);
                 setEstadoRespuestaHoy(respuesta.estado);
             }
+            setEstadoFechaVista(respuesta.estado);
+            setJustificacionFaltaFechaVista(respuesta.justificacionFalta);
             setErrorCarga("");
             setFechaVista(nuevaFecha);
         } catch (error) {
@@ -348,6 +361,8 @@ const Asistencia = () => {
             setRegistrosHoy(respuesta.registros);
             setRegistrosFechaVista(respuesta.registros);
             setEstadoRespuestaHoy(respuesta.estado);
+            setEstadoFechaVista(respuesta.estado);
+            setJustificacionFaltaFechaVista(respuesta.justificacionFalta);
             setErrorCarga("");
             setFechaVista(fechaActual);
         } catch (error) {
@@ -365,6 +380,37 @@ const Asistencia = () => {
     const salidaReg = buscarRegistro("SALIDA");
 
     const abrirJustificacionFalta = () => setModalJustificacion({ motivo: "FALTA" });
+
+    const abrirEdicionJustificacion = (justificacion) => setModalJustificacion({
+        motivo: justificacion.tipo,
+        fecha: String(justificacion.fecha || "").slice(0, 10),
+        justificacionEditando: justificacion,
+        intentoNumero: justificacion.intento_numero,
+    });
+
+    const obtenerIntentoSiguiente = (tipo, fecha) => {
+        const tiposEquivalentes = {
+            FALTA: "Falta",
+            Falta: "Falta",
+            TARDANZA: "Tardanza",
+            Tardanza: "Tardanza",
+            OLVIDO_MARCAR: "Olvidé marcar",
+            "Olvidé marcar": "Olvidé marcar",
+            OTRO: "Otro",
+            Otro: "Otro",
+        };
+        const tipoNormalizado = tiposEquivalentes[tipo] || tipo;
+        const fechaNormalizada = String(fecha || "").slice(0, 10);
+        const intentos = (Array.isArray(justificaciones) ? justificaciones : [])
+            .filter((justificacion) =>
+                String(justificacion.fecha || "").slice(0, 10) === fechaNormalizada
+                && (tiposEquivalentes[justificacion.tipo] || justificacion.tipo) === tipoNormalizado
+            ).length;
+        return Math.min(intentos + 1, 2);
+    };
+    const intentoSiguiente = modalJustificacion
+        ? obtenerIntentoSiguiente(modalJustificacion.motivo, modalJustificacion.fecha || hoy)
+        : 1;
 
     const abrirJustificacionTardanza = () => setModalJustificacion({
         motivo: "TARDANZA",
@@ -416,6 +462,17 @@ const Asistencia = () => {
                         <p className="asistencia-solo-lectura">Solo puedes registrar acciones para hoy.</p>
                     )}
 
+                    {faltaJustificada && (
+                        <div className="asistencia-falta-justificada" role="status">
+                            <strong>Falta Justificada</strong>
+                            <span>
+                                {justificacionFaltaFechaVista?.asunto
+                                    || justificacionFaltaFechaVista?.mensaje
+                                    || "Falta programada aprobada"}
+                            </span>
+                        </div>
+                    )}
+
                     <section className="asistencia-acciones" aria-label="Acciones de asistencia">
                         {ACCIONES.map(({ tipo, titulo, descripcion, icono: Icono, color }) => {
                             // ⭐ FIX: pasamos registrosHoy en lugar de estadoHoy
@@ -428,7 +485,8 @@ const Asistencia = () => {
                                     disabled={
                                         !habilitado ||
                                         accionEnProceso ||
-                                        cargando
+                                        cargando ||
+                                        faltaJustificada
                                     }
                                     onClick={() => registrar(tipo)}
                                 >
@@ -483,7 +541,6 @@ const Asistencia = () => {
                                     ref={inputFechaRef}
                                     type="date"
                                     value={fechaVista}
-                                    max={hoy}
                                     onChange={cambiarFecha}
                                     className="asistencia-input-fecha-oculto"
                                     tabIndex={-1}
@@ -547,6 +604,7 @@ const Asistencia = () => {
                 cargando={cargandoJustificaciones}
                 error={errorJustificaciones}
                 onJustificarFalta={abrirJustificacionFalta}
+                onEditarJustificacion={abrirEdicionJustificacion}
             />
 
             {modalJustificacion && (
@@ -555,6 +613,9 @@ const Asistencia = () => {
                     motivoInicial={modalJustificacion.motivo}
                     fechaInicial={modalJustificacion.fecha}
                     minutosTarde={modalJustificacion.minutosTarde}
+                    intentoNumero={modalJustificacion.intentoNumero || intentoSiguiente}
+                    justificacionEditando={modalJustificacion.justificacionEditando}
+                    justificaciones={justificaciones}
                     onCerrar={cerrarJustificacion}
                     onEnviada={alEnviarJustificacion}
                 />

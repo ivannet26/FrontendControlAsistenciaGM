@@ -68,6 +68,7 @@ export function useJustificaciones({
                 const datos = await solicitarLista();
                 if (!activoRef.current || peticion !== peticionRef.current) return;
 
+                if (datos?.error) throw new Error(datos.message);
                 setJustificaciones(Array.isArray(datos) ? datos : []);
                 setError("");
             } catch (err) {
@@ -99,6 +100,7 @@ export function useJustificaciones({
             const datos = await solicitarLista();
             if (!activoRef.current || peticion !== peticionRef.current) return [];
 
+            if (datos?.error) throw new Error(datos.message);
             const lista = Array.isArray(datos) ? datos : [];
             setJustificaciones(lista);
             setError("");
@@ -166,6 +168,16 @@ export function useJustificaciones({
             if (intervalo) window.clearInterval(intervalo);
         };
     }, [conContador, intervaloContador]);
+
+    useEffect(() => {
+        if (!fuente) return undefined;
+
+        const manejarActualizacion = () => {
+            void recargar({ silencioso: true });
+        };
+        window.addEventListener(EVENTO_JUSTIFICACIONES_ACTUALIZADAS, manejarActualizacion);
+        return () => window.removeEventListener(EVENTO_JUSTIFICACIONES_ACTUALIZADAS, manejarActualizacion);
+    }, [fuente, recargar]);
 
     // Refresco periódico y silencioso de la lista.
     useEffect(() => {

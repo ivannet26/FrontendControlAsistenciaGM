@@ -240,6 +240,28 @@
     color: #ffffff;
 }
 
+.modal-justificacion-optimizando {
+    min-height: 66px;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    color: #d3dde3;
+    font-size: 13px;
+}
+
+.modal-justificacion-optimizando-spinner {
+    width: 18px;
+    height: 18px;
+    border: 2px solid rgba(211, 221, 227, 0.25);
+    border-top-color: #10a5f5;
+    border-radius: 50%;
+    animation: modal-justificacion-girar 0.8s linear infinite;
+}
+
+@keyframes modal-justificacion-girar {
+    to { transform: rotate(360deg); }
+}
+
 .modal-justificacion-footer {
     display: flex;
     justify-content: flex-end;

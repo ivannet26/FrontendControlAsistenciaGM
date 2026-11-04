@@ -96,6 +96,25 @@
     letter-spacing: 0.5px;
 }
 
+.asistencia-falta-justificada {
+    margin-top: 12px;
+    padding: 12px;
+    border: 1px solid #2f8f6f;
+    background: #12372d;
+    color: #ffffff;
+}
+
+.asistencia-falta-justificada strong,
+.asistencia-falta-justificada span {
+    display: block;
+}
+
+.asistencia-falta-justificada span {
+    margin-top: 4px;
+    color: #b9d8cf;
+    font-size: 12px;
+}
+
 .asistencia-solo-lectura {
     margin: -4px 0 0;
     color: #8ea0af;

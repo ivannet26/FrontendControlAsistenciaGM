@@ -3,19 +3,22 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import toast from "react-hot-toast";
 import { Paperclip, UploadSimple, X } from "@phosphor-icons/react";
-import { crear as crearJustificacion } from "../../services/justificacionesService";
+import imageCompression from "browser-image-compression";
+import { crear as crearJustificacion, editar as editarJustificacion } from "../../services/justificacionesService";
 import "./ModalJustificacion.css";
 
 const MOTIVOS = [
-    { valor: "FALTA", etiqueta: "Falta" },
-    { valor: "TARDANZA", etiqueta: "Llegué tarde" },
-    { valor: "OLVIDO_MARCAR", etiqueta: "Olvidé marcar" },
+    { valor: "Falta", etiqueta: "Falta" },
+    { valor: "Tardanza", etiqueta: "Llegué tarde" },
+    { valor: "Olvidé marcar", etiqueta: "Olvidé marcar" },
+    { valor: "Otro", etiqueta: "Otro" },
 ];
 
 const TITULOS = {
-    FALTA: "Justificar una falta",
-    TARDANZA: "Justificar tardanza",
-    OLVIDO_MARCAR: "Justificar olvido de marca",
+    Falta: "Justificar una falta",
+    Tardanza: "Justificar tardanza",
+    "Olvidé marcar": "Justificar olvido de marca",
+    Otro: "Justificar otro motivo",
 };
 
 const TIPOS_IMAGEN = ["image/jpeg", "image/jpg", "image/png"];
@@ -39,14 +42,32 @@ const manana = () => {
 const obtenerMensajeError = (error, mensajePredeterminado) => {
     const detalle = error?.response?.data?.detail;
     if (typeof detalle === "string" && detalle.trim()) return detalle;
+    if (Array.isArray(detalle)) {
+        const mensajes = detalle.map((item) => item?.msg || item?.message).filter(Boolean);
+        if (mensajes.length) return mensajes.join(". ");
+    }
+    if (detalle && typeof detalle === "object") {
+        if (typeof detalle.msg === "string" && detalle.msg.trim()) return detalle.msg.trim();
+        return JSON.stringify(detalle);
+    }
+    if (error?.response?.status === 422) {
+        return "Error al procesar la imagen, verifica el formato.";
+    }
     return error?.message || mensajePredeterminado;
 };
 
 const crearFormularioInicial = (motivo, fechaSugerida) => {
-    const tipo = MOTIVOS.some((opcion) => opcion.valor === motivo) ? motivo : "FALTA";
+    const valoresCompatibles = {
+        FALTA: "Falta",
+        TARDANZA: "Tardanza",
+        OLVIDO_MARCAR: "Olvidé marcar",
+    };
+    const tipo = MOTIVOS.some((opcion) => opcion.valor === motivo)
+        ? motivo
+        : valoresCompatibles[motivo] || "Falta";
     return {
         tipo,
-        fecha: fechaSugerida || (tipo === "FALTA" ? manana() : hoy()),
+        fecha: fechaSugerida || (tipo === "Falta" ? manana() : hoy()),
         asunto: "",
         mensaje: "",
     };
@@ -61,8 +82,10 @@ const validar = (datos, archivo) => {
 
     if (!datos.fecha) {
         errores.fecha = "Selecciona la fecha.";
-    } else if (datos.tipo === "FALTA" && datos.fecha < manana()) {
+    } else if (datos.tipo === "Falta" && datos.fecha < manana()) {
         errores.fecha = "Para una falta, avisa con al menos un día de anticipación.";
+    } else if (datos.tipo !== "Falta" && datos.fecha > hoy()) {
+        errores.fecha = "La tardanza o el olvido de marca deben ser de hoy o días anteriores.";
     }
 
     if (!datos.asunto.trim()) {
@@ -88,21 +111,37 @@ const validar = (datos, archivo) => {
 
 const ModalJustificacion = ({
     abierto = false,
-    motivoInicial = "FALTA",
+    motivoInicial = "Falta",
     fechaInicial,
     minutosTarde,
+    intentoNumero,
+    limiteIntentos = 2,
+    justificacionEditando = null,
+    justificaciones = [],
     onCerrar,
     onEnviada,
 }) => {
     // El modal se monta al abrirse: el estado inicial se toma de las props.
-    const [form, setForm] = useState(() => crearFormularioInicial(motivoInicial, fechaInicial));
+    const [form, setForm] = useState(() => justificacionEditando
+        ? {
+            tipo: MOTIVOS.some((opcion) => opcion.valor === justificacionEditando.tipo)
+                ? justificacionEditando.tipo
+                : crearFormularioInicial(justificacionEditando.tipo, fechaInicial).tipo,
+            fecha: String(justificacionEditando.fecha || fechaInicial || hoy()).slice(0, 10),
+            asunto: justificacionEditando.asunto || "",
+            mensaje: justificacionEditando.mensaje || "",
+        }
+        : crearFormularioInicial(motivoInicial, fechaInicial));
     const [archivo, setArchivo] = useState(null);
     const [vistaPrevia, setVistaPrevia] = useState(null);
     const [errores, setErrores] = useState({});
     const [enviando, setEnviando] = useState(false);
+    const [optimizandoImagen, setOptimizandoImagen] = useState(false);
+    const [limiteAlcanzado, setLimiteAlcanzado] = useState(false);
 
     const vistaPreviaRef = useRef(null);
     const inputArchivoRef = useRef(null);
+    const compresionArchivoRef = useRef(0);
 
     useEffect(() => {
         if (!abierto) return undefined;
@@ -133,13 +172,34 @@ const ModalJustificacion = ({
 
     if (!abierto) return null;
 
+    const tipoEquivalente = (tipo) => ({
+        FALTA: "Falta",
+        Falta: "Falta",
+        TARDANZA: "Tardanza",
+        Tardanza: "Tardanza",
+        OLVIDO_MARCAR: "Olvidé marcar",
+        "Olvidé marcar": "Olvidé marcar",
+        OTRO: "Otro",
+        Otro: "Otro",
+    }[tipo] || tipo);
+    const coincidencias = justificacionEditando
+        ? 0
+        : (Array.isArray(justificaciones) ? justificaciones : []).filter((justificacion) =>
+            tipoEquivalente(justificacion.tipo) === tipoEquivalente(form.tipo)
+            && String(justificacion.fecha || "").slice(0, 10) === String(form.fecha).slice(0, 10)
+        ).length;
+    const intentoCalculado = Math.min(coincidencias + 1, limiteIntentos);
+    const limiteCalculado = coincidencias >= limiteIntentos;
+    const envioBloqueado = limiteAlcanzado || limiteCalculado;
+
     const cambiarCampo = (campo, valor) => {
+        setLimiteAlcanzado(false);
         setForm((actual) => {
             const siguiente = { ...actual, [campo]: valor };
 
             if (campo === "tipo") {
-                if (valor === "FALTA" && siguiente.fecha < manana()) siguiente.fecha = manana();
-                if (valor !== "FALTA" && siguiente.fecha > hoy()) siguiente.fecha = hoy();
+                if (valor === "Falta" && siguiente.fecha < manana()) siguiente.fecha = manana();
+                if (valor !== "Falta" && siguiente.fecha > hoy()) siguiente.fecha = hoy();
             }
 
             return siguiente;
@@ -160,7 +220,7 @@ const ModalJustificacion = ({
         if (inputArchivoRef.current) inputArchivoRef.current.value = "";
     };
 
-    const cambiarArchivo = (evento) => {
+    const cambiarArchivo = async (evento) => {
         const seleccionado = evento.target.files?.[0];
         if (!seleccionado) {
             quitarArchivo();
@@ -179,13 +239,49 @@ const ModalJustificacion = ({
             return;
         }
 
-        if (vistaPreviaRef.current) URL.revokeObjectURL(vistaPreviaRef.current);
-
-        const url = URL.createObjectURL(seleccionado);
-        vistaPreviaRef.current = url;
-        setArchivo(seleccionado);
-        setVistaPrevia(url);
+        const numeroCompresion = ++compresionArchivoRef.current;
         setErrores((actuales) => ({ ...actuales, adjunto: "" }));
+        setArchivo(null);
+        setVistaPrevia(null);
+        setOptimizandoImagen(true);
+
+        try {
+            const opciones = {
+                maxSizeMB: 1,
+                maxWidthOrHeight: 1920,
+                useWebWorker: true,
+                initialQuality: 0.8,
+            };
+            let archivoComprimido = await imageCompression(seleccionado, opciones);
+
+            if (!(archivoComprimido instanceof File)) {
+                archivoComprimido = new File(
+                    [archivoComprimido],
+                    seleccionado.name,
+                    { type: archivoComprimido.type || seleccionado.type }
+                );
+            }
+
+            if (numeroCompresion !== compresionArchivoRef.current) return;
+
+            if (vistaPreviaRef.current) URL.revokeObjectURL(vistaPreviaRef.current);
+            const url = URL.createObjectURL(archivoComprimido);
+            vistaPreviaRef.current = url;
+            setArchivo(archivoComprimido);
+            setVistaPrevia(url);
+            console.log("archivo optimizado:", archivoComprimido);
+        } catch {
+            if (numeroCompresion === compresionArchivoRef.current) {
+                setErrores((actuales) => ({
+                    ...actuales,
+                    adjunto: "No se pudo optimizar la imagen. Intenta con otro archivo.",
+                }));
+            }
+        } finally {
+            if (numeroCompresion === compresionArchivoRef.current) {
+                setOptimizandoImagen(false);
+            }
+        }
     };
 
     const cerrar = () => {
@@ -195,6 +291,7 @@ const ModalJustificacion = ({
 
     const enviar = async (evento) => {
         evento.preventDefault();
+        if (envioBloqueado) return;
 
         const nuevosErrores = validar(form, archivo);
         setErrores(nuevosErrores);
@@ -213,20 +310,36 @@ const ModalJustificacion = ({
 
         setEnviando(true);
         try {
-            await crearJustificacion({
+            console.log("archivo seleccionado:", archivo);
+            const datos = {
                 tipo: form.tipo,
                 fecha: form.fecha,
                 asunto: form.asunto.trim(),
                 mensaje: form.mensaje.trim(),
-                minutos_tarde: form.tipo === "TARDANZA" ? minutosTarde ?? null : null,
+                minutos_tarde: form.tipo === "Tardanza" ? minutosTarde ?? null : null,
                 evidencia: archivo,
-            });
+            };
 
-            toast.success("Justificación enviada. Queda pendiente de revisión.");
+            if (justificacionEditando?.id) {
+                await editarJustificacion(justificacionEditando.id, datos);
+                toast.success("Justificación actualizada. Queda pendiente de revisión.", { duration: 3000 });
+            } else {
+                await crearJustificacion(datos);
+                toast.success("Justificación enviada. Queda pendiente de revisión.", { duration: 3000 });
+            }
             onEnviada?.();
             onCerrar?.();
         } catch (error) {
-            toast.error(obtenerMensajeError(error, "No se pudo enviar la justificación."));
+            const status = error?.response?.status;
+            const mensaje = status === 422
+                ? "Has alcanzado el límite de justificaciones para esta fecha"
+                : obtenerMensajeError(error, "No se pudo enviar la justificación.");
+            toast.error(mensaje, { duration: 4000 });
+            if (status === 422
+                || status === 400
+                || /límite|limite|intentos/i.test(mensaje)) {
+                setLimiteAlcanzado(true);
+            }
         } finally {
             setEnviando(false);
         }
@@ -261,6 +374,18 @@ const ModalJustificacion = ({
                 </header>
 
                 <form className="modal-justificacion-form" onSubmit={enviar} noValidate>
+                    <p className={`modal-justificacion-nota${envioBloqueado ? " modal-justificacion-error" : ""}`}>
+                        {envioBloqueado
+                            ? "Has alcanzado el límite de intentos"
+                            : `Intento ${intentoCalculado} de ${limiteIntentos}`}
+                    </p>
+
+                    {form.tipo === "Falta" && form.fecha > hoy() ? (
+                        <p className="modal-justificacion-nota">
+                            Estás enviando una solicitud de permiso anticipado
+                        </p>
+                    ) : null}
+
                     <div className="modal-justificacion-fila">
                         <div className="modal-justificacion-campo">
                             <label htmlFor="justificacion-motivo">Motivo</label>
@@ -292,8 +417,8 @@ const ModalJustificacion = ({
                                 type="date"
                                 lang="es-PE"
                                 value={form.fecha}
-                                min={form.tipo === "FALTA" ? manana() : undefined}
-                                max={form.tipo === "FALTA" ? undefined : hoy()}
+                                min={form.tipo === "Falta" ? manana() : undefined}
+                                max={form.tipo === "Falta" ? undefined : hoy()}
                                 onChange={(evento) => cambiarCampo("fecha", evento.target.value)}
                                 aria-invalid={Boolean(errores.fecha)}
                                 aria-describedby={descripcionError("fecha")}
@@ -307,7 +432,7 @@ const ModalJustificacion = ({
                         </div>
                     </div>
 
-                    {form.tipo === "TARDANZA" && minutosTarde ? (
+                    {form.tipo === "Tardanza" && minutosTarde ? (
                         <p className="modal-justificacion-nota">
                             Tardanza registrada: {minutosTarde} min. Se enviará junto con tu justificación.
                         </p>
@@ -368,7 +493,7 @@ const ModalJustificacion = ({
                             aria-labelledby="justificacion-adjunto-etiqueta"
                             aria-invalid={Boolean(errores.adjunto)}
                             aria-describedby={descripcionError("adjunto")}
-                            disabled={enviando}
+                            disabled={enviando || optimizandoImagen || envioBloqueado}
                             tabIndex={-1}
                         />
 
@@ -382,12 +507,17 @@ const ModalJustificacion = ({
                                     </button>
                                 </div>
                             </div>
+                        ) : optimizandoImagen ? (
+                            <div className="modal-justificacion-optimizando" role="status" aria-live="polite">
+                                <span className="modal-justificacion-optimizando-spinner" aria-hidden="true" />
+                                <span>Optimizando imagen...</span>
+                            </div>
                         ) : (
                             <button
                                 type="button"
                                 className="modal-justificacion-adjuntar"
                                 onClick={() => inputArchivoRef.current?.click()}
-                                disabled={enviando}
+                                disabled={enviando || optimizandoImagen}
                             >
                                 <UploadSimple size={17} weight="bold" aria-hidden="true" />
                                 Adjuntar imagen
@@ -413,10 +543,14 @@ const ModalJustificacion = ({
                         <button
                             type="submit"
                             className="modal-justificacion-enviar"
-                            disabled={enviando}
+                            disabled={enviando || optimizandoImagen || envioBloqueado}
                         >
                             <Paperclip size={16} weight="bold" aria-hidden="true" />
-                            {enviando ? "Enviando..." : "Enviar justificación"}
+                            {optimizandoImagen
+                                ? "Optimizando imagen..."
+                                : enviando
+                                    ? "Enviando..."
+                                    : "Enviar justificación"}
                         </button>
                     </footer>
                 </form>

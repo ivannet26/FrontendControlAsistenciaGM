@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import "./ModalConfirm.css";
 
 const ModalConfirm = ({
@@ -10,8 +10,29 @@ const ModalConfirm = ({
     tipo = "danger", // "danger" | "warning" | "info"
     onConfirmar,
     onCancelar,
+    requiereComentario = false,
 }) => {
+    const [comentario, setComentario] = useState("");
+    const [errorComentario, setErrorComentario] = useState("");
+
+    useEffect(() => {
+        if (!abierto) {
+            setComentario("");
+            setErrorComentario("");
+        }
+    }, [abierto]);
+
     if (!abierto) return null;
+
+    const confirmar = () => {
+        if (requiereComentario && !comentario.trim()) {
+            setErrorComentario("El comentario es obligatorio");
+            return;
+        }
+
+        setErrorComentario("");
+        onConfirmar?.(requiereComentario ? comentario.trim() : undefined);
+    };
 
     return (
         <div className="modal-confirm-overlay" onClick={onCancelar}>
@@ -29,6 +50,25 @@ const ModalConfirm = ({
                     ) : (
                         mensaje
                     )}
+                    {requiereComentario && (
+                        <label className="modal-confirm-comentario">
+                            Comentario
+                            <textarea
+                                value={comentario}
+                                onChange={(evento) => {
+                                    setComentario(evento.target.value);
+                                    if (evento.target.value.trim()) setErrorComentario("");
+                                }}
+                                rows={4}
+                                aria-invalid={Boolean(errorComentario)}
+                            />
+                            {errorComentario && (
+                                <span className="modal-confirm-error" role="alert">
+                                    {errorComentario}
+                                </span>
+                            )}
+                        </label>
+                    )}
                 </div>
 
                 <div className="modal-confirm-footer">
@@ -42,7 +82,7 @@ const ModalConfirm = ({
                     <button
                         type="button"
                         className={`btn-confirm-aceptar btn-confirm-${tipo}`}
-                        onClick={onConfirmar}
+                        onClick={confirmar}
                     >
                         {textoConfirmar}
                     </button>

@@ -13,10 +13,10 @@ import {
     obtenerResumenAdminPorFecha,
 } from "../../services/asistenciaService";
 import { obtenerHorarioDeUsuario } from "../../services/horarioService";
-import { obtenerTodas as obtenerTodasLasJustificaciones } from "../../services/justificacionesService";
 import { construirUrlAvatar } from "../../hooks/useUsuarioActual";
 import ModalVerHorarioAdmin from "../../components/ModalVerHorarioAdmin/ModalVerHorarioAdmin";
 import ModalVerJustificacion from "../../components/ModalVerJustificacion/ModalVerJustificacion";
+import { EVENTO_JUSTIFICACIONES_ACTUALIZADAS } from "../../services/justificacionesService";
 import "./AsistenciaAdmin.css";
 
 // ── Formateadores ─────────────────────────────────────
@@ -29,6 +29,26 @@ const formatearHora = (iso) => iso
 const formatearFechaCorta = (fechaIso) => {
     const [año, mes, dia] = fechaIso.split("-");
     return `${dia}/${mes}/${año}`;
+};
+
+const normalizarFecha = (fecha) => {
+    const valor = String(fecha || "").trim();
+    if (!valor) return "";
+
+    if (valor.includes("/")) {
+        const [dia, mes, anio] = valor.split(/[/-]/);
+        return `${anio}-${mes.padStart(2, "0")}-${dia.padStart(2, "0")}`;
+    }
+
+    const fechaIso = valor.match(/^(\d{4}-\d{2}-\d{2})/);
+    if (fechaIso) return fechaIso[1];
+
+    const fechaParseada = new Date(valor);
+    if (Number.isNaN(fechaParseada.getTime())) return "";
+    const anio = fechaParseada.getFullYear();
+    const mes = String(fechaParseada.getMonth() + 1).padStart(2, "0");
+    const dia = String(fechaParseada.getDate()).padStart(2, "0");
+    return `${anio}-${mes}-${dia}`;
 };
 
 const formatearDuracion = (segundos) => {
@@ -151,7 +171,7 @@ const TarjetaUsuario = ({ fila, onVerHorario, justificacion, onVerJustificacion 
 
             <div className="admin-card-justificacion">
                 <span className="admin-card-justificacion-label">Justificación</span>
-                {justificacion ? (
+                {["PENDIENTE", "ACEPTADA"].includes(justificacion?.estado) ? (
                     <button
                         type="button"
                         className="btn-ver-justificacion"
@@ -162,6 +182,16 @@ const TarjetaUsuario = ({ fila, onVerHorario, justificacion, onVerJustificacion 
                 ) : (
                     <span className="admin-sin-justificacion">---</span>
                 )}
+            </div>
+            <div className="admin-card-comentario-justificacion">
+                <span className="admin-card-justificacion-label">Comentario Admin</span>
+                <span>
+                    {justificacion?.estado === "PENDIENTE"
+                        ? "Pendiente de revisión"
+                        : ["ACEPTADA", "RECHAZADA", "INJUSTIFICADA"].includes(justificacion?.estado)
+                            ? justificacion.comentario_admin?.trim() || "---"
+                            : "---"}
+                </span>
             </div>
         </article>
     );
@@ -186,7 +216,6 @@ const AsistenciaAdmin = () => {
     const [modalHorarioAbierto, setModalHorarioAbierto] = useState(false);
     const [horarioUsuario, setHorarioUsuario] = useState(null);
     const [cargandoHorario, setCargandoHorario] = useState(false);
-    const [justificacionesAceptadas, setJustificacionesAceptadas] = useState([]);
     const [justificacionVer, setJustificacionVer] = useState(null);
 
     const hoy = obtenerFechaLocal();
@@ -225,6 +254,11 @@ const AsistenciaAdmin = () => {
                     breakFin: r.break_fin,
                     duracion: formatearDuracion(r.duracion_break_segundos),
                     salida: r.salida,
+                    justificacion_aceptada: r.justificacion_aceptada || null,
+                    comentario_admin: r.comentario_admin || "",
+                    justificacion_asunto: r.justificacion_asunto || "",
+                    justificacion_mensaje: r.justificacion_mensaje || "",
+                    justificacion_evidencia_url: r.justificacion_evidencia_url || "",
                 }));
 
                 setFilas((actuales) => (
@@ -273,62 +307,36 @@ const AsistenciaAdmin = () => {
         };
     }, [fecha, hoy]);
 
-    // Justificaciones aceptadas de la fecha elegida: solo se muestran las aprobadas.
-    useEffect(() => {
-        let cancelado = false;
-
-        const cargarJustificaciones = async () => {
-            try {
-                const datos = await obtenerTodasLasJustificaciones({
-                    estado: "ACEPTADA",
-                    desde: fecha,
-                    hasta: fecha,
-                });
-                if (cancelado) return;
-                setJustificacionesAceptadas(Array.isArray(datos) ? datos : []);
-            } catch {
-                if (!cancelado) setJustificacionesAceptadas([]);
-            }
-        };
-
-        void cargarJustificaciones();
-
-        return () => {
-            cancelado = true;
-        };
-    }, [fecha]);
-
     useEffect(() => {
         const intervalo = window.setInterval(() => setRelojActualizacion(Date.now()), 1000);
         return () => window.clearInterval(intervalo);
     }, []);
 
-    // Índice por usuario y por correo para resolver la justificación de cada fila.
-    const indiceJustificaciones = useMemo(() => {
-        const porUsuario = new Map();
-        const porCorreo = new Map();
-
-        justificacionesAceptadas.forEach((justificacion) => {
-            if (justificacion.estado !== "ACEPTADA") return;
-            if (String(justificacion.fecha || "").slice(0, 10) !== fecha) return;
-
-            if (justificacion.usuario_id !== null && justificacion.usuario_id !== undefined) {
-                porUsuario.set(Number(justificacion.usuario_id), justificacion);
-            }
-            if (justificacion.correo) {
-                porCorreo.set(String(justificacion.correo).toLowerCase(), justificacion);
-            }
-        });
-
-        return { porUsuario, porCorreo };
-    }, [justificacionesAceptadas, fecha]);
+    useEffect(() => {
+        const refrescarAsistencia = () => consultarAhoraRef.current?.();
+        window.addEventListener(EVENTO_JUSTIFICACIONES_ACTUALIZADAS, refrescarAsistencia);
+        return () => window.removeEventListener(EVENTO_JUSTIFICACIONES_ACTUALIZADAS, refrescarAsistencia);
+    }, []);
 
     const buscarJustificacion = (fila) => {
-        const porId = indiceJustificaciones.porUsuario.get(Number(fila.id));
-        if (porId) return porId;
-
-        const correo = String(fila.email || "").toLowerCase();
-        return correo ? indiceJustificaciones.porCorreo.get(correo) || null : null;
+        if (!fila.justificacion_aceptada) return null;
+        const aceptada = typeof fila.justificacion_aceptada === "object"
+            ? {
+                ...fila.justificacion_aceptada,
+                estado: fila.justificacion_aceptada.estado || "ACEPTADA",
+                comentario_admin: fila.comentario_admin
+                    ?? fila.justificacion_aceptada.comentario_admin
+                    ?? "",
+            }
+            : {
+                estado: "ACEPTADA",
+                comentario_admin: fila.comentario_admin || "",
+                asunto: "Justificación aceptada",
+                mensaje: "",
+            };
+        return String(aceptada.estado || "").toUpperCase() === "ACEPTADA"
+            ? aceptada
+            : null;
     };
 
     // ── Filtrado ───────────────────────────────────────
@@ -441,8 +449,10 @@ const AsistenciaAdmin = () => {
                         type="date"
                         lang="es-PE"
                         value={fecha}
-                        max={hoy}
-                        onChange={(e) => setFecha(e.target.value)}
+                        onChange={(e) => {
+                            console.log("Fecha seleccionada:", e.target.value);
+                            setFecha(e.target.value);
+                        }}
                         onClick={abrirCalendario}
                     />
                 </div>
@@ -504,7 +514,7 @@ const AsistenciaAdmin = () => {
                                 key={f.id}
                                 fila={f}
                                 justificacion={buscarJustificacion(f)}
-                                onVerJustificacion={setJustificacionVer}
+                                onVerJustificacion={() => setJustificacionVer(f)}
                                 onVerHorario={verHorarioUsuario}
                             />
                         ))}
@@ -524,19 +534,20 @@ const AsistenciaAdmin = () => {
                                     <th className="col-centrada">Salida</th>
                                     <th>Estado</th>
                                     <th className="col-justificacion">Justificación</th>
+                                    <th>Comentario Admin</th>
                                     <th className="col-check">Check</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {cargandoInicial ? (
                                     <tr>
-                                        <td colSpan="11" className="admin-tabla-vacia">
+                                        <td colSpan="12" className="admin-tabla-vacia">
                                             Cargando registros...
                                         </td>
                                     </tr>
                                 ) : filasFiltradas.length === 0 ? (
                                     <tr>
-                                        <td colSpan="11" className="admin-tabla-vacia">
+                                        <td colSpan="12" className="admin-tabla-vacia">
                                             No hay usuarios con esos filtros.
                                         </td>
                                     </tr>
@@ -602,17 +613,29 @@ const AsistenciaAdmin = () => {
                                                 </span>
                                             </td>
                                             <td className="col-justificacion">
-                                                {justificacion ? (
+                                                {["PENDIENTE", "ACEPTADA"].includes(justificacion?.estado) ? (
                                                     <button
                                                         type="button"
                                                         className="btn-ver-justificacion"
-                                                        onClick={() => setJustificacionVer(justificacion)}
+                                                        onClick={() => setJustificacionVer(f)}
                                                     >
                                                         Ver justificación
                                                     </button>
                                                 ) : (
                                                     <span className="admin-sin-justificacion">---</span>
                                                 )}
+                                            </td>
+                                            <td className="admin-comentario-justificacion">
+                                                <span
+                                                    className="admin-comentario-texto"
+                                                    title={justificacion?.comentario_admin?.trim() || ""}
+                                                >
+                                                    {justificacion?.estado === "PENDIENTE"
+                                                        ? "Pendiente de revisión"
+                                                        : ["ACEPTADA", "RECHAZADA", "INJUSTIFICADA"].includes(justificacion?.estado)
+                                                            ? justificacion.comentario_admin?.trim() || "---"
+                                                            : "---"}
+                                                </span>
                                             </td>
                                             <td className="col-check">
                                                 {f.tieneEntrada ? (
