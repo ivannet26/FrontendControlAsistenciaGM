@@ -15,12 +15,14 @@ import {
     obtenerFechaLocal,
     obtenerRegistrosHoy,
     obtenerRegistrosPorFecha,
+    obtenerResumenHoras,
     registrarEvento,
 } from "../../services/asistenciaService";
 import { useJustificaciones } from "../../hooks/useJustificaciones";
 import AlertaTardanza from "../../components/AlertaTardanza/AlertaTardanza";
 import MisJustificaciones from "../../components/MisJustificaciones/MisJustificaciones";
 import ModalJustificacion from "../../components/ModalJustificacion/ModalJustificacion";
+import ProgresoHoras from "../../components/ProgresoHoras/ProgresoHoras";
 import {
     MENSAJES_ENTRADA,
     MENSAJES_SALIDA,
@@ -150,7 +152,9 @@ const obtenerMensajeError = (error, mensajePredeterminado) => {
 };
 
 const Asistencia = () => {
+    const [tabActiva, setTabActiva] = useState("MI_ASISTENCIA");
     const [registrosHoy, setRegistrosHoy] = useState([]);
+    const [resumenHoras, setResumenHoras] = useState(null);
     const [estadoRespuestaHoy, setEstadoRespuestaHoy] = useState("SIN_ENTRADA");
     const [estadoFechaVista, setEstadoFechaVista] = useState("SIN_ENTRADA");
     const [justificacionFaltaFechaVista, setJustificacionFaltaFechaVista] = useState(null);
@@ -257,6 +261,17 @@ const Asistencia = () => {
         };
 
         cargarAsistenciaHoy();
+
+        obtenerResumenHoras()
+            .then((resumen) => {
+                if (!cancelado) setResumenHoras(resumen);
+            })
+            .catch((error) => {
+                if (!cancelado) {
+                    console.error("No se pudo cargar el resumen de horas.", error);
+                }
+            });
+
         return () => {
             cancelado = true;
         };
@@ -287,6 +302,11 @@ const Asistencia = () => {
             if (fechaVista === obtenerFechaLocal()) {
                 setRegistrosFechaVista(respuesta.registros);
             }
+            obtenerResumenHoras()
+                .then((resumenActualizado) => setResumenHoras(resumenActualizado))
+                .catch((errorResumen) => {
+                    console.error("No se pudo actualizar el resumen de horas.", errorResumen);
+                });
             if (tipo === "ENTRADA") {
                 // El estado y los minutos de tardanza vienen resueltos por el backend.
                 const marcaje = interpretarMarcaje(respuestaMarcaje);
@@ -427,6 +447,7 @@ const Asistencia = () => {
 
     return (
         <div className="asistencia-container">
+            <div className="asistencia-contenido">
             <header className="asistencia-header">
                 <div className="asistencia-titulo">
                     <p className="asistencia-eyebrow">CONTROL PERSONAL</p>
@@ -435,6 +456,29 @@ const Asistencia = () => {
                 </div>
             </header>
 
+            <div className="asistencia-tabs" role="tablist" aria-label="Secciones de asistencia">
+                <button
+                    type="button"
+                    role="tab"
+                    aria-selected={tabActiva === "MI_ASISTENCIA"}
+                    className={tabActiva === "MI_ASISTENCIA" ? "activo" : ""}
+                    onClick={() => setTabActiva("MI_ASISTENCIA")}
+                >
+                    MI ASISTENCIA
+                </button>
+                <button
+                    type="button"
+                    role="tab"
+                    aria-selected={tabActiva === "MIS_JUSTIFICACIONES"}
+                    className={tabActiva === "MIS_JUSTIFICACIONES" ? "activo" : ""}
+                    onClick={() => setTabActiva("MIS_JUSTIFICACIONES")}
+                >
+                    MIS JUSTIFICACIONES
+                </button>
+            </div>
+
+            {tabActiva === "MI_ASISTENCIA" && (
+            <>
             {alertaTardanza && (
                 <AlertaTardanza
                     estado={alertaTardanza.estado}
@@ -499,8 +543,6 @@ const Asistencia = () => {
                             );
                         })}
                     </section>
-                </section>
-
                 <section className="asistencia-registros" aria-label="Registros de asistencia">
                     {errorCarga && (
                         <div className="asistencia-error-carga" role="alert">{errorCarga}</div>
@@ -597,15 +639,33 @@ const Asistencia = () => {
                         )}
                     </div>
                 </section>
+                </section>
+
+                <aside className="asistencia-columna-progreso" aria-label="Progreso de horas">
+                    <ProgresoHoras
+                        estado={estadoHoy}
+                        datos={resumenHoras}
+                        registros={registrosHoy}
+                        horaActual={horaActual}
+                    />
+                </aside>
             </main>
 
-            <MisJustificaciones
-                justificaciones={justificaciones}
-                cargando={cargandoJustificaciones}
-                error={errorJustificaciones}
-                onJustificarFalta={abrirJustificacionFalta}
-                onEditarJustificacion={abrirEdicionJustificacion}
-            />
+            </>
+            )}
+
+            {tabActiva === "MIS_JUSTIFICACIONES" && (
+                <section className="asistencia-tab-justificaciones" aria-label="Mis justificaciones">
+                    <MisJustificaciones
+                        justificaciones={justificaciones}
+                        cargando={cargandoJustificaciones}
+                        error={errorJustificaciones}
+                        onJustificarFalta={abrirJustificacionFalta}
+                        onEditarJustificacion={abrirEdicionJustificacion}
+                    />
+                </section>
+            )}
+            </div>
 
             {modalJustificacion && (
                 <ModalJustificacion

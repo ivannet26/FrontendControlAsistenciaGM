@@ -89,7 +89,7 @@ const MisJustificaciones = ({
         <section className="mis-justificaciones" aria-labelledby="mis-justificaciones-titulo">
             <header className="mis-justificaciones-header">
                 <div className="mis-justificaciones-titulo">
-                    <h2 id="mis-justificaciones-titulo">Mis justificaciones</h2>
+                    <h2 id="mis-justificaciones-titulo">Mis Justificaciones</h2>
                     <p>Revisa el estado de las tardanzas, faltas y olvidos que enviaste.</p>
                 </div>
 
