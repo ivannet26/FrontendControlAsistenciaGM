@@ -1,9 +1,9 @@
-/* =========================================================
-   MIS JUSTIFICACIONES
-   ========================================================= */
-
 .mis-justificaciones {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
     margin-top: 16px;
+    overflow: hidden;
     background: #101b22;
     border: 1px solid #263740;
 }
@@ -15,58 +15,6 @@
     gap: 12px;
     padding: 14px 16px;
     border-bottom: 1px solid #263740;
-}
-
-.mis-justificaciones-calendario-controles {
-    position: relative;
-}
-
-.mis-justificaciones-calendario-boton {
-    width: 34px;
-    height: 34px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid #344650;
-    background: transparent;
-    cursor: pointer;
-}
-
-.mis-justificaciones-calendario-popover {
-    position: absolute;
-    top: calc(100% + 8px);
-    right: 0;
-    z-index: 3200;
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
-}
-
-.mis-justificaciones-calendario-popover .react-calendar {
-    width: 280px;
-    max-width: 100%;
-    border: 1px solid #344650;
-    background: #162630;
-    color: #d3dde3;
-}
-
-.mis-justificaciones-calendario .react-calendar__navigation button,
-.mis-justificaciones-calendario .react-calendar__tile {
-    background: transparent;
-    color: #d3dde3;
-}
-
-.mis-justificaciones-calendario .react-calendar__tile:disabled {
-    color: #60717d;
-}
-
-.mis-justificaciones-calendario .react-calendar__tile--now {
-    background: #263740;
-}
-
-.mis-justificaciones-calendario .react-calendar__tile--active,
-.mis-justificaciones-calendario .react-calendar__tile--active:enabled:hover,
-.mis-justificaciones-calendario .react-calendar__tile--active:enabled:focus {
-    background: #10a5f5;
-    color: #ffffff;
 }
 
 .mis-justificaciones-titulo {
@@ -97,6 +45,7 @@
     min-height: 34px;
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 8px;
     padding: 0 12px;
     border: 1px solid #10a5f5;
@@ -121,86 +70,34 @@
     cursor: not-allowed;
 }
 
-.mis-justificaciones-limite {
+.mis-justificaciones-limite,
+.mis-justificaciones-error {
     margin: 0;
-    padding: 8px 16px;
+    padding: 10px 16px;
     border-bottom: 1px solid #263740;
-    color: #f0c674;
     font-size: 12px;
 }
 
-.mis-justificaciones-historial-boton {
-    border-color: #344650;
-    background: transparent;
-    color: #d3dde3;
-}
+.mis-justificaciones-limite { color: #f0c674; }
+.mis-justificaciones-error { color: #d3dde3; }
 
-.mis-justificaciones-historial-boton:hover {
-    border-color: #10a5f5;
-    background: transparent;
-    color: #10a5f5;
-}
-
-.mis-justificaciones-historial-overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 3000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    box-sizing: border-box;
-    background: rgba(0, 0, 0, 0.72);
-}
-
-.mis-justificaciones-historial-modal {
-    width: min(900px, 100%);
-    max-height: 70vh;
-    overflow: hidden;
-    border: 1px solid #344650;
-    background: #101b22;
-    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55);
-}
-
-.mis-justificaciones-historial-modal header {
-    height: 56px;
-    box-sizing: border-box;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 16px;
-    border-bottom: 1px solid #263740;
-}
-
-.mis-justificaciones-historial-modal header h2 {
-    margin: 0;
-    color: #ffffff;
-    font-size: 16px;
-}
-
-.mis-justificaciones-historial-modal header button {
-    border: 0;
-    background: transparent;
-    color: #b5c4cc;
-    font-size: 24px;
-    cursor: pointer;
-}
-
-.mis-justificaciones-historial-scroll {
-    max-height: calc(70vh - 56px);
-    overflow: auto;
-}
-
-.mis-justificaciones-historial-scroll table {
+.mis-justificaciones-tabla-scroll {
     width: 100%;
+    overflow-x: auto;
+}
+
+.mis-justificaciones-tabla {
+    width: 100%;
+    min-width: 680px;
     table-layout: fixed;
     border-collapse: collapse;
 }
 
-.mis-justificaciones-historial-scroll th,
-.mis-justificaciones-historial-scroll td {
-    padding: 10px 12px;
+.mis-justificaciones-tabla th,
+.mis-justificaciones-tabla td {
+    padding: 11px 14px;
     border-bottom: 1px solid #263740;
+    background: #101b22;
     color: #d3dde3;
     font-size: 12px;
     text-align: left;
@@ -209,131 +106,52 @@
     overflow-wrap: anywhere;
 }
 
-.mis-justificaciones-historial-scroll th {
-    position: sticky;
-    top: 0;
-    z-index: 1;
+.mis-justificaciones-tabla th {
     background: #16242c;
     color: #9eacb5;
     font-size: 10px;
+    font-weight: 650;
     text-transform: uppercase;
+    letter-spacing: 0.4px;
 }
 
-.mis-justificaciones-historial-scroll th:nth-child(1),
-.mis-justificaciones-historial-scroll td:nth-child(1) { width: 13%; }
-.mis-justificaciones-historial-scroll th:nth-child(2),
-.mis-justificaciones-historial-scroll td:nth-child(2) { width: 15%; }
-.mis-justificaciones-historial-scroll th:nth-child(3),
-.mis-justificaciones-historial-scroll td:nth-child(3) { width: 23%; }
-.mis-justificaciones-historial-scroll th:nth-child(4),
-.mis-justificaciones-historial-scroll td:nth-child(4) { width: 14%; }
-.mis-justificaciones-historial-scroll th:nth-child(5),
-.mis-justificaciones-historial-scroll td:nth-child(5) { width: 35%; }
+.mis-justificaciones-tabla th:nth-child(1),
+.mis-justificaciones-tabla td:nth-child(1) { width: 11%; }
+.mis-justificaciones-tabla th:nth-child(2),
+.mis-justificaciones-tabla td:nth-child(2) { width: 15%; }
+.mis-justificaciones-tabla th:nth-child(3),
+.mis-justificaciones-tabla td:nth-child(3) { width: 20%; }
+.mis-justificaciones-tabla th:nth-child(4),
+.mis-justificaciones-tabla td:nth-child(4) { width: 12%; }
+.mis-justificaciones-tabla th:nth-child(5),
+.mis-justificaciones-tabla td:nth-child(5) { width: 28%; }
+.mis-justificaciones-tabla th:nth-child(6),
+.mis-justificaciones-tabla td:nth-child(6) { width: 14%; }
 
-.mis-justificaciones-historial-vacio {
-    margin: 0;
-    padding: 28px;
-    color: #8ea0af;
-    text-align: center;
-}
-
-/* ---------- Paginación en el encabezado ---------- */
-
-.mis-justificaciones-paginacion {
-    display: flex;
-    align-items: center;
-    gap: 2px;
-}
-
-.mis-justificaciones-pagina-boton {
-    width: 26px;
-    height: 26px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-    border: 1px solid #344650;
-    background: transparent;
-    color: #b5c4cc;
-    cursor: pointer;
-    transition: border-color 0.15s ease, color 0.15s ease;
-}
-
-.mis-justificaciones-pagina-boton:hover:not(:disabled) {
-    border-color: #b5c4cc;
-    color: #ffffff;
-}
-
-.mis-justificaciones-pagina-boton:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-}
-
-.mis-justificaciones-pagina-texto {
-    min-width: 48px;
-    color: #8ea0af;
-    font-size: 11.5px;
-    text-align: center;
+.mis-justificaciones-tabla td:first-child {
+    white-space: nowrap;
     font-variant-numeric: tabular-nums;
 }
 
-/* ---------- Avisos y estado vacío ---------- */
-
-.mis-justificaciones-error {
-    margin: 0;
-    padding: 10px 16px;
-    border-bottom: 1px solid #263740;
-    color: #d3dde3;
-    font-size: 12px;
+.mis-justificaciones-acciones-celda {
+    text-align: center !important;
 }
 
-.mis-justificaciones-vacio {
-    min-height: 120px;
-    margin: 0;
-    padding: 24px 16px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    color: #4a5c66;
-    font-size: 13px;
+.mis-justificaciones-tabla th:nth-child(6) {
     text-align: center;
 }
 
-/* ---------- Lista ---------- */
-
-.mis-justificaciones-lista {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-}
-
-.mis-justificaciones-item {
-    display: grid;
-    grid-template-columns: 150px 92px minmax(0, 1fr) auto auto auto;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 16px;
-    border-top: 1px solid #263740;
-    font-size: 13px;
-    transition: background 0.15s ease;
-}
-
-.mis-justificaciones-item:first-child { border-top: 0; }
-.mis-justificaciones-item:hover { background: #1d303a; }
-
-.mis-justificaciones-intento {
-    color: #8ea0af;
-    font-size: 11px;
-    white-space: nowrap;
+.mis-justificaciones-editar {
+    justify-content: center;
 }
 
 .mis-justificaciones-editar {
+    flex: 0 0 auto;
     min-height: 28px;
     display: inline-flex;
     align-items: center;
     gap: 5px;
+    padding: 0 7px;
     border: 1px solid #344650;
     background: transparent;
     color: #d3dde3;
@@ -347,78 +165,35 @@
     color: #10a5f5;
 }
 
-/* Chip neutro, como los chips de rol de Equipo. */
-.mis-justificaciones-tipo {
-    display: inline-block;
-    padding: 5px 10px;
-    border: 1px solid rgba(129, 126, 126, 0.4);
-    background: #101b22;
-    color: #f8f9fa;
-    font-size: 12px;
-    line-height: 1.3;
-    white-space: nowrap;
-}
-
-.mis-justificaciones-fecha {
-    color: #b8c5cc;
-    font-variant-numeric: tabular-nums;
-    white-space: nowrap;
-}
-
-.mis-justificaciones-asunto {
-    min-width: 0;
-    overflow: hidden;
-    color: #f8f9fa;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-}
-
-/* Estado: mismo color para los tres, solo cambia la palabra. */
-.mis-justificaciones-estado {
-    justify-self: end;
-    color: #f8f9fa;
-    font-size: 12.5px;
-    font-weight: 600;
-    white-space: nowrap;
-}
-
 .mis-justificaciones-boton:focus-visible,
-.mis-justificaciones-pagina-boton:focus-visible {
+.mis-justificaciones-editar:focus-visible {
     outline: 2px solid #10a5f5;
     outline-offset: 2px;
 }
 
+.mis-justificaciones-vacio {
+    min-height: 120px;
+    margin: 0;
+    padding: 24px 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    color: #8ea0af;
+    font-size: 13px;
+    text-align: center;
+}
+
 @media (max-width: 700px) {
     .mis-justificaciones-header {
-        flex-direction: column;
         align-items: stretch;
+        flex-direction: column;
         gap: 10px;
     }
 
-    .mis-justificaciones-acciones-cabecera {
-        justify-content: space-between;
-    }
-
+    .mis-justificaciones-acciones-cabecera,
     .mis-justificaciones-boton {
         width: 100%;
-        justify-content: center;
     }
-
-    .mis-justificaciones-item {
-        grid-template-columns: minmax(0, 1fr) auto;
-        grid-template-areas:
-            "tipo estado"
-            "asunto asunto"
-            "fecha fecha";
-        gap: 6px 10px;
-    }
-
-    .mis-justificaciones-tipo { grid-area: tipo; justify-self: start; white-space: normal; }
-    .mis-justificaciones-estado { grid-area: estado; }
-    .mis-justificaciones-asunto { grid-area: asunto; white-space: normal; }
-    .mis-justificaciones-fecha { grid-area: fecha; font-size: 12px; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .mis-justificaciones-item { transition: none; }
 }

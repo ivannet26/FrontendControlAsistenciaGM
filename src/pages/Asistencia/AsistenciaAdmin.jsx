@@ -60,6 +60,33 @@ const formatearDuracion = (segundos) => {
     return [h, m, s].map((n) => String(n).padStart(2, "0")).join(":");
 };
 
+const formatearTiempoAcumulado = (horas) => {
+    if (horas === null || horas === undefined || horas === "") return "—";
+    const totalHoras = Number(horas);
+    if (!Number.isFinite(totalHoras) || totalHoras < 0) return "—";
+
+    let minutosRestantes = Math.round(totalHoras * 60);
+    const minutosPorMes = 160 * 60;
+    const minutosPorSemana = 40 * 60;
+    const meses = Math.floor(minutosRestantes / minutosPorMes);
+    minutosRestantes %= minutosPorMes;
+    const semanas = Math.floor(minutosRestantes / minutosPorSemana);
+    minutosRestantes %= minutosPorSemana;
+    const horasRestantes = Math.floor(minutosRestantes / 60);
+    const minutos = minutosRestantes % 60;
+    const partes = [];
+
+    if (meses) partes.push(`${meses} ${meses === 1 ? "Mes" : "Meses"}`);
+    if (semanas) partes.push(`${semanas} Sem`);
+    if (horasRestantes) partes.push(`${horasRestantes}h`);
+    if (minutos) partes.push(`${minutos}m`);
+    if (partes.length === 0) partes.push("0h");
+
+    return partes.length > 1 && !meses && !semanas
+        ? partes.join(" ")
+        : partes.join(", ");
+};
+
 const textoEstado = (estado) => ({
     SIN_ENTRADA: "Sin entrada",
     TRABAJANDO: "Trabajando",
@@ -245,6 +272,10 @@ const AsistenciaAdmin = () => {
                     apellido: (r.usuario_nombre || "").split(" ").slice(1).join(" ") || "",
                     email: r.usuario_email || "",
                     rol: normalizarRol(r.rol),
+                    horasAcumuladas: r.horas_acumuladas
+                        ?? (r.horas_acumuladas_segundos != null
+                            ? Number(r.horas_acumuladas_segundos) / 3600
+                            : null),
                     avatar_url: r.avatar_url || null,   // ← NUEVO
                     avatarVersion: Date.now(),
                     estado: r.estado || "SIN_ENTRADA",
@@ -526,7 +557,7 @@ const AsistenciaAdmin = () => {
                                 <tr>
                                     <th>Usuario</th>
                                     <th className="col-horario">Horario</th>
-                                    <th>Rol</th>
+                                    <th className="col-tiempo-acumulado">Tiempo acumulado</th>
                                     <th className="col-centrada">Entrada</th>
                                     <th className="col-centrada">Inicio desc.</th>
                                     <th className="col-centrada">Fin desc.</th>
@@ -597,10 +628,8 @@ const AsistenciaAdmin = () => {
                                                     Ver horario
                                                 </button>
                                             </td>
-                                            <td>
-                                                <span className={`admin-rol rol-${f.rol === "Administrador" ? "administrador" : "practicante"}`}>
-                                                    {f.rol}
-                                                </span>
+                                            <td className="admin-tiempo-acumulado">
+                                                {formatearTiempoAcumulado(f.horasAcumuladas)}
                                             </td>
                                             <td className="admin-hora">{formatearHora(f.entrada)}</td>
                                             <td className="admin-hora">{formatearHora(f.breakInicio)}</td>

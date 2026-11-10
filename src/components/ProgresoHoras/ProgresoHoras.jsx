@@ -97,10 +97,16 @@ const calcularTiempoDesdeRegistros = (registros, ahora, estado) => {
         if (!fecha || fecha.getTime() < entradaMs) return;
         if (registro.tipo === "BREAK_INICIO") inicioBreakActivoMs = fecha.getTime();
         if (registro.tipo === "BREAK_FIN" && inicioBreakActivoMs !== null) {
-            breakMs += Math.max(0, fecha.getTime() - inicioBreakActivoMs);
+            breakMs += Math.max(
+                0,
+                Math.min(fecha.getTime(), finJornadaMs) - inicioBreakActivoMs
+            );
             inicioBreakActivoMs = null;
         }
     });
+    if (inicioBreakActivoMs !== null) {
+        breakMs += Math.max(0, finJornadaMs - inicioBreakActivoMs);
+    }
     const inicioBreakVisible = eventos
         .slice()
         .reverse()
@@ -123,14 +129,14 @@ const calcularTiempoDesdeRegistros = (registros, ahora, estado) => {
     const breakVisibleMs = inicioBreakMs !== null && finBreakVisibleMs !== null
         ? Math.max(0, finBreakVisibleMs - inicioBreakMs)
         : 0;
-    const trabajadosMs = Math.max(0, finJornadaMs - entradaMs);
+    const trabajadosMs = Math.max(0, finJornadaMs - entradaMs - breakMs);
 
     return {
         trabajados: trabajadosMs / 1000,
-        break: breakVisibleMs / 1000,
+        break: breakMs / 1000,
         antesBreak: trabajoAntesBreakMs / 1000,
         despuesBreak: inicioBreakMs !== null
-            ? Math.max(0, trabajadosMs - trabajoAntesBreakMs - breakVisibleMs) / 1000
+            ? Math.max(0, trabajadosMs - trabajoAntesBreakMs) / 1000
             : 0,
     };
 };
@@ -154,7 +160,6 @@ const ProgresoHoras = ({
     minutosTrabajadosHoy,
     inicioBreak,
     duracionBreak,
-    horasAcumuladasSemana,
     metaDiaria,
     estado = "SIN_ENTRADA",
     registros = [],
@@ -187,6 +192,10 @@ const ProgresoHoras = ({
         ? tiempoRegistros.trabajados
         : minutosTrabajadosHoy !== undefined
         ? Number(minutosTrabajadosHoy || 0) * 60
+        : diario.trabajando_segundos !== null
+            && diario.trabajando_segundos !== undefined
+            && diario.trabajando_segundos !== ""
+        ? valorResumenSegundos(diario.trabajando_segundos, "segundos")
         : segundos(diario.trabajado_segundos, diario.tiempo_trabajado, diario.trabajado, diario.trabajado_horas);
     const breakBaseSegundos = registros.length > 0
         ? tiempoRegistros.break
@@ -199,10 +208,43 @@ const ProgresoHoras = ({
         semanal.trabajadas_segundos,
         "segundos"
     );
-    const segundosSemana = segundosSemanaBackend;
-    const minutosSemana = horasAcumuladasSemana !== undefined
-        ? Number(horasAcumuladasSemana || 0) * 60
-        : segundosSemana / 60;
+    const segundosDiaBackend = diario.trabajando_segundos !== null
+        && diario.trabajando_segundos !== undefined
+        && diario.trabajando_segundos !== ""
+        ? valorResumenSegundos(diario.trabajando_segundos, "segundos")
+        : diario.trabajado_segundos !== null
+            && diario.trabajado_segundos !== undefined
+            && diario.trabajado_segundos !== ""
+        ? valorResumenSegundos(diario.trabajado_segundos, "segundos")
+        : segundos(
+            diario.tiempo_trabajado,
+            diario.trabajado,
+            diario.trabajado_horas
+        );
+    const segundosSemanaRecibidos = segundosSemanaBackend;
+    const [baseSemana, setBaseSemana] = useState(() => ({
+        semanaBackend: segundosSemanaRecibidos,
+        diaBackend: segundosDiaBackend,
+        semanaRecibida: segundosSemanaRecibidos,
+        diaRecibido: segundosDiaBackend,
+    }));
+
+    if (
+        baseSemana.semanaRecibida !== segundosSemanaRecibidos
+        || baseSemana.diaRecibido !== segundosDiaBackend
+    ) {
+        setBaseSemana({
+            semanaBackend: segundosSemanaRecibidos,
+            diaBackend: segundosDiaBackend,
+            semanaRecibida: segundosSemanaRecibidos,
+            diaRecibido: segundosDiaBackend,
+        });
+    }
+
+    const segundosSemana = activoReloj
+        ? baseSemana.semanaBackend + (trabajoBaseSegundos - baseSemana.diaBackend)
+        : segundosSemanaBackend;
+    const minutosSemana = segundosSemana / 60;
     const minutosMetaSemana = Number(semanal.meta_ajustada_horas || META_SEMANAL / 60) * 60;
     const metaMinutos = metaDiaria !== undefined ? Number(metaDiaria) : metaGuardada;
     const cumpleMeta = minutosHoy >= metaMinutos;

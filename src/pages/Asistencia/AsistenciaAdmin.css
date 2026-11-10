@@ -1,7 +1,7 @@
 /* El ancho compartido garantiza la alineación entre resumen, filtros y tabla. */
 .admin-asistencia-container {
     width: 100%;
-    max-width: 1320px;
+    max-width: none;
     margin: 0;
     padding: 24px;
     box-sizing: border-box;
@@ -160,6 +160,7 @@
 
 /* Tabla alineada al ancho completo del contenedor principal. */
 .admin-tabla-container {
+    width: 100%;
     min-width: 0;
     background: #101b22;
     border: 1px solid #263740;
@@ -249,7 +250,7 @@
     cursor: not-allowed;
 }
 
-.admin-tabla-scroll { width: 100%; overflow: hidden; }
+.admin-tabla-scroll { width: 100%; overflow-x: auto; }
 
 .admin-tabla-container table {
     width: 100%;
@@ -272,9 +273,10 @@
 }
 
 .admin-tabla-container th.col-centrada { text-align: center; }
+.admin-tabla-container th.col-tiempo-acumulado { text-align: center; }
 
 .admin-tabla-container .col-horario {
-    width: 13%;
+    width: 8%;
     padding: 0 4px;
     text-align: center;
 }
@@ -293,28 +295,37 @@
     font-variant-numeric: tabular-nums;
 }
 
+.admin-tabla-container td.admin-tiempo-acumulado {
+    text-align: center;
+    color: #d3dde3;
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
+}
+
 .admin-tabla-container th:nth-child(1),
 .admin-tabla-container td:nth-child(1) { width: 14%; }
 .admin-tabla-container th:nth-child(2),
-.admin-tabla-container td:nth-child(2) { width: 10%; }
+.admin-tabla-container td:nth-child(2) { width: 8%; }
 .admin-tabla-container th:nth-child(3),
-.admin-tabla-container td:nth-child(3) { width: 10%; }
+.admin-tabla-container td:nth-child(3) { width: 9%; }
 .admin-tabla-container th:nth-child(4),
-.admin-tabla-container td:nth-child(4) { width: 7%; }
+.admin-tabla-container td:nth-child(4) { width: 6%; }
 .admin-tabla-container th:nth-child(5),
 .admin-tabla-container td:nth-child(5) { width: 7%; }
 .admin-tabla-container th:nth-child(6),
 .admin-tabla-container td:nth-child(6) { width: 7%; }
 .admin-tabla-container th:nth-child(7),
-.admin-tabla-container td:nth-child(7) { width: 8%; }
+.admin-tabla-container td:nth-child(7) { width: 7%; }
 .admin-tabla-container th:nth-child(8),
-.admin-tabla-container td:nth-child(8) { width: 7%; }
+.admin-tabla-container td:nth-child(8) { width: 6%; }
 .admin-tabla-container th:nth-child(9),
-.admin-tabla-container td:nth-child(9) { width: 12%; }
+.admin-tabla-container td:nth-child(9) { width: 7%; }
 .admin-tabla-container th:nth-child(10),
-.admin-tabla-container td:nth-child(10) { width: 12%; }
+.admin-tabla-container td:nth-child(10) { width: 10%; }
 .admin-tabla-container th:nth-child(11),
-.admin-tabla-container td:nth-child(11) { width: 6%; text-align: center; }
+.admin-tabla-container td:nth-child(11) { width: 15%; }
+.admin-tabla-container th:nth-child(12),
+.admin-tabla-container td:nth-child(12) { width: 4%; text-align: center; }
 
 .btn-ver-horario {
     display: inline-flex;
@@ -431,7 +442,7 @@
 }
 
 .col-check {
-    width: 6%;
+    width: 4%;
     text-align: center;
 }
 
