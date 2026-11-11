@@ -129,15 +129,17 @@ const calcularTiempoDesdeRegistros = (registros, ahora, estado) => {
     const breakVisibleMs = inicioBreakMs !== null && finBreakVisibleMs !== null
         ? Math.max(0, finBreakVisibleMs - inicioBreakMs)
         : 0;
-    const trabajadosMs = Math.max(0, finJornadaMs - entradaMs - breakMs);
+    // El break es parte de la jornada: el total es solo salida - entrada.
+    const trabajadosMs = Math.max(0, finJornadaMs - entradaMs);
+    const trabajoDespuesBreakMs = inicioBreakMs !== null
+        ? Math.max(0, trabajadosMs - trabajoAntesBreakMs - breakMs)
+        : 0;
 
     return {
         trabajados: trabajadosMs / 1000,
         break: breakMs / 1000,
         antesBreak: trabajoAntesBreakMs / 1000,
-        despuesBreak: inicioBreakMs !== null
-            ? Math.max(0, trabajadosMs - trabajoAntesBreakMs) / 1000
-            : 0,
+        despuesBreak: trabajoDespuesBreakMs / 1000,
     };
 };
 
