@@ -1,5 +1,7 @@
-import { LockKey, PencilSimple } from "@phosphor-icons/react";
+import { GearSix, LockKey, PencilSimple } from "@phosphor-icons/react";
 import { useEffect, useMemo, useState } from "react";
+import { obtenerMiPerfil } from "../../services/perfilService";
+import ModalInicioRastreo from "../ModalInicioRastreo/ModalInicioRastreo";
 import "./ProgresoHoras.css";
 
 const SEGUNDO = 1000;
@@ -68,6 +70,30 @@ const fechaHoraRegistro = (registro) => {
     }
     const fecha = new Date(valor);
     return Number.isNaN(fecha.getTime()) ? null : fecha;
+};
+
+const formatearFecha = (fechaIso) => {
+    const [anio, mes, dia] = String(fechaIso || "").slice(0, 10).split("-");
+    if (!anio || !mes || !dia) return "";
+    return `${dia}/${mes}/${anio}`;
+};
+
+// El backend puede devolver la fecha suelta o anidada en usuario/perfil.
+const extraerInicioRastreo = (respuesta = {}) => {
+    const datos = {
+        ...(respuesta.usuario || {}),
+        ...(respuesta.perfil || {}),
+        ...respuesta,
+    };
+    const fecha = String(
+        datos.fecha_inicio_rastreo ?? datos.inicio_rastreo ?? ""
+    ).slice(0, 10);
+    const fechaValida = /^\d{4}-\d{2}-\d{2}$/.test(fecha) ? fecha : "";
+
+    return {
+        fecha: fechaValida,
+        configurado: Boolean(fechaValida) || Boolean(datos.historial_configurado),
+    };
 };
 
 const calcularTiempoDesdeRegistros = (registros, ahora, estado) => {
@@ -166,6 +192,7 @@ const ProgresoHoras = ({
     estado = "SIN_ENTRADA",
     registros = [],
     horaActual = null,
+    onInicioRastreoConfigurado,
 }) => {
     const [error, setError] = useState("");
     const [ahoraLocal, setAhoraLocal] = useState(() => new Date());
@@ -173,6 +200,33 @@ const ProgresoHoras = ({
     const [horas, setHoras] = useState("08");
     const [minutos, setMinutos] = useState("00");
     const [editando, setEditando] = useState(false);
+    const [inicioRastreo, setInicioRastreo] = useState({ fecha: "", configurado: false });
+    const [cargandoInicioRastreo, setCargandoInicioRastreo] = useState(true);
+    const [modalInicioRastreo, setModalInicioRastreo] = useState(false);
+
+    useEffect(() => {
+        let activo = true;
+
+        obtenerMiPerfil()
+            .then((perfil) => {
+                if (activo) setInicioRastreo(extraerInicioRastreo(perfil));
+            })
+            .catch(() => {
+                if (activo) setInicioRastreo({ fecha: "", configurado: false });
+            })
+            .finally(() => {
+                if (activo) setCargandoInicioRastreo(false);
+            });
+
+        return () => {
+            activo = false;
+        };
+    }, []);
+
+    const alConfigurarInicioRastreo = (fecha) => {
+        setInicioRastreo({ fecha, configurado: true });
+        onInicioRastreoConfigurado?.();
+    };
 
     const activoReloj = estado === "TRABAJANDO" || estado === "EN_BREAK";
     useEffect(() => {
@@ -463,6 +517,37 @@ const ProgresoHoras = ({
                                 </text>
                             </g>
                         </svg>
+
+                        <div className="progreso-rueda-acciones">
+                            <button
+                                type="button"
+                                className={`progreso-config-inicio ${
+                                    inicioRastreo.configurado
+                                        ? "configurado"
+                                        : cargandoInicioRastreo
+                                            ? "cargando"
+                                            : "pendiente"
+                                }`}
+                                onClick={() => setModalInicioRastreo(true)}
+                                disabled={cargandoInicioRastreo || inicioRastreo.configurado}
+                                aria-busy={cargandoInicioRastreo}
+                                title={inicioRastreo.configurado
+                                    ? `Inicio de rastreo configurado${inicioRastreo.fecha ? `: ${formatearFecha(inicioRastreo.fecha)}` : ""}`
+                                    : "Elegir la fecha desde la cual empezar a contar tus horas"}
+                            >
+                                {inicioRastreo.configurado
+                                    ? <LockKey size={16} aria-hidden="true" />
+                                    : <GearSix size={16} aria-hidden="true" />}
+                                <span className="progreso-config-inicio-texto">
+                                    Configurar Inicio de Rastreo
+                                </span>
+                            </button>
+                            {inicioRastreo.fecha && (
+                                <span className="progreso-inicio-rastreo">
+                                    Desde {formatearFecha(inicioRastreo.fecha)}
+                                </span>
+                            )}
+                        </div>
                     </div>
 
                     <aside className="progreso-resumen">
@@ -488,6 +573,15 @@ const ProgresoHoras = ({
                         )}
                     </aside>
                 </div>
+
+            {modalInicioRastreo && (
+                <ModalInicioRastreo
+                    abierto
+                    fechaActual={inicioRastreo.fecha}
+                    onCerrar={() => setModalInicioRastreo(false)}
+                    onGuardado={alConfigurarInicioRastreo}
+                />
+            )}
         </section>
     );
 };

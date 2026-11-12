@@ -274,9 +274,15 @@
 
 .admin-tabla-container th.col-centrada { text-align: center; }
 .admin-tabla-container th.col-tiempo-acumulado { text-align: center; }
+.admin-tabla-container th.col-inicio-rastreo,
+.admin-tabla-container th.col-inicio-practicas {
+    text-align: center;
+    white-space: normal;
+    line-height: 1.25;
+}
 
 .admin-tabla-container .col-horario {
-    width: 8%;
+    width: 7%;
     padding: 0 4px;
     text-align: center;
 }
@@ -302,30 +308,51 @@
     overflow-wrap: anywhere;
 }
 
+.admin-tabla-container td.col-inicio-rastreo,
+.admin-tabla-container td.col-inicio-practicas {
+    text-align: center;
+    color: #d3dde3;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+/* 13 columnas (sin "Check"): Justificación y Comentario Admin reciben el
+   espacio liberado. La suma de los anchos debe ser exactamente 100%. */
 .admin-tabla-container th:nth-child(1),
-.admin-tabla-container td:nth-child(1) { width: 14%; }
+.admin-tabla-container td:nth-child(1) { width: 11%; }
 .admin-tabla-container th:nth-child(2),
-.admin-tabla-container td:nth-child(2) { width: 8%; }
+.admin-tabla-container td:nth-child(2) { width: 7%; }
 .admin-tabla-container th:nth-child(3),
-.admin-tabla-container td:nth-child(3) { width: 9%; }
+.admin-tabla-container td:nth-child(3) { width: 8%; }
 .admin-tabla-container th:nth-child(4),
-.admin-tabla-container td:nth-child(4) { width: 6%; }
+.admin-tabla-container td:nth-child(4) { width: 8%; }
 .admin-tabla-container th:nth-child(5),
-.admin-tabla-container td:nth-child(5) { width: 7%; }
+.admin-tabla-container td:nth-child(5) { width: 8%; }
 .admin-tabla-container th:nth-child(6),
-.admin-tabla-container td:nth-child(6) { width: 7%; }
+.admin-tabla-container td:nth-child(6) { width: 6%; }
 .admin-tabla-container th:nth-child(7),
-.admin-tabla-container td:nth-child(7) { width: 7%; }
+.admin-tabla-container td:nth-child(7) { width: 6%; }
 .admin-tabla-container th:nth-child(8),
 .admin-tabla-container td:nth-child(8) { width: 6%; }
 .admin-tabla-container th:nth-child(9),
-.admin-tabla-container td:nth-child(9) { width: 7%; }
+.admin-tabla-container td:nth-child(9) { width: 6%; }
 .admin-tabla-container th:nth-child(10),
-.admin-tabla-container td:nth-child(10) { width: 10%; }
+.admin-tabla-container td:nth-child(10) { width: 6%; }
 .admin-tabla-container th:nth-child(11),
-.admin-tabla-container td:nth-child(11) { width: 15%; }
+.admin-tabla-container td:nth-child(11) { width: 8%; }
 .admin-tabla-container th:nth-child(12),
-.admin-tabla-container td:nth-child(12) { width: 4%; text-align: center; }
+.admin-tabla-container td:nth-child(12) { width: 10%; }
+.admin-tabla-container th:nth-child(13),
+.admin-tabla-container td:nth-child(13) { width: 10%; }
+
+.admin-tabla-container th.col-comentario-admin {
+    white-space: normal;
+    line-height: 1.25;
+}
+
+.admin-tabla-container td.col-comentario-admin {
+    overflow-wrap: anywhere;
+}
 
 .btn-ver-horario {
     display: inline-flex;
@@ -439,11 +466,6 @@
 .admin-duracion {
     color: #10a5f5;
     font-weight: 600;
-}
-
-.col-check {
-    width: 4%;
-    text-align: center;
 }
 
 /* ---------- ESTADO ---------- */
@@ -586,22 +608,6 @@
     white-space: nowrap;
     text-overflow: ellipsis;
 }
-
-.admin-card-check {
-    width: 24px;
-    height: 24px;
-    flex: 0 0 24px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    margin-left: auto;
-    font-size: 19px;
-    font-weight: 700;
-    line-height: 1;
-}
-
-.admin-card-check-ok { color: #10b981; }
-.admin-card-check-error { color: #dc2626; }
 
 .admin-card-horarios {
     display: flex;

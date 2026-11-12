@@ -3,9 +3,7 @@ import toast from "react-hot-toast";
 import {
     CalendarBlank,
     ArrowClockwise,
-    CheckCircle,
     MagnifyingGlass,
-    XCircle,
 } from "@phosphor-icons/react";
 import {
     obtenerFechaLocal,
@@ -49,6 +47,12 @@ const normalizarFecha = (fecha) => {
     const mes = String(fechaParseada.getMonth() + 1).padStart(2, "0");
     const dia = String(fechaParseada.getDate()).padStart(2, "0");
     return `${anio}-${mes}-${dia}`;
+};
+
+// Fechas de la tabla (rastreo / prácticas): dd/mm/aaaa o "—" si no hay dato.
+const formatearFechaTabla = (valor) => {
+    const fecha = normalizarFecha(valor);
+    return fecha ? formatearFechaCorta(fecha) : "—";
 };
 
 const formatearDuracion = (segundos) => {
@@ -155,13 +159,6 @@ const TarjetaUsuario = ({ fila, onVerHorario, justificacion, onVerJustificacion 
                         {fila.rol}
                     </span>
                 </div>
-                <span
-                    className={`admin-card-check${fila.tieneEntrada ? " admin-card-check-ok" : " admin-card-check-error"}`}
-                    aria-label={fila.tieneEntrada ? "Tiene entrada" : "Sin entrada"}
-                    title={fila.tieneEntrada ? "Tiene entrada" : "Sin entrada"}
-                >
-                    {fila.tieneEntrada ? "✓" : "✗"}
-                </span>
             </div>
 
             <button
@@ -187,6 +184,14 @@ const TarjetaUsuario = ({ fila, onVerHorario, justificacion, onVerJustificacion 
                 <div className="admin-card-horario">
                     <span>Salida:</span>
                     <strong>{formatearHora(fila.salida)}</strong>
+                </div>
+                <div className="admin-card-horario">
+                    <span>Rastreo:</span>
+                    <strong>{formatearFechaTabla(fila.inicioRastreo)}</strong>
+                </div>
+                <div className="admin-card-horario">
+                    <span>Prácticas:</span>
+                    <strong>{formatearFechaTabla(fila.inicioPracticas)}</strong>
                 </div>
             </div>
 
@@ -266,31 +271,42 @@ const AsistenciaAdmin = () => {
                     : await obtenerResumenAdminPorFecha(fecha);
 
                 if (cancelado) return;
-                const normalizadas = (Array.isArray(data) ? data : []).map((r) => ({
-                    id: r.usuario_id,
-                    nombre: (r.usuario_nombre || "").split(" ")[0] || "",
-                    apellido: (r.usuario_nombre || "").split(" ").slice(1).join(" ") || "",
-                    email: r.usuario_email || "",
-                    rol: normalizarRol(r.rol),
-                    horasAcumuladas: r.horas_acumuladas
-                        ?? (r.horas_acumuladas_segundos != null
-                            ? Number(r.horas_acumuladas_segundos) / 3600
-                            : null),
-                    avatar_url: r.avatar_url || null,   // ← NUEVO
-                    avatarVersion: Date.now(),
-                    estado: r.estado || "SIN_ENTRADA",
-                    tieneEntrada: Boolean(r.tiene_entrada),
-                    entrada: r.entrada,
-                    breakInicio: r.break_inicio,
-                    breakFin: r.break_fin,
-                    duracion: formatearDuracion(r.duracion_break_segundos),
-                    salida: r.salida,
-                    justificacion_aceptada: r.justificacion_aceptada || null,
-                    comentario_admin: r.comentario_admin || "",
-                    justificacion_asunto: r.justificacion_asunto || "",
-                    justificacion_mensaje: r.justificacion_mensaje || "",
-                    justificacion_evidencia_url: r.justificacion_evidencia_url || "",
-                }));
+                const normalizadas = (Array.isArray(data) ? data : []).map((r) => {
+                    // TEMPORAL: inspeccionar los campos reales que envía el backend.
+                    if (tipo !== "polling") {
+                        console.log("[AsistenciaAdmin] fila backend:", r);
+                    }
+                    return {
+                        id: r.usuario_id,
+                        nombre: (r.usuario_nombre || "").split(" ")[0] || "",
+                        apellido: (r.usuario_nombre || "").split(" ").slice(1).join(" ") || "",
+                        email: r.usuario_email || "",
+                        rol: normalizarRol(r.rol),
+                        horasAcumuladas: r.horas_acumuladas
+                            ?? (r.horas_acumuladas_segundos != null
+                                ? Number(r.horas_acumuladas_segundos) / 3600
+                                : null),
+                        avatar_url: r.avatar_url || null,   // ← NUEVO
+                        avatarVersion: Date.now(),
+                        estado: r.estado || "SIN_ENTRADA",
+                        tieneEntrada: Boolean(r.tiene_entrada),
+                        entrada: r.entrada,
+                        breakInicio: r.break_inicio,
+                        breakFin: r.break_fin,
+                        duracion: formatearDuracion(r.duracion_break_segundos),
+                        salida: r.salida,
+                        inicioRastreo: r.fecha_inicio_rastreo ?? r.inicio_rastreo ?? null,
+                        inicioPracticas: r.fecha_inicio_practicas
+                            ?? r.usuario?.fecha_inicio_practicas
+                            ?? r.inicio_practicas
+                            ?? null,
+                        justificacion_aceptada: r.justificacion_aceptada || null,
+                        comentario_admin: r.comentario_admin || "",
+                        justificacion_asunto: r.justificacion_asunto || "",
+                        justificacion_mensaje: r.justificacion_mensaje || "",
+                        justificacion_evidencia_url: r.justificacion_evidencia_url || "",
+                    };
+                });
 
                 setFilas((actuales) => (
                     JSON.stringify(normalizadas) === JSON.stringify(actuales)
@@ -557,6 +573,8 @@ const AsistenciaAdmin = () => {
                                 <tr>
                                     <th>Usuario</th>
                                     <th className="col-horario">Horario</th>
+                                    <th className="col-inicio-rastreo">Inicio de Rastreo</th>
+                                    <th className="col-inicio-practicas">Inicio de Prácticas</th>
                                     <th className="col-tiempo-acumulado">Tiempo acumulado</th>
                                     <th className="col-centrada">Entrada</th>
                                     <th className="col-centrada">Inicio desc.</th>
@@ -565,20 +583,19 @@ const AsistenciaAdmin = () => {
                                     <th className="col-centrada">Salida</th>
                                     <th>Estado</th>
                                     <th className="col-justificacion">Justificación</th>
-                                    <th>Comentario Admin</th>
-                                    <th className="col-check">Check</th>
+                                    <th className="col-comentario-admin">Comentario Admin</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {cargandoInicial ? (
                                     <tr>
-                                        <td colSpan="12" className="admin-tabla-vacia">
+                                        <td colSpan="13" className="admin-tabla-vacia">
                                             Cargando registros...
                                         </td>
                                     </tr>
                                 ) : filasFiltradas.length === 0 ? (
                                     <tr>
-                                        <td colSpan="12" className="admin-tabla-vacia">
+                                        <td colSpan="13" className="admin-tabla-vacia">
                                             No hay usuarios con esos filtros.
                                         </td>
                                     </tr>
@@ -628,6 +645,12 @@ const AsistenciaAdmin = () => {
                                                     Ver horario
                                                 </button>
                                             </td>
+                                            <td className="col-inicio-rastreo">
+                                                {formatearFechaTabla(f.inicioRastreo)}
+                                            </td>
+                                            <td className="col-inicio-practicas">
+                                                {formatearFechaTabla(f.inicioPracticas)}
+                                            </td>
                                             <td className="admin-tiempo-acumulado">
                                                 {formatearTiempoAcumulado(f.horasAcumuladas)}
                                             </td>
@@ -654,7 +677,7 @@ const AsistenciaAdmin = () => {
                                                     <span className="admin-sin-justificacion">---</span>
                                                 )}
                                             </td>
-                                            <td className="admin-comentario-justificacion">
+                                            <td className="col-comentario-admin">
                                                 <span
                                                     className="admin-comentario-texto"
                                                     title={justificacion?.comentario_admin?.trim() || ""}
@@ -665,13 +688,6 @@ const AsistenciaAdmin = () => {
                                                             ? justificacion.comentario_admin?.trim() || "---"
                                                             : "---"}
                                                 </span>
-                                            </td>
-                                            <td className="col-check">
-                                                {f.tieneEntrada ? (
-                                                    <CheckCircle size={20} weight="fill" color="#10b981" />
-                                                ) : (
-                                                    <XCircle size={20} weight="fill" color="#dc2626" />
-                                                )}
                                             </td>
                                         </tr>
                                     );

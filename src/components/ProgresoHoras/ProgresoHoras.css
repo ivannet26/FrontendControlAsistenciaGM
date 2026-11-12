@@ -143,6 +143,112 @@
     display: block;
 }
 
+.progreso-rueda-acciones {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    max-width: 360px;
+    margin: 6px auto 0;
+}
+
+.progreso-config-inicio {
+    min-height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 0 12px;
+    border: 1px solid #38bdf8;
+    border-radius: 8px;
+    background: #16232c;
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 12.5px;
+    font-weight: 500;
+    line-height: 1;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: border-color .15s ease, background-color .15s ease,
+        color .15s ease, box-shadow .15s ease;
+}
+
+.progreso-config-inicio svg {
+    width: 16px;
+    height: 16px;
+    flex: 0 0 16px;
+}
+
+.progreso-config-inicio-texto {
+    display: inline-block;
+}
+
+/* Aún no configurado: botón llamativo con pulso suave. */
+.progreso-config-inicio.pendiente {
+    border-color: #38bdf8;
+    background: linear-gradient(180deg, #1b3746 0%, #16232c 100%);
+    color: #ffffff;
+    box-shadow: 0 0 0 1px rgba(56, 189, 248, .22),
+        0 6px 18px rgba(56, 189, 248, .18);
+    animation: pulso-config-inicio 2.4s ease-in-out infinite;
+}
+
+.progreso-config-inicio.pendiente:hover:not(:disabled) {
+    border-color: #7dd3fc;
+    background: #1d3a49;
+    box-shadow: 0 0 0 3px rgba(56, 189, 248, .16),
+        0 8px 20px rgba(56, 189, 248, .25);
+}
+
+/* Ya configurado: candado visible pero discreto, sin pulso. */
+.progreso-config-inicio.configurado {
+    border-color: rgba(56, 189, 248, .45);
+    background: #16232c;
+    color: #cbd8df;
+    cursor: default;
+    box-shadow: none;
+    animation: none;
+}
+
+.progreso-config-inicio.configurado:disabled {
+    opacity: .9;
+}
+
+.progreso-config-inicio.cargando {
+    opacity: .6;
+}
+
+.progreso-config-inicio:disabled {
+    cursor: default;
+    opacity: .85;
+}
+
+.progreso-config-inicio:focus-visible {
+    outline: 2px solid #38bdf8;
+    outline-offset: 2px;
+}
+
+@keyframes pulso-config-inicio {
+    0%, 100% {
+        box-shadow: 0 0 0 1px rgba(56, 189, 248, .22),
+            0 6px 18px rgba(56, 189, 248, .18);
+    }
+    50% {
+        box-shadow: 0 0 0 7px rgba(56, 189, 248, 0),
+            0 6px 18px rgba(56, 189, 248, .28);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .progreso-config-inicio.pendiente { animation: none; }
+}
+
+.progreso-inicio-rastreo {
+    color: #8b9bab;
+    font-size: 12px;
+}
+
 .escala-semanal line,
 .escala-diaria line {
     stroke-linecap: round;

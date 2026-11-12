@@ -25,6 +25,16 @@ export const actualizarMiPerfil = async (datos) => {
     return response.data;
 };
 
+// Registra el punto de corte desde el que se empiezan a contar las horas.
+export const actualizarInicioRastreo = async (fechaInicioRastreo) => {
+    const response = await axios.put(
+        `${API_BASE_URL}/perfil/inicio-rastreo`,
+        { fecha_inicio_rastreo: fechaInicioRastreo },
+        getAuthHeaders()
+    );
+    return response.data;
+};
+
 // Mantiene compatibilidad con el modal heredado de perfil.
 export const actualizarPerfil = async (datos) => {
     const response = await axios.put(`${API_USUARIOS_URL}/me`, datos, getAuthHeaders());

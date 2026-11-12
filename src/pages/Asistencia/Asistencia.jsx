@@ -12,6 +12,7 @@ import {
 } from "@phosphor-icons/react";
 import {
     interpretarMarcaje,
+    invalidarResumenHoras,
     obtenerFechaLocal,
     obtenerRegistrosHoy,
     obtenerRegistrosPorFecha,
@@ -341,6 +342,16 @@ const Asistencia = () => {
         }
     };
 
+    // Tras definir el punto de corte, reconsulta el resumen sin caché.
+    const recargarResumenHoras = useCallback(() => {
+        invalidarResumenHoras();
+        obtenerResumenHoras()
+            .then((resumenActualizado) => setResumenHoras(resumenActualizado))
+            .catch((errorResumen) => {
+                console.error("No se pudo actualizar el resumen de horas.", errorResumen);
+            });
+    }, []);
+
     // Abre el calendario nativo del navegador
     const abrirCalendario = () => {
         if (inputFechaRef.current?.showPicker) {
@@ -647,6 +658,7 @@ const Asistencia = () => {
                         datos={resumenHoras}
                         registros={registrosHoy}
                         horaActual={horaActual}
+                        onInicioRastreoConfigurado={recargarResumenHoras}
                     />
                 </aside>
             </main>
