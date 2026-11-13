@@ -133,10 +133,18 @@ function useEsMovil() {
 const TarjetaUsuario = ({ fila, onVerHorario, justificacion, onVerJustificacion }) => {
     const urlAvatar = construirUrlAvatar(fila.avatar_url, fila.avatarVersion);
     const iniciales = `${(fila.nombre[0] || "?").toUpperCase()}${(fila.apellido[0] || "").toUpperCase()}`;
+    const estadoJustificacion = justificacion?.estado;
+    const puedeVerJustificacion = ["PENDIENTE", "ACEPTADA"].includes(estadoJustificacion);
+    const comentarioAdmin = estadoJustificacion === "PENDIENTE"
+        ? "Pendiente de revisión"
+        : ["ACEPTADA", "RECHAZADA", "INJUSTIFICADA"].includes(estadoJustificacion)
+            ? justificacion?.comentario_admin?.trim() || "---"
+            : "---";
 
     return (
         <article className={`admin-card${!fila.tieneEntrada ? " admin-card-sin-entrada" : ""}`}>
-            <div className="admin-card-usuario">
+            {/* ── Cabecera: avatar, identidad y acción ── */}
+            <header className="admin-card-header">
                 <div className="admin-avatar admin-card-avatar">
                     {urlAvatar ? (
                         <img
@@ -152,79 +160,80 @@ const TarjetaUsuario = ({ fila, onVerHorario, justificacion, onVerJustificacion 
                         iniciales
                     )}
                 </div>
-                <div className="admin-card-usuario-info">
+
+                <div className="admin-card-identidad">
                     <span className="admin-card-nombre">{fila.nombre} {fila.apellido}</span>
                     <span className="admin-card-email">{fila.email}</span>
                     <span className={`admin-rol rol-${fila.rol === "Administrador" ? "administrador" : "practicante"}`}>
                         {fila.rol}
                     </span>
                 </div>
-            </div>
 
-            <button
-                type="button"
-                className="btn-ver-horario admin-card-ver-horario"
-                onClick={() => onVerHorario(fila.id, `${fila.nombre} ${fila.apellido}`)}
-                title="Ver horario de este usuario"
-            >
-                Ver horario
-            </button>
+                <button
+                    type="button"
+                    className="btn-ver-horario admin-card-ver-horario"
+                    onClick={() => onVerHorario(fila.id, `${fila.nombre} ${fila.apellido}`)}
+                    title="Ver horario de este usuario"
+                >
+                    Ver horario
+                </button>
+            </header>
 
-            <div className="admin-card-horarios">
-                <div className="admin-card-horario">
-                    <span>Entrada:</span>
-                    <strong>{formatearHora(fila.entrada)}</strong>
+            {/* ── Cuerpo: datos de asistencia en grid de 2 columnas ── */}
+            <dl className="admin-card-datos">
+                <div className="admin-card-dato">
+                    <dt>Entrada</dt>
+                    <dd>{formatearHora(fila.entrada)}</dd>
                 </div>
-                <div className="admin-card-horario admin-card-descanso">
-                    <span>Descanso:</span>
-                    <strong>
-                        {formatearHora(fila.breakInicio)} → {formatearHora(fila.breakFin)} ({fila.duracion})
-                    </strong>
+                <div className="admin-card-dato">
+                    <dt>Salida</dt>
+                    <dd>{formatearHora(fila.salida)}</dd>
                 </div>
-                <div className="admin-card-horario">
-                    <span>Salida:</span>
-                    <strong>{formatearHora(fila.salida)}</strong>
+                <div className="admin-card-dato admin-card-dato--descanso">
+                    <dt>Descanso</dt>
+                    <dd>
+                        <span>{formatearHora(fila.breakInicio)} → {formatearHora(fila.breakFin)}</span>
+                        <span className="admin-card-duracion">({fila.duracion})</span>
+                    </dd>
                 </div>
-                <div className="admin-card-horario">
-                    <span>Rastreo:</span>
-                    <strong>{formatearFechaTabla(fila.inicioRastreo)}</strong>
+                <div className="admin-card-dato">
+                    <dt>Rastreo</dt>
+                    <dd>{formatearFechaTabla(fila.inicioRastreo)}</dd>
                 </div>
-                <div className="admin-card-horario">
-                    <span>Prácticas:</span>
-                    <strong>{formatearFechaTabla(fila.inicioPracticas)}</strong>
+                <div className="admin-card-dato">
+                    <dt>Prácticas</dt>
+                    <dd>{formatearFechaTabla(fila.inicioPracticas)}</dd>
                 </div>
-            </div>
+            </dl>
 
-            <div className="admin-card-estado">
-                <span className={`admin-estado estado-${claseEstado(fila.estado)}`}>
-                    {textoEstado(fila.estado)}
-                </span>
-            </div>
+            {/* ── Pie: estado, justificación y comentario ── */}
+            <footer className="admin-card-pie">
+                <div className="admin-card-pie-fila">
+                    <span className={`admin-estado estado-${claseEstado(fila.estado)}`}>
+                        {textoEstado(fila.estado)}
+                    </span>
+                </div>
 
-            <div className="admin-card-justificacion">
-                <span className="admin-card-justificacion-label">Justificación</span>
-                {["PENDIENTE", "ACEPTADA"].includes(justificacion?.estado) ? (
-                    <button
-                        type="button"
-                        className="btn-ver-justificacion"
-                        onClick={() => onVerJustificacion(justificacion)}
-                    >
-                        Ver justificación
-                    </button>
-                ) : (
-                    <span className="admin-sin-justificacion">---</span>
-                )}
-            </div>
-            <div className="admin-card-comentario-justificacion">
-                <span className="admin-card-justificacion-label">Comentario Admin</span>
-                <span>
-                    {justificacion?.estado === "PENDIENTE"
-                        ? "Pendiente de revisión"
-                        : ["ACEPTADA", "RECHAZADA", "INJUSTIFICADA"].includes(justificacion?.estado)
-                            ? justificacion.comentario_admin?.trim() || "---"
-                            : "---"}
-                </span>
-            </div>
+                <div className="admin-card-justificacion">
+                    <span className="admin-card-etiqueta">Justificación</span>
+                    {puedeVerJustificacion ? (
+                        <button
+                            type="button"
+                            className="btn-ver-justificacion"
+                            onClick={() => onVerJustificacion(justificacion)}
+                        >
+                            Ver justificación
+                        </button>
+                    ) : (
+                        <span className="admin-sin-justificacion">---</span>
+                    )}
+                </div>
+
+                <div className="admin-card-comentario">
+                    <span className="admin-card-etiqueta">Comentario Admin</span>
+                    <p className="admin-card-comentario-texto">{comentarioAdmin}</p>
+                </div>
+            </footer>
         </article>
     );
 };

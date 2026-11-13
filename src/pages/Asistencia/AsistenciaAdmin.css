@@ -316,18 +316,19 @@
     white-space: nowrap;
 }
 
-/* 13 columnas (sin "Check"): Justificación y Comentario Admin reciben el
-   espacio liberado. La suma de los anchos debe ser exactamente 100%. */
+/* 13 columnas (sin "Check"). El espacio se concentra en "Comentario Admin"
+   (16%), tomando 1% de las columnas de fechas/tiempo acumulado y 2% de
+   Justificación. La suma de los anchos debe ser exactamente 100%. */
 .admin-tabla-container th:nth-child(1),
 .admin-tabla-container td:nth-child(1) { width: 11%; }
 .admin-tabla-container th:nth-child(2),
 .admin-tabla-container td:nth-child(2) { width: 7%; }
 .admin-tabla-container th:nth-child(3),
-.admin-tabla-container td:nth-child(3) { width: 8%; }
+.admin-tabla-container td:nth-child(3) { width: 7%; }
 .admin-tabla-container th:nth-child(4),
-.admin-tabla-container td:nth-child(4) { width: 8%; }
+.admin-tabla-container td:nth-child(4) { width: 7%; }
 .admin-tabla-container th:nth-child(5),
-.admin-tabla-container td:nth-child(5) { width: 8%; }
+.admin-tabla-container td:nth-child(5) { width: 7%; }
 .admin-tabla-container th:nth-child(6),
 .admin-tabla-container td:nth-child(6) { width: 6%; }
 .admin-tabla-container th:nth-child(7),
@@ -339,19 +340,50 @@
 .admin-tabla-container th:nth-child(10),
 .admin-tabla-container td:nth-child(10) { width: 6%; }
 .admin-tabla-container th:nth-child(11),
-.admin-tabla-container td:nth-child(11) { width: 8%; }
+.admin-tabla-container td:nth-child(11) { width: 7%; }
 .admin-tabla-container th:nth-child(12),
-.admin-tabla-container td:nth-child(12) { width: 10%; }
+.admin-tabla-container td:nth-child(12) { width: 8%; }
 .admin-tabla-container th:nth-child(13),
-.admin-tabla-container td:nth-child(13) { width: 10%; }
+.admin-tabla-container td:nth-child(13) { width: 16%; }
 
 .admin-tabla-container th.col-comentario-admin {
+    width: 16%;
+    min-width: 150px;
     white-space: normal;
     line-height: 1.25;
 }
 
 .admin-tabla-container td.col-comentario-admin {
-    overflow-wrap: anywhere;
+    width: 16%;
+    min-width: 150px;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    hyphens: auto;
+}
+
+/* El texto del comentario ocupa el ancho completo de su celda y parte
+   en un máximo de dos líneas sin desbordarse. */
+.admin-tabla-container .admin-comentario-texto {
+    display: block;
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    line-height: 1.4;
+}
+
+/* Columnas comprimidas: menos padding lateral para que la fecha y el
+   tiempo acumulado quepan sin empujar al resto de la tabla. */
+.admin-tabla-container th:nth-child(3),
+.admin-tabla-container td:nth-child(3),
+.admin-tabla-container th:nth-child(4),
+.admin-tabla-container td:nth-child(4),
+.admin-tabla-container th:nth-child(5),
+.admin-tabla-container td:nth-child(5),
+.admin-tabla-container th:nth-child(11),
+.admin-tabla-container td:nth-child(11) {
+    padding-left: 8px;
+    padding-right: 8px;
 }
 
 .btn-ver-horario {
@@ -561,41 +593,53 @@
 }
 
 .admin-card {
-    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-bottom: 14px;
+    padding: 16px;
     background: #101b22;
     border: 1px solid #263740;
+    box-sizing: border-box;
 }
+
+.admin-card:last-child { margin-bottom: 0; }
 
 .admin-card-sin-entrada { background: #0d171d; }
 
-.admin-card-usuario {
-    min-width: 0;
+/* ── Cabecera: avatar + identidad + "Ver horario" ── */
+.admin-card-header {
     display: flex;
-    align-items: flex-start;
-    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px 12px;
+    min-width: 0;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #1e2d36;
 }
 
 .admin-card-avatar {
-    width: 42px;
-    height: 42px;
-    flex: 0 0 42px;
+    width: 38px;
+    height: 38px;
+    flex: 0 0 38px;
 }
 
-.admin-card-usuario-info {
+.admin-card-identidad {
+    flex: 1 1 130px;
     min-width: 0;
     display: flex;
-    flex: 1;
     flex-direction: column;
     align-items: flex-start;
-    gap: 4px;
+    gap: 3px;
 }
 
 .admin-card-nombre {
     max-width: 100%;
     overflow: hidden;
     color: #ffffff;
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 600;
+    line-height: 1.25;
     white-space: nowrap;
     text-overflow: ellipsis;
 }
@@ -604,60 +648,129 @@
     max-width: 100%;
     overflow: hidden;
     color: #8ea0af;
-    font-size: 11px;
+    font-size: 11.5px;
     white-space: nowrap;
     text-overflow: ellipsis;
 }
 
-.admin-card-horarios {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin-top: 14px;
-    padding-top: 12px;
-    border-top: 1px solid #263740;
+.admin-card-ver-horario {
+    flex: 0 0 auto;
+    align-self: center;
+    margin-left: auto;
+    width: auto;
+    max-width: 110px;
+    padding: 7px 10px;
+    font-size: 11px;
 }
 
-.admin-card-horario {
+/* ── Cuerpo: grid de 2 columnas para los datos de asistencia ── */
+.admin-card-datos {
     display: grid;
-    grid-template-columns: 76px minmax(0, 1fr);
+    grid-template-columns: 1fr 1fr;
     gap: 8px;
-    color: #9eacb5;
-    font-size: 12px;
+    margin: 0;
+    padding: 12px;
+    background: rgba(211, 221, 227, 0.03);
+    border: 1px solid #1e2d36;
+    box-sizing: border-box;
 }
 
-.admin-card-horario strong {
+.admin-card-dato {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
     min-width: 0;
-    color: #d3dde3;
+}
+
+.admin-card-dato dt {
+    flex: 0 0 auto;
+    color: #8ea0af;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+}
+
+.admin-card-dato dd {
+    flex: 1 1 auto;
+    min-width: 0;
+    margin: 0;
+    color: #ffffff;
     font-size: 12px;
     font-weight: 500;
     font-variant-numeric: tabular-nums;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
+    word-break: break-word;
 }
 
-.admin-card-estado {
-    margin-top: 13px;
+/* El descanso necesita la fila completa: dos horas + duración no caben
+   en media columna. */
+.admin-card-dato--descanso { grid-column: 1 / -1; }
+
+.admin-card-dato--descanso dd {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 2px 6px;
+}
+
+.admin-card-duracion {
+    color: #8ea0af;
+    font-size: 11px;
+    white-space: nowrap;
+}
+
+/* ── Pie: estado, justificación y comentario admin ── */
+.admin-card-pie {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-top: 12px;
+    border-top: 1px solid #1e2d36;
+}
+
+.admin-card-pie-fila {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.admin-card-etiqueta {
+    color: #8ea0af;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    white-space: nowrap;
 }
 
 .admin-card-justificacion {
     display: flex;
     align-items: center;
-    gap: 8px;
     flex-wrap: wrap;
-    margin-top: 10px;
+    gap: 8px;
 }
 
-.admin-card-justificacion-label {
-    color: #8ea0af;
-    font-size: 11px;
-    letter-spacing: 0.4px;
-    text-transform: uppercase;
+.admin-card-comentario {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 10px 12px;
+    background: rgba(211, 221, 227, 0.04);
+    border: 1px solid #1e2d36;
+    box-sizing: border-box;
 }
 
-.admin-card-ver-horario {
-    margin-top: 12px;
-    padding: 7px 10px;
-    font-size: 11px;
+.admin-card-comentario-texto {
+    margin: 0;
+    width: 100%;
+    color: #d3dde3;
+    font-size: 12px;
+    line-height: 1.45;
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-break: break-word;
 }
 
 @media (max-width: 900px) {
@@ -665,7 +778,7 @@
     .admin-cards-lista {
         display: flex;
         flex-direction: column;
-        gap: 10px;
+        gap: 0; /* la separación la aporta margin-bottom de cada tarjeta */
         padding: 12px;
     }
 
@@ -710,6 +823,25 @@
     .admin-tabla-header {
         align-items: flex-start;
         flex-direction: column;
+    }
+}
+
+/* Pantallas muy pequeñas: los datos pasan a 1 columna manteniendo el orden,
+   y "Ver horario" ocupa el ancho completo para ser fácil de pulsar. */
+@media (max-width: 400px) {
+    .admin-card {
+        padding: 14px;
+    }
+
+    .admin-card-datos {
+        grid-template-columns: 1fr;
+        padding: 10px;
+    }
+
+    .admin-card-ver-horario {
+        width: 100%;
+        max-width: none;
+        margin-left: 0;
     }
 }
 
