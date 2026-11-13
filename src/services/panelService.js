@@ -1,67 +1,41 @@
+// src/services/panelService.js
+import axios from "axios";
+
 const API_URL = import.meta.env.VITE_API_URL;
 
+// El timeout (60 s) NO se define aquí: viene de axios.defaults.timeout
+// configurado en interceptor.js. Así hay un único valor para toda la app.
 
-export async function obtenerResumenTiempo({
-    fecha_inicio,
-    fecha_fin,
-    usuario_filtro = "yo"
-}) {
-    const token = localStorage.getItem("token");
+const authHeaders = () => ({
+    Authorization: `Bearer ${localStorage.getItem("token")}`
+});
 
-    const params = new URLSearchParams();
-    params.append("fecha_inicio", fecha_inicio);
-    params.append("fecha_fin", fecha_fin);
-    params.append("usuario_filtro", usuario_filtro);
+// Los errores se dejan propagar: el interceptor los enriquece con
+// `mensajeAmigable`, `esRed`, `esTimeout` y `esCancelado`.
+// Aquí NO hay reintentos: una petición = una sola llamada HTTP.
 
-    const url = `${API_URL}/panel/resumen-tiempo?${params.toString()}`;
-
-    console.log("resumen-tiempo:", url);
-
-    const response = await fetch(url, {
-        method: "GET",
-        headers: {
-            "Authorization": `Bearer ${token}`,
-            "Content-Type": "application/json"
-        }
+export async function obtenerResumenTiempo(
+    { fecha_inicio, fecha_fin, usuario_filtro = "yo" },
+    signal
+) {
+    const { data } = await axios.get(`${API_URL}/panel/resumen-tiempo`, {
+        params: { fecha_inicio, fecha_fin, usuario_filtro },
+        headers: authHeaders(),
+        signal
     });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-        throw new Error(data.detail || "Error cargando el panel");
-    }
 
     return data;
 }
 
-
-export async function obtenerActividadEquipo({
-    fecha_inicio,
-    fecha_fin
-}) {
-    const token = localStorage.getItem("token");
-
-    const params = new URLSearchParams();
-    params.append("fecha_inicio", fecha_inicio);
-    params.append("fecha_fin", fecha_fin);
-
-    const url = `${API_URL}/panel/equipo-actividad?${params.toString()}`;
-
-    console.log("equipo-actividad:", url);
-
-    const response = await fetch(url, {
-        method: "GET",
-        headers: {
-            "Authorization": `Bearer ${token}`,
-            "Content-Type": "application/json"
-        }
+export async function obtenerActividadEquipo(
+    { fecha_inicio, fecha_fin },
+    signal
+) {
+    const { data } = await axios.get(`${API_URL}/panel/equipo-actividad`, {
+        params: { fecha_inicio, fecha_fin },
+        headers: authHeaders(),
+        signal
     });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-        throw new Error(data.detail || "Error cargando actividad del equipo");
-    }
 
     return data;
 }

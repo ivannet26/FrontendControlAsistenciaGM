@@ -3,11 +3,7 @@ import toast from "react-hot-toast";
 import {
     CalendarBlank,
     ArrowClockwise,
-    CheckCircle,
-    Coffee,
     MagnifyingGlass,
-    Users,
-    XCircle,
 } from "@phosphor-icons/react";
 import {
     obtenerFechaLocal,
@@ -17,6 +13,8 @@ import {
 import { obtenerHorarioDeUsuario } from "../../services/horarioService";
 import { construirUrlAvatar } from "../../hooks/useUsuarioActual";
 import ModalVerHorarioAdmin from "../../components/ModalVerHorarioAdmin/ModalVerHorarioAdmin";
+import ModalVerJustificacion from "../../components/ModalVerJustificacion/ModalVerJustificacion";
+import { EVENTO_JUSTIFICACIONES_ACTUALIZADAS } from "../../services/justificacionesService";
 import "./AsistenciaAdmin.css";
 
 // ── Formateadores ─────────────────────────────────────
@@ -31,6 +29,32 @@ const formatearFechaCorta = (fechaIso) => {
     return `${dia}/${mes}/${año}`;
 };
 
+const normalizarFecha = (fecha) => {
+    const valor = String(fecha || "").trim();
+    if (!valor) return "";
+
+    if (valor.includes("/")) {
+        const [dia, mes, anio] = valor.split(/[/-]/);
+        return `${anio}-${mes.padStart(2, "0")}-${dia.padStart(2, "0")}`;
+    }
+
+    const fechaIso = valor.match(/^(\d{4}-\d{2}-\d{2})/);
+    if (fechaIso) return fechaIso[1];
+
+    const fechaParseada = new Date(valor);
+    if (Number.isNaN(fechaParseada.getTime())) return "";
+    const anio = fechaParseada.getFullYear();
+    const mes = String(fechaParseada.getMonth() + 1).padStart(2, "0");
+    const dia = String(fechaParseada.getDate()).padStart(2, "0");
+    return `${anio}-${mes}-${dia}`;
+};
+
+// Fechas de la tabla (rastreo / prácticas): dd/mm/aaaa o "—" si no hay dato.
+const formatearFechaTabla = (valor) => {
+    const fecha = normalizarFecha(valor);
+    return fecha ? formatearFechaCorta(fecha) : "—";
+};
+
 const formatearDuracion = (segundos) => {
     if (segundos === null || segundos === undefined) return "—";
     const segs = Math.max(0, Math.floor(segundos));
@@ -38,6 +62,33 @@ const formatearDuracion = (segundos) => {
     const m = Math.floor((segs % 3600) / 60);
     const s = segs % 60;
     return [h, m, s].map((n) => String(n).padStart(2, "0")).join(":");
+};
+
+const formatearTiempoAcumulado = (horas) => {
+    if (horas === null || horas === undefined || horas === "") return "—";
+    const totalHoras = Number(horas);
+    if (!Number.isFinite(totalHoras) || totalHoras < 0) return "—";
+
+    let minutosRestantes = Math.round(totalHoras * 60);
+    const minutosPorMes = 160 * 60;
+    const minutosPorSemana = 40 * 60;
+    const meses = Math.floor(minutosRestantes / minutosPorMes);
+    minutosRestantes %= minutosPorMes;
+    const semanas = Math.floor(minutosRestantes / minutosPorSemana);
+    minutosRestantes %= minutosPorSemana;
+    const horasRestantes = Math.floor(minutosRestantes / 60);
+    const minutos = minutosRestantes % 60;
+    const partes = [];
+
+    if (meses) partes.push(`${meses} ${meses === 1 ? "Mes" : "Meses"}`);
+    if (semanas) partes.push(`${semanas} Sem`);
+    if (horasRestantes) partes.push(`${horasRestantes}h`);
+    if (minutos) partes.push(`${minutos}m`);
+    if (partes.length === 0) partes.push("0h");
+
+    return partes.length > 1 && !meses && !semanas
+        ? partes.join(" ")
+        : partes.join(", ");
 };
 
 const textoEstado = (estado) => ({
@@ -79,13 +130,21 @@ function useEsMovil() {
     return esMovil;
 }
 
-const TarjetaUsuario = ({ fila, onVerHorario }) => {
+const TarjetaUsuario = ({ fila, onVerHorario, justificacion, onVerJustificacion }) => {
     const urlAvatar = construirUrlAvatar(fila.avatar_url, fila.avatarVersion);
     const iniciales = `${(fila.nombre[0] || "?").toUpperCase()}${(fila.apellido[0] || "").toUpperCase()}`;
+    const estadoJustificacion = justificacion?.estado;
+    const puedeVerJustificacion = ["PENDIENTE", "ACEPTADA"].includes(estadoJustificacion);
+    const comentarioAdmin = estadoJustificacion === "PENDIENTE"
+        ? "Pendiente de revisión"
+        : ["ACEPTADA", "RECHAZADA", "INJUSTIFICADA"].includes(estadoJustificacion)
+            ? justificacion?.comentario_admin?.trim() || "---"
+            : "---";
 
     return (
         <article className={`admin-card${!fila.tieneEntrada ? " admin-card-sin-entrada" : ""}`}>
-            <div className="admin-card-usuario">
+            {/* ── Cabecera: avatar, identidad y acción ── */}
+            <header className="admin-card-header">
                 <div className="admin-avatar admin-card-avatar">
                     {urlAvatar ? (
                         <img
@@ -101,53 +160,80 @@ const TarjetaUsuario = ({ fila, onVerHorario }) => {
                         iniciales
                     )}
                 </div>
-                <div className="admin-card-usuario-info">
+
+                <div className="admin-card-identidad">
                     <span className="admin-card-nombre">{fila.nombre} {fila.apellido}</span>
                     <span className="admin-card-email">{fila.email}</span>
                     <span className={`admin-rol rol-${fila.rol === "Administrador" ? "administrador" : "practicante"}`}>
                         {fila.rol}
                     </span>
                 </div>
-                <span
-                    className={`admin-card-check${fila.tieneEntrada ? " admin-card-check-ok" : " admin-card-check-error"}`}
-                    aria-label={fila.tieneEntrada ? "Tiene entrada" : "Sin entrada"}
-                    title={fila.tieneEntrada ? "Tiene entrada" : "Sin entrada"}
+
+                <button
+                    type="button"
+                    className="btn-ver-horario admin-card-ver-horario"
+                    onClick={() => onVerHorario(fila.id, `${fila.nombre} ${fila.apellido}`)}
+                    title="Ver horario de este usuario"
                 >
-                    {fila.tieneEntrada ? "✓" : "✗"}
-                </span>
-            </div>
+                    Ver horario
+                </button>
+            </header>
 
-            <button
-                type="button"
-                className="btn-ver-horario admin-card-ver-horario"
-                onClick={() => onVerHorario(fila.id, `${fila.nombre} ${fila.apellido}`)}
-                title="Ver horario de este usuario"
-            >
-                Ver horario
-            </button>
+            {/* ── Cuerpo: datos de asistencia en grid de 2 columnas ── */}
+            <dl className="admin-card-datos">
+                <div className="admin-card-dato">
+                    <dt>Entrada</dt>
+                    <dd>{formatearHora(fila.entrada)}</dd>
+                </div>
+                <div className="admin-card-dato">
+                    <dt>Salida</dt>
+                    <dd>{formatearHora(fila.salida)}</dd>
+                </div>
+                <div className="admin-card-dato admin-card-dato--descanso">
+                    <dt>Descanso</dt>
+                    <dd>
+                        <span>{formatearHora(fila.breakInicio)} → {formatearHora(fila.breakFin)}</span>
+                        <span className="admin-card-duracion">({fila.duracion})</span>
+                    </dd>
+                </div>
+                <div className="admin-card-dato">
+                    <dt>Rastreo</dt>
+                    <dd>{formatearFechaTabla(fila.inicioRastreo)}</dd>
+                </div>
+                <div className="admin-card-dato">
+                    <dt>Prácticas</dt>
+                    <dd>{formatearFechaTabla(fila.inicioPracticas)}</dd>
+                </div>
+            </dl>
 
-            <div className="admin-card-horarios">
-                <div className="admin-card-horario">
-                    <span>Entrada:</span>
-                    <strong>{formatearHora(fila.entrada)}</strong>
+            {/* ── Pie: estado, justificación y comentario ── */}
+            <footer className="admin-card-pie">
+                <div className="admin-card-pie-fila">
+                    <span className={`admin-estado estado-${claseEstado(fila.estado)}`}>
+                        {textoEstado(fila.estado)}
+                    </span>
                 </div>
-                <div className="admin-card-horario admin-card-descanso">
-                    <span>Descanso:</span>
-                    <strong>
-                        {formatearHora(fila.breakInicio)} → {formatearHora(fila.breakFin)} ({fila.duracion})
-                    </strong>
-                </div>
-                <div className="admin-card-horario">
-                    <span>Salida:</span>
-                    <strong>{formatearHora(fila.salida)}</strong>
-                </div>
-            </div>
 
-            <div className="admin-card-estado">
-                <span className={`admin-estado estado-${claseEstado(fila.estado)}`}>
-                    {textoEstado(fila.estado)}
-                </span>
-            </div>
+                <div className="admin-card-justificacion">
+                    <span className="admin-card-etiqueta">Justificación</span>
+                    {puedeVerJustificacion ? (
+                        <button
+                            type="button"
+                            className="btn-ver-justificacion"
+                            onClick={() => onVerJustificacion(justificacion)}
+                        >
+                            Ver justificación
+                        </button>
+                    ) : (
+                        <span className="admin-sin-justificacion">---</span>
+                    )}
+                </div>
+
+                <div className="admin-card-comentario">
+                    <span className="admin-card-etiqueta">Comentario Admin</span>
+                    <p className="admin-card-comentario-texto">{comentarioAdmin}</p>
+                </div>
+            </footer>
         </article>
     );
 };
@@ -171,6 +257,7 @@ const AsistenciaAdmin = () => {
     const [modalHorarioAbierto, setModalHorarioAbierto] = useState(false);
     const [horarioUsuario, setHorarioUsuario] = useState(null);
     const [cargandoHorario, setCargandoHorario] = useState(false);
+    const [justificacionVer, setJustificacionVer] = useState(null);
 
     const hoy = obtenerFechaLocal();
 
@@ -193,22 +280,42 @@ const AsistenciaAdmin = () => {
                     : await obtenerResumenAdminPorFecha(fecha);
 
                 if (cancelado) return;
-                const normalizadas = (Array.isArray(data) ? data : []).map((r) => ({
-                    id: r.usuario_id,
-                    nombre: (r.usuario_nombre || "").split(" ")[0] || "",
-                    apellido: (r.usuario_nombre || "").split(" ").slice(1).join(" ") || "",
-                    email: r.usuario_email || "",
-                    rol: normalizarRol(r.rol),
-                    avatar_url: r.avatar_url || null,   // ← NUEVO
-                    avatarVersion: Date.now(),
-                    estado: r.estado || "SIN_ENTRADA",
-                    tieneEntrada: Boolean(r.tiene_entrada),
-                    entrada: r.entrada,
-                    breakInicio: r.break_inicio,
-                    breakFin: r.break_fin,
-                    duracion: formatearDuracion(r.duracion_break_segundos),
-                    salida: r.salida,
-                }));
+                const normalizadas = (Array.isArray(data) ? data : []).map((r) => {
+                    // TEMPORAL: inspeccionar los campos reales que envía el backend.
+                    if (tipo !== "polling") {
+                        console.log("[AsistenciaAdmin] fila backend:", r);
+                    }
+                    return {
+                        id: r.usuario_id,
+                        nombre: (r.usuario_nombre || "").split(" ")[0] || "",
+                        apellido: (r.usuario_nombre || "").split(" ").slice(1).join(" ") || "",
+                        email: r.usuario_email || "",
+                        rol: normalizarRol(r.rol),
+                        horasAcumuladas: r.horas_acumuladas
+                            ?? (r.horas_acumuladas_segundos != null
+                                ? Number(r.horas_acumuladas_segundos) / 3600
+                                : null),
+                        avatar_url: r.avatar_url || null,   // ← NUEVO
+                        avatarVersion: Date.now(),
+                        estado: r.estado || "SIN_ENTRADA",
+                        tieneEntrada: Boolean(r.tiene_entrada),
+                        entrada: r.entrada,
+                        breakInicio: r.break_inicio,
+                        breakFin: r.break_fin,
+                        duracion: formatearDuracion(r.duracion_break_segundos),
+                        salida: r.salida,
+                        inicioRastreo: r.fecha_inicio_rastreo ?? r.inicio_rastreo ?? null,
+                        inicioPracticas: r.fecha_inicio_practicas
+                            ?? r.usuario?.fecha_inicio_practicas
+                            ?? r.inicio_practicas
+                            ?? null,
+                        justificacion_aceptada: r.justificacion_aceptada || null,
+                        comentario_admin: r.comentario_admin || "",
+                        justificacion_asunto: r.justificacion_asunto || "",
+                        justificacion_mensaje: r.justificacion_mensaje || "",
+                        justificacion_evidencia_url: r.justificacion_evidencia_url || "",
+                    };
+                });
 
                 setFilas((actuales) => (
                     JSON.stringify(normalizadas) === JSON.stringify(actuales)
@@ -261,6 +368,33 @@ const AsistenciaAdmin = () => {
         return () => window.clearInterval(intervalo);
     }, []);
 
+    useEffect(() => {
+        const refrescarAsistencia = () => consultarAhoraRef.current?.();
+        window.addEventListener(EVENTO_JUSTIFICACIONES_ACTUALIZADAS, refrescarAsistencia);
+        return () => window.removeEventListener(EVENTO_JUSTIFICACIONES_ACTUALIZADAS, refrescarAsistencia);
+    }, []);
+
+    const buscarJustificacion = (fila) => {
+        if (!fila.justificacion_aceptada) return null;
+        const aceptada = typeof fila.justificacion_aceptada === "object"
+            ? {
+                ...fila.justificacion_aceptada,
+                estado: fila.justificacion_aceptada.estado || "ACEPTADA",
+                comentario_admin: fila.comentario_admin
+                    ?? fila.justificacion_aceptada.comentario_admin
+                    ?? "",
+            }
+            : {
+                estado: "ACEPTADA",
+                comentario_admin: fila.comentario_admin || "",
+                asunto: "Justificación aceptada",
+                mensaje: "",
+            };
+        return String(aceptada.estado || "").toUpperCase() === "ACEPTADA"
+            ? aceptada
+            : null;
+    };
+
     // ── Filtrado ───────────────────────────────────────
     const filasFiltradas = useMemo(() => {
         return filas.filter((f) => {
@@ -277,11 +411,7 @@ const AsistenciaAdmin = () => {
         });
     }, [filas, filtroUsuario, filtroRol, filtroEstado, busqueda]);
 
-    // ── Resumen ────────────────────────────────────────
-    const totalUsuarios = filas.length;
-    const conEntrada = filas.filter((f) => f.tieneEntrada).length;
-    const sinEntrada = totalUsuarios - conEntrada;
-    const enDescanso = filas.filter((f) => f.estado === "EN_BREAK").length;
+    // ── Actualización ──────────────────────────────────
     const segundosDesdeActualizacion = ultimaActualizacion
         ? Math.max(0, Math.floor((relojActualizacion - ultimaActualizacion.getTime()) / 1000))
         : null;
@@ -341,49 +471,6 @@ const AsistenciaAdmin = () => {
                 </div>
             </header>
 
-            {/* PANELES RESUMEN */}
-            <section className="admin-resumen">
-                <div className="admin-resumen-card">
-                    <div className="admin-resumen-icono">
-                        <Users size={24} weight="duotone" />
-                    </div>
-                    <div className="admin-resumen-datos">
-                        <span className="admin-resumen-label">Total usuarios</span>
-                        <span className="admin-resumen-valor">{totalUsuarios}</span>
-                    </div>
-                </div>
-
-                <div className="admin-resumen-card card-verde">
-                    <div className="admin-resumen-icono">
-                        <CheckCircle size={24} weight="duotone" />
-                    </div>
-                    <div className="admin-resumen-datos">
-                        <span className="admin-resumen-label">Con entrada</span>
-                        <span className="admin-resumen-valor">{conEntrada}</span>
-                    </div>
-                </div>
-
-                <div className="admin-resumen-card card-rojo">
-                    <div className="admin-resumen-icono">
-                        <XCircle size={24} weight="duotone" />
-                    </div>
-                    <div className="admin-resumen-datos">
-                        <span className="admin-resumen-label">Sin entrada</span>
-                        <span className="admin-resumen-valor">{sinEntrada}</span>
-                    </div>
-                </div>
-
-                <div className="admin-resumen-card card-amarillo">
-                    <div className="admin-resumen-icono">
-                        <Coffee size={24} weight="duotone" />
-                    </div>
-                    <div className="admin-resumen-datos">
-                        <span className="admin-resumen-label">En descanso</span>
-                        <span className="admin-resumen-valor">{enDescanso}</span>
-                    </div>
-                </div>
-            </section>
-
             {/* FILTROS */}
             <section className="admin-filtros">
                 <span className="admin-filtros-titulo">FILTRAR</span>
@@ -416,9 +503,12 @@ const AsistenciaAdmin = () => {
                     <input
                         id="asistencia-admin-fecha"
                         type="date"
+                        lang="es-PE"
                         value={fecha}
-                        max={hoy}
-                        onChange={(e) => setFecha(e.target.value)}
+                        onChange={(e) => {
+                            console.log("Fecha seleccionada:", e.target.value);
+                            setFecha(e.target.value);
+                        }}
                         onClick={abrirCalendario}
                     />
                 </div>
@@ -479,6 +569,8 @@ const AsistenciaAdmin = () => {
                             <TarjetaUsuario
                                 key={f.id}
                                 fila={f}
+                                justificacion={buscarJustificacion(f)}
+                                onVerJustificacion={() => setJustificacionVer(f)}
                                 onVerHorario={verHorarioUsuario}
                             />
                         ))}
@@ -490,32 +582,36 @@ const AsistenciaAdmin = () => {
                                 <tr>
                                     <th>Usuario</th>
                                     <th className="col-horario">Horario</th>
-                                    <th>Rol</th>
+                                    <th className="col-inicio-rastreo">Inicio de Rastreo</th>
+                                    <th className="col-inicio-practicas">Inicio de Prácticas</th>
+                                    <th className="col-tiempo-acumulado">Tiempo acumulado</th>
                                     <th className="col-centrada">Entrada</th>
                                     <th className="col-centrada">Inicio desc.</th>
                                     <th className="col-centrada">Fin desc.</th>
                                     <th className="col-centrada">Duración</th>
                                     <th className="col-centrada">Salida</th>
                                     <th>Estado</th>
-                                    <th className="col-check">Check</th>
+                                    <th className="col-justificacion">Justificación</th>
+                                    <th className="col-comentario-admin">Comentario Admin</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {cargandoInicial ? (
                                     <tr>
-                                        <td colSpan="10" className="admin-tabla-vacia">
+                                        <td colSpan="13" className="admin-tabla-vacia">
                                             Cargando registros...
                                         </td>
                                     </tr>
                                 ) : filasFiltradas.length === 0 ? (
                                     <tr>
-                                        <td colSpan="10" className="admin-tabla-vacia">
+                                        <td colSpan="13" className="admin-tabla-vacia">
                                             No hay usuarios con esos filtros.
                                         </td>
                                     </tr>
                                 ) : filasFiltradas.map((f) => {
                                     const urlAvatar = construirUrlAvatar(f.avatar_url, f.avatarVersion);
                                     const iniciales = `${(f.nombre[0] || "?").toUpperCase()}${(f.apellido[0] || "").toUpperCase()}`;
+                                    const justificacion = buscarJustificacion(f);
 
                                     return (
                                         <tr className={!f.tieneEntrada ? "fila-sin-entrada" : ""} key={f.id}>
@@ -558,10 +654,14 @@ const AsistenciaAdmin = () => {
                                                     Ver horario
                                                 </button>
                                             </td>
-                                            <td>
-                                                <span className={`admin-rol rol-${f.rol === "Administrador" ? "administrador" : "practicante"}`}>
-                                                    {f.rol}
-                                                </span>
+                                            <td className="col-inicio-rastreo">
+                                                {formatearFechaTabla(f.inicioRastreo)}
+                                            </td>
+                                            <td className="col-inicio-practicas">
+                                                {formatearFechaTabla(f.inicioPracticas)}
+                                            </td>
+                                            <td className="admin-tiempo-acumulado">
+                                                {formatearTiempoAcumulado(f.horasAcumuladas)}
                                             </td>
                                             <td className="admin-hora">{formatearHora(f.entrada)}</td>
                                             <td className="admin-hora">{formatearHora(f.breakInicio)}</td>
@@ -573,12 +673,30 @@ const AsistenciaAdmin = () => {
                                                     {textoEstado(f.estado)}
                                                 </span>
                                             </td>
-                                            <td className="col-check">
-                                                {f.tieneEntrada ? (
-                                                    <CheckCircle size={20} weight="fill" color="#10b981" />
+                                            <td className="col-justificacion">
+                                                {["PENDIENTE", "ACEPTADA"].includes(justificacion?.estado) ? (
+                                                    <button
+                                                        type="button"
+                                                        className="btn-ver-justificacion"
+                                                        onClick={() => setJustificacionVer(f)}
+                                                    >
+                                                        Ver justificación
+                                                    </button>
                                                 ) : (
-                                                    <XCircle size={20} weight="fill" color="#dc2626" />
+                                                    <span className="admin-sin-justificacion">---</span>
                                                 )}
+                                            </td>
+                                            <td className="col-comentario-admin">
+                                                <span
+                                                    className="admin-comentario-texto"
+                                                    title={justificacion?.comentario_admin?.trim() || ""}
+                                                >
+                                                    {justificacion?.estado === "PENDIENTE"
+                                                        ? "Pendiente de revisión"
+                                                        : ["ACEPTADA", "RECHAZADA", "INJUSTIFICADA"].includes(justificacion?.estado)
+                                                            ? justificacion.comentario_admin?.trim() || "---"
+                                                            : "---"}
+                                                </span>
                                             </td>
                                         </tr>
                                     );
@@ -595,6 +713,13 @@ const AsistenciaAdmin = () => {
                     imagenUrl={horarioUsuario?.imagen_url}
                     cargando={cargandoHorario}
                     onCerrar={cerrarModalHorario}
+                />
+            )}
+            {justificacionVer && (
+                <ModalVerJustificacion
+                    abierto={Boolean(justificacionVer)}
+                    justificacion={justificacionVer}
+                    onCerrar={() => setJustificacionVer(null)}
                 />
             )}
         </div>

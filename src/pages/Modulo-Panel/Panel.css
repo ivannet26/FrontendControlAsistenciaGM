@@ -481,6 +481,73 @@
 
 
 /* ============================================================
+   AVISO "SERVIDOR DESPERTANDO" / REINTENTO MANUAL
+   ============================================================ */
+
+.panel-aviso-servidor {
+    margin: auto;
+    max-width: 460px;
+    padding: 32px 28px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    text-align: center;
+    background: #101b22;
+    border: 1px solid #263740;
+    border-radius: 4px;
+}
+
+.panel-aviso-titulo {
+    color: #d9e1e5;
+    font-size: 16px;
+    font-weight: 500;
+    letter-spacing: -0.3px;
+}
+
+.panel-aviso-texto {
+    margin: 0;
+    color: #9eacb5;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.panel-aviso-boton {
+    margin-top: 6px;
+    height: 34px;
+    padding: 0 16px;
+    background: #111d24;
+    border: 1px solid #344650;
+    color: #dbe4ee;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.panel-aviso-boton:hover:not(:disabled) {
+    background: #162630;
+}
+
+.panel-aviso-boton:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.panel-banner-error {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 10px 14px;
+    background: #2a1d1d;
+    border: 1px solid #4a2b2b;
+    color: #f0b4b4;
+    font-size: 13px;
+}
+
+
+/* ============================================================
    RESPONSIVE GENERAL
    ============================================================ */
 

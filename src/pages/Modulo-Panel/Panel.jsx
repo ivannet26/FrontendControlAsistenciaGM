@@ -45,9 +45,9 @@ const calcularRangoSemana = (offsetSemanas) => {
     };
 };
 
-const timeout = (ms) => new Promise((_, reject) =>
-    setTimeout(() => reject(new Error("Tiempo de espera agotado")), ms)
-);
+// A partir de aquí mostramos el aviso de "el servidor está despertando".
+// No es un timeout: la petición sigue viva hasta los 60 s de axios.
+const AVISO_LENTO_MS = 8000;
 
 
 // ============================================================
@@ -64,10 +64,11 @@ function Panel() {
 
     const [cargando, setCargando] = useState(true);
     const [error, setError] = useState(null);
+    const [despertando, setDespertando] = useState(false);
 
-    // ✅ Ref para evitar peticiones duplicadas
+    // ✅ Solo cancelación: no hay reintentos ni polling
     const abortControllerRef = useRef(null);
-    const cargandoRef = useRef(false);
+    const avisoLentoRef = useRef(null);
 
     // ✅ useMemo: el rango solo se recalcula cuando cambia offsetSemana
     const rangoActual = useMemo(
@@ -77,39 +78,38 @@ function Panel() {
 
 
     // ============================================================
-    // CARGA DE DATOS (estabilizada con useCallback)
+    // CARGA DE DATOS (una petición por rango/filtro, sin reintentos)
     // ============================================================
 
-    const cargarTodo = useCallback(async (silencioso = false) => {
+    const cargarTodo = useCallback(async () => {
 
-        // ✅ Evitar peticiones duplicadas simultáneas
-        if (cargandoRef.current && silencioso) return;
-        cargandoRef.current = true;
-
-        // ✅ Cancelar petición anterior si existe
+        // Cancelar la petición anterior (cambio de semana/filtro)
         if (abortControllerRef.current) {
             abortControllerRef.current.abort();
         }
         const controller = new AbortController();
         abortControllerRef.current = controller;
 
-        if (!silencioso) setCargando(true);
+        setCargando(true);
         setError(null);
+        setDespertando(false);
+
+        // Aviso pasivo a los 8 s: el usuario entiende la espera,
+        // pero NO abortamos ni relanzamos nada.
+        window.clearTimeout(avisoLentoRef.current);
+        avisoLentoRef.current = window.setTimeout(() => {
+            if (!controller.signal.aborted) setDespertando(true);
+        }, AVISO_LENTO_MS);
 
         try {
             const { fecha_inicio, fecha_fin } = calcularRangoSemana(offsetSemana);
 
-            // Petición 1: resumen tiempo
-            const res = await Promise.race([
-                obtenerResumenTiempo({
-                    fecha_inicio,
-                    fecha_fin,
-                    usuario_filtro: usuarioFiltro
-                }, controller.signal),
-                timeout(15000)
-            ]);
+            // Petición 1: resumen tiempo (timeout de 60 s en axios)
+            const res = await obtenerResumenTiempo(
+                { fecha_inicio, fecha_fin, usuario_filtro: usuarioFiltro },
+                controller.signal
+            );
 
-            // Si la petición fue abortada, salir sin actualizar
             if (controller.signal.aborted) return;
 
             setDatos(res);
@@ -117,18 +117,16 @@ function Panel() {
             // Petición 2: equipo (solo si aplica)
             if (usuarioFiltro === "equipo") {
                 try {
-                    const resEquipo = await Promise.race([
-                        obtenerActividadEquipo(
-                            { fecha_inicio, fecha_fin },
-                            controller.signal
-                        ),
-                        timeout(15000)
-                    ]);
+                    const resEquipo = await obtenerActividadEquipo(
+                        { fecha_inicio, fecha_fin },
+                        controller.signal
+                    );
 
                     if (controller.signal.aborted) return;
                     setEquipo(resEquipo);
                 } catch (errEquipo) {
-                    if (errEquipo.name !== "AbortError") {
+                    // Un fallo del bloque de equipo no tumba el panel
+                    if (!errEquipo.esCancelado && !controller.signal.aborted) {
                         console.error("Error cargando equipo:", errEquipo);
                         setEquipo(null);
                     }
@@ -138,13 +136,19 @@ function Panel() {
             }
 
         } catch (err) {
-            if (err.name === "AbortError") return; // Ignorar cancelaciones
+            if (err.esCancelado || controller.signal.aborted) return; // Ignorar cancelaciones
+
             console.error("Error cargando panel:", err);
-            setError(err.message || "Error al cargar");
+            setError(
+                err.mensajeAmigable ||
+                err.message ||
+                "No se pudo cargar el panel"
+            );
         } finally {
-            cargandoRef.current = false;
+            window.clearTimeout(avisoLentoRef.current);
             if (!controller.signal.aborted) {
                 setCargando(false);
+                setDespertando(false);
             }
         }
     }, [offsetSemana, usuarioFiltro]);
@@ -152,18 +156,16 @@ function Panel() {
 
     // ============================================================
     // EFECTO PRINCIPAL
+    // ------------------------------------------------------------
+    // Se ejecuta UNA vez por cambio de semana/filtro.
+    // Sin setInterval: no hay peticiones periódicas en segundo plano.
     // ============================================================
 
     useEffect(() => {
         cargarTodo();
 
-        const intervalo = setInterval(() => {
-            cargarTodo(true);
-        }, 30000);
-
         return () => {
-            clearInterval(intervalo);
-            // Cancelar petición en curso al desmontar
+            window.clearTimeout(avisoLentoRef.current);
             if (abortControllerRef.current) {
                 abortControllerRef.current.abort();
             }
@@ -185,10 +187,23 @@ function Panel() {
     // RENDER
     // ============================================================
 
-    if (error) {
+    // Sin datos todavía: mantenemos el lenguaje de "Cargando…"
+    // en lugar de soltar un error técnico de inmediato.
+    if (error && !datos) {
         return (
             <div className="panel-page">
-                <div className="panel-error">Error: {error}</div>
+                <div className="panel-aviso-servidor">
+                    <strong className="panel-aviso-titulo">Cargando…</strong>
+                    <p className="panel-aviso-texto">{error}</p>
+                    <button
+                        type="button"
+                        className="panel-aviso-boton"
+                        onClick={cargarTodo}
+                        disabled={cargando}
+                    >
+                        {cargando ? "Reintentando…" : "Reintentar"}
+                    </button>
+                </div>
             </div>
         );
     }
@@ -208,8 +223,28 @@ function Panel() {
             <LoadingOverlay
                 visible={cargando}
                 texto="Cargando"
-                subtexto="Por favor espere"
+                subtexto={
+                    despertando
+                        ? "El servidor está despertando, esto puede tardar hasta un minuto"
+                        : "Por favor espere"
+                }
             />
+
+            {/* Si ya había datos y falla una recarga, no se borra la pantalla:
+                se avisa arriba y se ofrece reintentar a mano. */}
+            {error && datos && (
+                <div className="panel-banner-error">
+                    <span>{error}</span>
+                    <button
+                        type="button"
+                        className="panel-aviso-boton"
+                        onClick={cargarTodo}
+                        disabled={cargando}
+                    >
+                        Reintentar
+                    </button>
+                </div>
+            )}
 
             {datos && (
                 <>

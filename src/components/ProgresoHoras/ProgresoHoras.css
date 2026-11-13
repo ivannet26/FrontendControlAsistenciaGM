@@ -1,0 +1,505 @@
+.progreso-horas {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 20px 24px;
+    border-radius: 12px;
+    background: #0f1a21;
+    color: #d9e3e8;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.progreso-horas-header {
+    min-height: 58px;
+    display: grid;
+    grid-template-columns: minmax(180px, 1fr) auto auto;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.progreso-horas-header h2 {
+    margin: 0;
+    color: #fff;
+    font-size: 20px;
+    font-weight: 500;
+}
+
+.progreso-meta-editor {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.progreso-meta-etiqueta {
+    color: #8b9bab;
+    font-size: 13px;
+}
+
+.progreso-meta-campos {
+    height: 38px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    padding: 0 8px;
+    border: 0.5px solid #2a3b47;
+    border-radius: 8px;
+    background: #16232c;
+}
+
+.progreso-meta-editor.editando .progreso-meta-campos {
+    border-color: #38bdf8;
+}
+
+.progreso-meta-editor.con-error .progreso-meta-campos {
+    border-color: #f87171;
+}
+
+.progreso-meta-campos label {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: #8b9bab;
+    font-size: 13px;
+}
+
+.progreso-meta-campos input {
+    width: 34px;
+    padding: 0;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: #e6edf1;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 16px;
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+}
+
+.progreso-meta-campos input:disabled {
+    color: #a4b4be;
+    opacity: 1;
+}
+
+.progreso-meta-botones {
+    display: flex;
+    gap: 7px;
+}
+
+.progreso-meta-botones button {
+    min-height: 36px;
+    padding: 0 12px;
+    border: 0.5px solid #2d4c60;
+    border-radius: 7px;
+    background: #16232c;
+    color: #dbe8ee;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.progreso-meta-botones button.confirmar {
+    border-color: #176b52;
+}
+
+.progreso-meta-botones button:disabled {
+    cursor: default;
+    opacity: .42;
+}
+
+.progreso-horas-error {
+    min-height: 18px;
+    margin: 0 0 4px;
+    color: #f87171;
+    font-size: 13px;
+}
+
+.progreso-horas-estado {
+    color: #8b9bab;
+    font-size: 13px;
+}
+
+.progreso-horas-cuerpo {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 24px;
+    min-height: 420px;
+    overflow: visible;
+}
+
+.progreso-rueda {
+    flex: 0 0 360px;
+    width: 360px;
+    max-width: 100%;
+    margin-inline: auto;
+}
+
+.progreso-rueda svg {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.progreso-rueda-acciones {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    max-width: 360px;
+    margin: 6px auto 0;
+}
+
+.progreso-config-inicio {
+    min-height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 0 12px;
+    border: 1px solid #38bdf8;
+    border-radius: 8px;
+    background: #16232c;
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 12.5px;
+    font-weight: 500;
+    line-height: 1;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: border-color .15s ease, background-color .15s ease,
+        color .15s ease, box-shadow .15s ease;
+}
+
+.progreso-config-inicio svg {
+    width: 16px;
+    height: 16px;
+    flex: 0 0 16px;
+}
+
+.progreso-config-inicio-texto {
+    display: inline-block;
+}
+
+/* Aún no configurado: botón llamativo con pulso suave. */
+.progreso-config-inicio.pendiente {
+    border-color: #38bdf8;
+    background: linear-gradient(180deg, #1b3746 0%, #16232c 100%);
+    color: #ffffff;
+    box-shadow: 0 0 0 1px rgba(56, 189, 248, .22),
+        0 6px 18px rgba(56, 189, 248, .18);
+    animation: pulso-config-inicio 2.4s ease-in-out infinite;
+}
+
+.progreso-config-inicio.pendiente:hover:not(:disabled) {
+    border-color: #7dd3fc;
+    background: #1d3a49;
+    box-shadow: 0 0 0 3px rgba(56, 189, 248, .16),
+        0 8px 20px rgba(56, 189, 248, .25);
+}
+
+/* Ya configurado: candado visible pero discreto, sin pulso. */
+.progreso-config-inicio.configurado {
+    border-color: rgba(56, 189, 248, .45);
+    background: #16232c;
+    color: #cbd8df;
+    cursor: default;
+    box-shadow: none;
+    animation: none;
+}
+
+.progreso-config-inicio.configurado:disabled {
+    opacity: .9;
+}
+
+.progreso-config-inicio.cargando {
+    opacity: .6;
+}
+
+.progreso-config-inicio:disabled {
+    cursor: default;
+    opacity: .85;
+}
+
+.progreso-config-inicio:focus-visible {
+    outline: 2px solid #38bdf8;
+    outline-offset: 2px;
+}
+
+@keyframes pulso-config-inicio {
+    0%, 100% {
+        box-shadow: 0 0 0 1px rgba(56, 189, 248, .22),
+            0 6px 18px rgba(56, 189, 248, .18);
+    }
+    50% {
+        box-shadow: 0 0 0 7px rgba(56, 189, 248, 0),
+            0 6px 18px rgba(56, 189, 248, .28);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .progreso-config-inicio.pendiente { animation: none; }
+}
+
+.progreso-inicio-rastreo {
+    color: #8b9bab;
+    font-size: 12px;
+}
+
+.escala-semanal line,
+.escala-diaria line {
+    stroke-linecap: round;
+    stroke-width: 1.5;
+}
+
+.escala-semanal line { stroke: #a78bfa; }
+.escala-diaria line { stroke: #7dd3fc; }
+
+.escala-semanal text,
+.escala-diaria text {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-variant-numeric: tabular-nums;
+}
+
+.escala-semanal text {
+    fill: #a78bfa;
+    font-size: 12px;
+}
+
+.escala-diaria text {
+    fill: #7dd3fc;
+    font-size: 11px;
+}
+
+.rueda-pista,
+.rueda-progreso,
+.rueda-break {
+    fill: none;
+}
+
+.rueda-pista {
+    stroke: rgba(255, 255, 255, .08);
+}
+
+.rueda-pista.semana { stroke-width: 12; }
+.rueda-pista.dia { stroke-width: 22; }
+
+.rueda-progreso {
+    transition: stroke-dasharray .5s ease;
+    stroke-linecap: round;
+}
+
+.rueda-progreso.semana {
+    stroke: #818cf8;
+    stroke-width: 12;
+}
+
+.rueda-progreso.dia {
+    stroke-width: 22;
+}
+
+.rueda-break {
+    stroke: #fbbf24;
+    stroke-width: 22;
+    stroke-linecap: round;
+    transition: stroke-dasharray .5s ease, stroke-dashoffset .5s ease;
+}
+
+.rueda-punta {
+    stroke: #0f1a21;
+    stroke-width: 3px;
+    transition: cx .5s ease, cy .5s ease, fill .5s ease;
+}
+
+.rueda-centro.activo .rueda-tiempo {
+    animation: pulso-reloj 1s ease-in-out infinite;
+}
+
+.rueda-etiqueta {
+    fill: #8b9bab;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+}
+
+.rueda-tiempo {
+    fill: #f8fafc;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 32px;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+}
+
+.rueda-meta {
+    fill: #8b9bab;
+    font-size: 12px;
+}
+
+.progreso-resumen {
+    flex: 1 1 310px;
+    min-width: 280px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.reloj-activo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #8b9bab;
+    font-size: 13px;
+}
+
+.reloj-activo i {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #64748b;
+}
+
+.reloj-activo.activo i {
+    background: #34d399;
+    animation: pulso-punto 1.4s ease-in-out infinite;
+}
+
+.tarjeta-resumen {
+    padding: 14px;
+    border: 0.5px solid #263943;
+    border-radius: 8px;
+    background: #16232c;
+}
+
+.tarjeta-resumen-titulo {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 10px;
+    font-size: 13px;
+}
+
+.tarjeta-resumen-titulo span { color: #b8c5cc; }
+.tarjeta-resumen-titulo strong {
+    color: #eef4f6;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 13px;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+}
+
+.progreso-barra {
+    height: 6px;
+    overflow: hidden;
+    border-radius: 99px;
+    background: rgba(255, 255, 255, .08);
+}
+
+.progreso-barra span {
+    height: 100%;
+    display: block;
+    border-radius: inherit;
+    transition: width .5s ease, background-color .5s ease;
+}
+
+.progreso-barra.diario span { background: #38bdf8; }
+.progreso-barra.completo span { background: #34d399; }
+.progreso-barra.semanal span { background: #818cf8; }
+
+.progreso-leyenda {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 16px;
+    color: #aab9c1;
+    font-size: 12px;
+}
+
+.progreso-leyenda span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.progreso-leyenda i {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.progreso-leyenda .trabajo { background: #38bdf8; }
+.progreso-leyenda .break { background: #fbbf24; }
+.progreso-leyenda .semana { background: #818cf8; }
+
+.progreso-aviso {
+    padding: 10px 12px;
+    border: 0.5px solid rgba(251, 191, 36, .45);
+    border-radius: 8px;
+    background: rgba(251, 191, 36, .1);
+    color: #fbbf24;
+    font-size: 13px;
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+@keyframes pulso-punto {
+    50% { opacity: .45; }
+}
+
+@keyframes pulso-reloj {
+    50% { opacity: .82; }
+}
+
+@media (max-width: 900px) {
+    .progreso-horas-header {
+        grid-template-columns: 1fr auto;
+    }
+
+    .progreso-meta-editor {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 650px) {
+    .progreso-horas { padding: 16px; }
+
+    .progreso-horas-header {
+        grid-template-columns: 1fr;
+    }
+
+    .progreso-meta-editor,
+    .progreso-meta-botones {
+        grid-column: 1;
+    }
+
+    .progreso-meta-botones button { flex: 1; }
+
+    .progreso-horas-cuerpo {
+        display: block;
+    }
+
+    .progreso-rueda {
+        width: min(360px, 100%);
+        margin-bottom: 16px;
+    }
+
+    .progreso-resumen { min-width: 0; }
+}
+.progreso-datos-pendientes .progreso-rueda::before {
+    position: absolute;
+    inset: 12%;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.025);
+    content: "";
+    pointer-events: none;
+}

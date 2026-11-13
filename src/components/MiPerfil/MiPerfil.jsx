@@ -38,6 +38,7 @@ const PERFIL_VACIO = {
     dni: "",
     direccion: "",
     fecha_nacimiento: "",
+    fecha_inicio_practicas: "",
     puesto: "",
     avatar_url: "",
 };
@@ -59,6 +60,9 @@ const normalizarPerfil = (respuesta = {}) => {
         direccion: datos.direccion ?? "",
         fecha_nacimiento: datos.fecha_nacimiento
             ? String(datos.fecha_nacimiento).slice(0, 10)
+            : "",
+        fecha_inicio_practicas: datos.fecha_inicio_practicas
+            ? String(datos.fecha_inicio_practicas).slice(0, 10)
             : "",
         puesto: datos.puesto ?? datos.cargo ?? "",
         avatar_url: datos.avatar_url ?? datos.avatar ?? "",
@@ -134,6 +138,7 @@ const MiPerfil = () => {
             setCargando(true);
             try {
                 const respuesta = normalizarPerfil(await obtenerMiPerfil());
+                console.log("[MiPerfil] GET fecha_inicio_practicas:", respuesta.fecha_inicio_practicas);
                 if (!activo) return;
                 setDatos(respuesta);
                 setOriginales(respuesta);
@@ -217,13 +222,19 @@ const MiPerfil = () => {
             dni: datos.dni || null,
             direccion: datos.direccion.trim() || null,
             fecha_nacimiento: datos.fecha_nacimiento || null,
+            fecha_inicio_practicas: datos.fecha_inicio_practicas || null,
             puesto: datos.puesto.trim() || null,
         };
 
+        console.log("[MiPerfil] PUT fecha_inicio_practicas:", payload.fecha_inicio_practicas);
         setGuardando(true);
         try {
             const respuesta = await actualizarMiPerfil(payload);
             const actualizado = normalizarPerfil({ ...datos, ...respuesta });
+            console.log(
+                "[MiPerfil] PUT respuesta fecha_inicio_practicas:",
+                actualizado.fecha_inicio_practicas
+            );
             setDatos(actualizado);
             setOriginales(actualizado);
             setEditando(false);
@@ -420,6 +431,7 @@ const MiPerfil = () => {
                                 {campo("dni", "Documento / DNI", IdentificationCard, "text", { maxLength: 8 })}
                                 {campo("direccion", "Dirección", MapPinLine, "text", { autoComplete: "street-address", maxLength: 255, completo: true })}
                                 {campo("fecha_nacimiento", "Fecha de nacimiento", CalendarBlank, "date")}
+                                {campo("fecha_inicio_practicas", "Fecha de inicio de prácticas", CalendarBlank, "date")}
                                 {campo("puesto", "Carrera", Briefcase, "text", { maxLength: 100 })}
                             </div>
 

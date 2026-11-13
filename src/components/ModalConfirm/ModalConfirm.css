@@ -10,10 +10,12 @@
 }
 
 .modal-confirm {
-    width: 420px;
+    width: min(600px, 90vw);
+    max-height: calc(100vh - 40px);
     max-width: 90%;
     background: #162630;
     border: 1px solid #344650;
+    overflow: hidden;
     animation: slideUp 0.2s ease;
 }
 
@@ -44,6 +46,37 @@
 
 .modal-confirm-body strong {
     color: #ffffff;
+}
+
+.modal-confirm-comentario {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 8px;
+    color: #d3dde3;
+    font-size: 13px;
+}
+
+.modal-confirm-comentario textarea {
+    width: 100%;
+    box-sizing: border-box;
+    resize: vertical;
+    min-height: 120px;
+    padding: 10px;
+    border: 1px solid #344650;
+    background: #101b22;
+    color: #ffffff;
+    font: inherit;
+}
+
+.modal-confirm-comentario textarea:focus {
+    border-color: #10a5f5;
+    outline: none;
+}
+
+.modal-confirm-error {
+    color: #ff8585;
+    font-size: 12px;
 }
 
 .modal-confirm-footer {

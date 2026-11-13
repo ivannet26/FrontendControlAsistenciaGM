@@ -1,0 +1,357 @@
+/* =========================================================
+   MODAL DE JUSTIFICACIÓN
+   ========================================================= */
+
+.modal-justificacion-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 4000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.7);
+    animation: modal-justificacion-fondo 0.15s ease both;
+}
+
+.modal-justificacion {
+    width: 100%;
+    max-width: 560px;
+    max-height: calc(100vh - 40px);
+    display: flex;
+    flex-direction: column;
+    background: #162630;
+    border: 1px solid #344650;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+    animation: modal-justificacion-entrada 0.2s ease both;
+}
+
+.modal-justificacion-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 16px 18px;
+    border-bottom: 1px solid #263740;
+}
+
+.modal-justificacion-eyebrow {
+    margin: 0 0 4px;
+    color: #10a5f5;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+.modal-justificacion-header h2 {
+    margin: 0;
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+}
+
+.modal-justificacion-cerrar {
+    width: 32px;
+    height: 32px;
+    flex: 0 0 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 1px solid transparent;
+    background: transparent;
+    color: #8ea0af;
+    cursor: pointer;
+    transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.modal-justificacion-cerrar:hover:not(:disabled) {
+    border-color: #344650;
+    color: #ffffff;
+}
+
+.modal-justificacion-form {
+    overflow-y: auto;
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    scrollbar-width: thin;
+    scrollbar-color: #10a5f5 #101b22;
+}
+
+.modal-justificacion-fila {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.modal-justificacion-campo {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.modal-justificacion-campo label,
+.modal-justificacion-etiqueta {
+    color: #c5d1d8;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+}
+
+.modal-justificacion-opcional {
+    color: #8ea0af;
+    font-size: 11px;
+    font-weight: 400;
+}
+
+.modal-justificacion-campo select,
+.modal-justificacion-campo input[type="text"],
+.modal-justificacion-campo input[type="date"],
+.modal-justificacion-campo textarea {
+    width: 100%;
+    min-height: 38px;
+    padding: 9px 10px;
+    box-sizing: border-box;
+    background: #101b22;
+    border: 1px solid #344650;
+    color: #d3dde3;
+    font-family: inherit;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.15s ease;
+    color-scheme: dark;
+}
+
+.modal-justificacion-campo textarea {
+    resize: vertical;
+    min-height: 96px;
+    line-height: 1.5;
+}
+
+.modal-justificacion-campo select:focus,
+.modal-justificacion-campo input:focus,
+.modal-justificacion-campo textarea:focus {
+    border-color: #10a5f5;
+    box-shadow: 0 0 0 1px rgba(16, 165, 245, 0.4);
+}
+
+.modal-justificacion-campo [aria-invalid="true"] {
+    border-color: #b5c4cc;
+}
+
+.modal-justificacion-error {
+    color: #f8f9fa;
+    font-size: 11.5px;
+    font-weight: 500;
+    line-height: 1.4;
+}
+
+.modal-justificacion-nota {
+    margin: 0;
+    padding: 8px 10px;
+    border-left: 2px solid #344650;
+    background: transparent;
+    color: #9eacb5;
+    font-size: 12px;
+}
+
+.modal-justificacion-archivo {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.modal-justificacion-adjuntar {
+    align-self: flex-start;
+    min-height: 36px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 12px;
+    border: 1px dashed #465d6b;
+    background: #101b22;
+    color: #b5c4cc;
+    font-family: inherit;
+    font-size: 12.5px;
+    cursor: pointer;
+    transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.modal-justificacion-adjuntar:hover:not(:disabled) {
+    border-color: #10a5f5;
+    color: #10a5f5;
+}
+
+.modal-justificacion-previa {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px;
+    background: #101b22;
+    border: 1px solid #263740;
+}
+
+.modal-justificacion-previa img {
+    width: 88px;
+    height: 66px;
+    flex: 0 0 88px;
+    object-fit: cover;
+    border: 1px solid #263740;
+}
+
+.modal-justificacion-previa-info {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.modal-justificacion-previa-info > span {
+    overflow: hidden;
+    color: #d3dde3;
+    font-size: 12px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.modal-justificacion-previa-info button {
+    align-self: flex-start;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: #b5c4cc;
+    font-family: inherit;
+    font-size: 12px;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.modal-justificacion-previa-info button:hover {
+    color: #ffffff;
+}
+
+.modal-justificacion-optimizando {
+    min-height: 66px;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    color: #d3dde3;
+    font-size: 13px;
+}
+
+.modal-justificacion-optimizando-spinner {
+    width: 18px;
+    height: 18px;
+    border: 2px solid rgba(211, 221, 227, 0.25);
+    border-top-color: #10a5f5;
+    border-radius: 50%;
+    animation: modal-justificacion-girar 0.8s linear infinite;
+}
+
+@keyframes modal-justificacion-girar {
+    to { transform: rotate(360deg); }
+}
+
+.modal-justificacion-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding-top: 14px;
+    border-top: 1px solid #263740;
+}
+
+.modal-justificacion-cancelar,
+.modal-justificacion-enviar {
+    min-height: 38px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 16px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.modal-justificacion-cancelar {
+    background: transparent;
+    border-color: #344650;
+    color: #b5c4cc;
+}
+
+.modal-justificacion-cancelar:hover:not(:disabled) {
+    border-color: #10a5f5;
+    color: #10a5f5;
+}
+
+.modal-justificacion-enviar {
+    background: #10a5f5;
+    color: #ffffff;
+}
+
+.modal-justificacion-enviar:hover:not(:disabled) { background: #078ed5; }
+
+.modal-justificacion-cancelar:disabled,
+.modal-justificacion-enviar:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.modal-justificacion-cerrar:focus-visible,
+.modal-justificacion-adjuntar:focus-visible,
+.modal-justificacion-cancelar:focus-visible,
+.modal-justificacion-enviar:focus-visible,
+.modal-justificacion-previa-info button:focus-visible {
+    outline: 2px solid #10a5f5;
+    outline-offset: 2px;
+}
+
+@keyframes modal-justificacion-fondo {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes modal-justificacion-entrada {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 600px) {
+    .modal-justificacion-overlay { padding: 10px; }
+
+    .modal-justificacion { max-height: calc(100vh - 20px); }
+
+    .modal-justificacion-fila { grid-template-columns: 1fr; }
+
+    .modal-justificacion-form { padding: 14px; }
+
+    .modal-justificacion-footer { flex-direction: column-reverse; }
+
+    .modal-justificacion-cancelar,
+    .modal-justificacion-enviar { width: 100%; justify-content: center; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .modal-justificacion-overlay,
+    .modal-justificacion {
+        animation: none;
+    }
+
+    .modal-justificacion-campo select,
+    .modal-justificacion-campo input,
+    .modal-justificacion-campo textarea {
+        transition: none;
+    }
+}
