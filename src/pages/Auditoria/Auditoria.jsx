@@ -1,6 +1,8 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { getAuditoria, getResumenAuditoria } from "../../services/auditoriaService";
 import { getUsuarios } from "../../services/usuariosService";
+import { CalendarBlank, MagnifyingGlass } from "@phosphor-icons/react";
+import Tabla from "../../components/Tabla/Tabla";
 import "./Auditoria.css";
 
 
@@ -46,7 +48,6 @@ const Auditoria = () => {
     const [registros, setRegistros] = useState([]);
     const [usuarios, setUsuarios] = useState([]);
     const [resumen, setResumen] = useState(null);
-    const [cargando, setCargando] = useState(true);
 
     const [filtros, setFiltros] = useState({
         usuario_id: "",
@@ -64,14 +65,11 @@ const Auditoria = () => {
 
     useEffect(() => {
         const t = setTimeout(async () => {
-            setCargando(true);
             try {
                 const data = await getAuditoria(filtros);
                 setRegistros(data);
             } catch (e) {
                 console.error(e);
-            } finally {
-                setCargando(false);
             }
         }, 350);
         return () => clearTimeout(t);
@@ -106,11 +104,78 @@ const Auditoria = () => {
             year: "numeric"
         });
     };
+
+    const columnas = [
+        {
+            key: "fecha",
+            header: "Fecha",
+            className: "col-fecha",
+            render: (r) => fmt(r.fecha),
+        },
+        {
+            key: "usuario",
+            header: "Usuario",
+            className: "col-usuario",
+            render: (r) => (
+                <>
+                    <span className="nombre-usuario">
+                        {r.usuario_nombre || "—"}
+                    </span>
+                    {r.usuario_email && (
+                        <span className="email-usuario">
+                            {r.usuario_email}
+                        </span>
+                    )}
+                </>
+            ),
+        },
+        {
+            key: "accion",
+            header: "Acción",
+            className: "col-accion",
+            render: (r) => (
+                <span className={`texto-accion accion-${r.accion}`}>
+                    {labelAccion(r.accion)}
+                </span>
+            ),
+        },
+        {
+            key: "entidad",
+            header: "Módulo",
+            className: "col-modulo",
+            render: (r) => (
+                <>
+                    <span className="texto-entidad">
+                        {labelEntidad(r.entidad)}
+                    </span>
+                    {r.entidad_nombre && (
+                        <span className="entidad-nombre">
+                            {r.entidad_nombre}
+                        </span>
+                    )}
+                </>
+            ),
+        },
+        {
+            key: "detalle",
+            header: "Descripción",
+            className: "col-descripcion",
+            render: (r) => r.detalle || "—",
+        },
+        {
+            key: "proyecto",
+            header: "Proyecto",
+            className: "col-proyecto",
+            render: (r) => r.proyecto_nombre || "—",
+        },
+    ];
+
     return (
         <div className="auditoria-container">
-            <div className="auditoria-header">
-                <h1>Registro de Auditoría</h1>
-            </div>
+            <header className="auditoria-header">
+                <h1>Registro de auditoría</h1>
+                <p className="auditoria-sub">Historial de actividades, modificaciones y eventos del sistema</p>
+            </header>
 
             {/* RESUMEN — siempre visible, con optional chaining */}
             <div className="auditoria-resumen">
@@ -146,56 +211,19 @@ const Auditoria = () => {
                 </div>
             </div>
 
-            {/* FILTROS */}
-            <div className="auditoria-filtros">
-                <span className="filtro-titulo">FILTRAR</span>
-
-                <select
-                    value={filtros.usuario_id}
-                    onChange={(e) => setFiltros({ ...filtros, usuario_id: e.target.value })}
-                    title="Filtrar por usuario"
-                >
-                    <option value="">Usuario</option>
-                    {usuarios.map((u) => (
-                        <option key={u.id} value={u.id}>
-                            {u.nombre} {u.apellido}
-                        </option>
-                    ))}
-                </select>
-
-                <select
-                    value={filtros.accion}
-                    onChange={(e) => setFiltros({ ...filtros, accion: e.target.value })}
-                    title="Filtrar por acción"
-                >
-                    <option value="">Acción</option>
-                    <option value="CREAR">Crear</option>
-                    <option value="EDITAR">Editar</option>
-                    <option value="ELIMINAR">Eliminar</option>
-                    <option value="ASIGNAR">Asignar</option>
-                    <option value="REMOVER">Remover</option>
-                    <option value="ARCHIVAR">Archivar</option>
-                    <option value="DESARCHIVAR">Desarchivar</option>
-                    <option value="DESACTIVAR">Desactivar</option>
-                    <option value="ACTIVAR">Activar</option>
-                </select>
-
-                <select
-                    value={filtros.entidad}
-                    onChange={(e) => setFiltros({ ...filtros, entidad: e.target.value })}
-                    title="Filtrar por elemento"
-                >
-                    <option value="">Modulo</option>
-                    <option value="PROYECTO">Proyecto</option>
-                    <option value="TAREA">Tarea</option>
-                    <option value="USUARIO">Usuario</option>
-                    <option value="MIEMBRO">Miembro</option>
-                    <option value="CLIENTE">Cliente</option>
-                    <option value="ETIQUETA">Etiqueta</option>
-                    <option value="TIEMPO">Tiempo</option>
-                </select>
+            <section className="auditoria-filtros">
+                <div className="filtro-buscador">
+                    <MagnifyingGlass size={15} weight="bold" />
+                    <input
+                        type="text"
+                        placeholder="Buscar por usuario o detalle..."
+                        value={filtros.buscar}
+                        onChange={(e) => setFiltros({ ...filtros, buscar: e.target.value })}
+                    />
+                </div>
 
                 <div className="filtro-fechas">
+                    <CalendarBlank size={14} weight="bold" />
                     <input
                         type="date"
                         value={filtros.fecha_inicio}
@@ -215,10 +243,55 @@ const Auditoria = () => {
                     />
                 </div>
 
+                <select
+                    value={filtros.usuario_id}
+                    onChange={(e) => setFiltros({ ...filtros, usuario_id: e.target.value })}
+                    title="Filtrar por usuario"
+                >
+                    <option value="">Todos los usuarios</option>
+                    {usuarios.map((u) => (
+                        <option key={u.id} value={u.id}>
+                            {u.nombre} {u.apellido}
+                        </option>
+                    ))}
+                </select>
+
+                <select
+                    value={filtros.accion}
+                    onChange={(e) => setFiltros({ ...filtros, accion: e.target.value })}
+                    title="Filtrar por acción"
+                >
+                    <option value="">Todas las acciones</option>
+                    <option value="CREAR">Crear</option>
+                    <option value="EDITAR">Editar</option>
+                    <option value="ELIMINAR">Eliminar</option>
+                    <option value="ASIGNAR">Asignar</option>
+                    <option value="REMOVER">Remover</option>
+                    <option value="ARCHIVAR">Archivar</option>
+                    <option value="DESARCHIVAR">Desarchivar</option>
+                    <option value="DESACTIVAR">Desactivar</option>
+                    <option value="ACTIVAR">Activar</option>
+                </select>
+
+                <select
+                    value={filtros.entidad}
+                    onChange={(e) => setFiltros({ ...filtros, entidad: e.target.value })}
+                    title="Filtrar por módulo"
+                >
+                    <option value="">Todos los módulos</option>
+                    <option value="PROYECTO">Proyecto</option>
+                    <option value="TAREA">Tarea</option>
+                    <option value="USUARIO">Usuario</option>
+                    <option value="MIEMBRO">Miembro</option>
+                    <option value="CLIENTE">Cliente</option>
+                    <option value="ETIQUETA">Etiqueta</option>
+                    <option value="TIEMPO">Tiempo</option>
+                </select>
+
                 <button className="limpiar-btn" onClick={limpiar}>
                     Limpiar
                 </button>
-            </div>
+            </section>
 
             {/* TABLA */}
             <div className="auditoria-tabla">
@@ -235,63 +308,14 @@ const Auditoria = () => {
                         </p>
                     </div>
                 ) : (
-                    <>
-                        {/* Cabecera solo visible en desktop/tablet */}
-                        <div className="auditoria-cabecera">
-                            <div>Fecha</div>
-                            <div>Usuario</div>
-                            <div>Acción</div>
-                            <div>Módulo</div>
-                            <div>Descripción</div>
-                            <div>Proyecto</div>
-                        </div>
-
-                        {registros.map((r) => (
-                            <div className="auditoria-row" key={`${r.origen}-${r.id}`}>
-
-                                <div className="col-fecha">
-                                    {fmt(r.fecha)}
-                                </div>
-
-                                <div className="col-usuario">
-                                    <span className="nombre-usuario">
-                                        {r.usuario_nombre || "—"}
-                                    </span>
-                                    {r.usuario_email && (
-                                        <span className="email-usuario">
-                                            {r.usuario_email}
-                                        </span>
-                                    )}
-                                </div>
-
-                                <div className="col-accion">
-                                    <span className={`texto-accion accion-${r.accion}`}>
-                                        {labelAccion(r.accion)}
-                                    </span>
-                                </div>
-
-                                <div className="col-modulo">
-                                    <span className="texto-entidad">
-                                        {labelEntidad(r.entidad)}
-                                    </span>
-                                    {r.entidad_nombre && (
-                                        <span className="entidad-nombre">
-                                            {r.entidad_nombre}
-                                        </span>
-                                    )}
-                                </div>
-
-                                <div className="col-descripcion">
-                                    {r.detalle || "—"}
-                                </div>
-
-                                <div className="col-proyecto">
-                                    {r.proyecto_nombre || "—"}
-                                </div>
-
-                            </div>
-                        ))}
-                    </>
+                    <Tabla
+                        variant="grid"
+                        headClassName="auditoria-cabecera"
+                        rowClassName="auditoria-row"
+                        rowKey={(r) => `${r.origen}-${r.id}`}
+                        columns={columnas}
+                        data={registros}
+                    />
                 )}
             </div>
         </div>

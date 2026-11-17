@@ -1,0 +1,118 @@
+.wrapper {
+  width: 100%;
+  overflow-x: auto;
+  background: #101b22;
+  border-radius: 8px;
+  scrollbar-width: thin;
+  scrollbar-color: #10a5f5 #101b22;
+}
+
+.wrapper::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
+}
+
+.wrapper::-webkit-scrollbar-track {
+  background: #101b22;
+}
+
+.wrapper::-webkit-scrollbar-thumb {
+  background: #10a5f5;
+  border-radius: 10px;
+}
+
+.wrapper::-webkit-scrollbar-thumb:hover {
+  background: #078ed5;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #101b22;
+}
+
+.head {
+  background: #16242c;
+}
+
+.headCell {
+  padding: 12px;
+  background: #16242c;
+  border-bottom: 1px solid #263740;
+  color: #9eacb5;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.row {
+  background: #101b22;
+  transition: background-color 0.15s ease;
+}
+
+.row:hover {
+  background: #1d303a;
+}
+
+.cell {
+  padding: 12px;
+  border-bottom: 1px solid #263740;
+  color: #d3dde3;
+  font-size: 12px;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.state {
+  padding: 32px;
+  background: #101b22;
+  color: #8ea0af;
+  text-align: center;
+}
+
+.grid {
+  width: 100%;
+  overflow-x: auto;
+  background: #101b22;
+  scrollbar-width: thin;
+  scrollbar-color: #10a5f5 #101b22;
+}
+
+.grid::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
+}
+
+.grid::-webkit-scrollbar-track {
+  background: #101b22;
+}
+
+.grid::-webkit-scrollbar-thumb {
+  background: #10a5f5;
+  border-radius: 10px;
+}
+
+.grid::-webkit-scrollbar-thumb:hover {
+  background: #078ed5;
+}
+
+.gridHead {
+  background: #16242c;
+}
+
+.gridHeadCell {
+  color: #9eacb5;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: left;
+}
+
+.gridRow {
+  background: #101b22;
+  transition: background-color 0.15s ease;
+}
+
+.gridRow:hover {
+  background: #1d303a;
+}

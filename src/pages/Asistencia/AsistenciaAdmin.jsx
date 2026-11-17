@@ -14,6 +14,7 @@ import { obtenerHorarioDeUsuario } from "../../services/horarioService";
 import { construirUrlAvatar } from "../../hooks/useUsuarioActual";
 import ModalVerHorarioAdmin from "../../components/ModalVerHorarioAdmin/ModalVerHorarioAdmin";
 import ModalVerJustificacion from "../../components/ModalVerJustificacion/ModalVerJustificacion";
+import Tabla from "../../components/Tabla/Tabla";
 import { EVENTO_JUSTIFICACIONES_ACTUALIZADAS } from "../../services/justificacionesService";
 import "./AsistenciaAdmin.css";
 
@@ -118,129 +119,8 @@ const obtenerMensajeError = (error, mensajePredeterminado) => {
     return error.message || mensajePredeterminado;
 };
 
-function useEsMovil() {
-    const [esMovil, setEsMovil] = useState(() => window.innerWidth < 900);
-
-    useEffect(() => {
-        const handler = () => setEsMovil(window.innerWidth < 900);
-        window.addEventListener("resize", handler);
-        return () => window.removeEventListener("resize", handler);
-    }, []);
-
-    return esMovil;
-}
-
-const TarjetaUsuario = ({ fila, onVerHorario, justificacion, onVerJustificacion }) => {
-    const urlAvatar = construirUrlAvatar(fila.avatar_url, fila.avatarVersion);
-    const iniciales = `${(fila.nombre[0] || "?").toUpperCase()}${(fila.apellido[0] || "").toUpperCase()}`;
-    const estadoJustificacion = justificacion?.estado;
-    const puedeVerJustificacion = ["PENDIENTE", "ACEPTADA"].includes(estadoJustificacion);
-    const comentarioAdmin = estadoJustificacion === "PENDIENTE"
-        ? "Pendiente de revisión"
-        : ["ACEPTADA", "RECHAZADA", "INJUSTIFICADA"].includes(estadoJustificacion)
-            ? justificacion?.comentario_admin?.trim() || "---"
-            : "---";
-
-    return (
-        <article className={`admin-card${!fila.tieneEntrada ? " admin-card-sin-entrada" : ""}`}>
-            {/* ── Cabecera: avatar, identidad y acción ── */}
-            <header className="admin-card-header">
-                <div className="admin-avatar admin-card-avatar">
-                    {urlAvatar ? (
-                        <img
-                            src={urlAvatar}
-                            alt={`${fila.nombre} ${fila.apellido}`}
-                            loading="lazy"
-                            onError={(e) => {
-                                e.currentTarget.style.display = "none";
-                                e.currentTarget.parentElement.textContent = iniciales;
-                            }}
-                        />
-                    ) : (
-                        iniciales
-                    )}
-                </div>
-
-                <div className="admin-card-identidad">
-                    <span className="admin-card-nombre">{fila.nombre} {fila.apellido}</span>
-                    <span className="admin-card-email">{fila.email}</span>
-                    <span className={`admin-rol rol-${fila.rol === "Administrador" ? "administrador" : "practicante"}`}>
-                        {fila.rol}
-                    </span>
-                </div>
-
-                <button
-                    type="button"
-                    className="btn-ver-horario admin-card-ver-horario"
-                    onClick={() => onVerHorario(fila.id, `${fila.nombre} ${fila.apellido}`)}
-                    title="Ver horario de este usuario"
-                >
-                    Ver horario
-                </button>
-            </header>
-
-            {/* ── Cuerpo: datos de asistencia en grid de 2 columnas ── */}
-            <dl className="admin-card-datos">
-                <div className="admin-card-dato">
-                    <dt>Entrada</dt>
-                    <dd>{formatearHora(fila.entrada)}</dd>
-                </div>
-                <div className="admin-card-dato">
-                    <dt>Salida</dt>
-                    <dd>{formatearHora(fila.salida)}</dd>
-                </div>
-                <div className="admin-card-dato admin-card-dato--descanso">
-                    <dt>Descanso</dt>
-                    <dd>
-                        <span>{formatearHora(fila.breakInicio)} → {formatearHora(fila.breakFin)}</span>
-                        <span className="admin-card-duracion">({fila.duracion})</span>
-                    </dd>
-                </div>
-                <div className="admin-card-dato">
-                    <dt>Rastreo</dt>
-                    <dd>{formatearFechaTabla(fila.inicioRastreo)}</dd>
-                </div>
-                <div className="admin-card-dato">
-                    <dt>Prácticas</dt>
-                    <dd>{formatearFechaTabla(fila.inicioPracticas)}</dd>
-                </div>
-            </dl>
-
-            {/* ── Pie: estado, justificación y comentario ── */}
-            <footer className="admin-card-pie">
-                <div className="admin-card-pie-fila">
-                    <span className={`admin-estado estado-${claseEstado(fila.estado)}`}>
-                        {textoEstado(fila.estado)}
-                    </span>
-                </div>
-
-                <div className="admin-card-justificacion">
-                    <span className="admin-card-etiqueta">Justificación</span>
-                    {puedeVerJustificacion ? (
-                        <button
-                            type="button"
-                            className="btn-ver-justificacion"
-                            onClick={() => onVerJustificacion(justificacion)}
-                        >
-                            Ver justificación
-                        </button>
-                    ) : (
-                        <span className="admin-sin-justificacion">---</span>
-                    )}
-                </div>
-
-                <div className="admin-card-comentario">
-                    <span className="admin-card-etiqueta">Comentario Admin</span>
-                    <p className="admin-card-comentario-texto">{comentarioAdmin}</p>
-                </div>
-            </footer>
-        </article>
-    );
-};
-
 // ── Componente principal ──────────────────────────────
 const AsistenciaAdmin = () => {
-    const esMovil = useEsMovil();
     const [fecha, setFecha] = useState(() => obtenerFechaLocal());
     const [filas, setFilas] = useState([]);
     const [cargandoInicial, setCargandoInicial] = useState(true);
@@ -250,7 +130,6 @@ const AsistenciaAdmin = () => {
     const consultarAhoraRef = useRef(null);
 
     // Filtros
-    const [filtroUsuario, setFiltroUsuario] = useState("");
     const [filtroRol, setFiltroRol] = useState("");
     const [filtroEstado, setFiltroEstado] = useState("");
     const [busqueda, setBusqueda] = useState("");
@@ -398,7 +277,6 @@ const AsistenciaAdmin = () => {
     // ── Filtrado ───────────────────────────────────────
     const filasFiltradas = useMemo(() => {
         return filas.filter((f) => {
-            if (filtroUsuario && f.id !== Number(filtroUsuario)) return false;
             if (filtroRol && f.rol !== filtroRol) return false;
             if (filtroEstado && f.estado !== filtroEstado) return false;
             if (busqueda.trim()) {
@@ -409,14 +287,8 @@ const AsistenciaAdmin = () => {
             }
             return true;
         });
-    }, [filas, filtroUsuario, filtroRol, filtroEstado, busqueda]);
+    }, [filas, filtroRol, filtroEstado, busqueda]);
 
-    // ── Actualización ──────────────────────────────────
-    const segundosDesdeActualizacion = ultimaActualizacion
-        ? Math.max(0, Math.floor((relojActualizacion - ultimaActualizacion.getTime()) / 1000))
-        : null;
-
-    // ── Acciones ───────────────────────────────────────
     const abrirCalendario = () => {
         const input = document.getElementById("asistencia-admin-fecha");
         if (input?.showPicker) input.showPicker();
@@ -424,7 +296,6 @@ const AsistenciaAdmin = () => {
     };
 
     const limpiar = () => {
-        setFiltroUsuario("");
         setFiltroRol("");
         setFiltroEstado("");
         setBusqueda("");
@@ -458,12 +329,176 @@ const AsistenciaAdmin = () => {
         setHorarioUsuario(null);
     }, []);
 
+    const columnasTabla = [
+        {
+            key: "usuario",
+            header: "Usuario",
+            render: (f) => {
+                const urlAvatar = construirUrlAvatar(f.avatar_url, f.avatarVersion);
+                const iniciales = `${(f.nombre[0] || "?").toUpperCase()}${(f.apellido[0] || "").toUpperCase()}`;
+
+                return (
+                    <div className="admin-usuario">
+                        <div className="admin-avatar">
+                            {urlAvatar ? (
+                                <img
+                                    src={urlAvatar}
+                                    alt={`${f.nombre} ${f.apellido}`}
+                                    loading="lazy"
+                                    onError={(e) => {
+                                        // Si la imagen falla, ocultamos el img para que se vean las iniciales.
+                                        e.currentTarget.style.display = "none";
+                                        e.currentTarget.parentElement.textContent = iniciales;
+                                    }}
+                                />
+                            ) : (
+                                iniciales
+                            )}
+                        </div>
+                        <div className="admin-usuario-info">
+                            <span className="admin-usuario-nombre">
+                                {f.nombre} {f.apellido}
+                            </span>
+                            <span className="admin-usuario-email">{f.email}</span>
+                        </div>
+                    </div>
+                );
+            },
+        },
+        {
+            key: "horario",
+            header: "Horario",
+            headClassName: "col-horario",
+            className: "col-horario",
+            render: (f) => (
+                <button
+                    type="button"
+                    className="btn-ver-horario"
+                    onClick={() => verHorarioUsuario(f.id, `${f.nombre} ${f.apellido}`)}
+                    title="Ver horario de este usuario"
+                >
+                    Ver horario
+                </button>
+            ),
+        },
+        {
+            key: "inicioRastreo",
+            header: "Inicio de Rastreo",
+            headClassName: "col-inicio-rastreo",
+            className: "col-inicio-rastreo",
+            render: (f) => formatearFechaTabla(f.inicioRastreo),
+        },
+        {
+            key: "inicioPracticas",
+            header: "Inicio de Prácticas",
+            headClassName: "col-inicio-practicas",
+            className: "col-inicio-practicas",
+            render: (f) => formatearFechaTabla(f.inicioPracticas),
+        },
+        {
+            key: "horasAcumuladas",
+            header: "Tiempo acumulado",
+            headClassName: "col-tiempo-acumulado",
+            className: "admin-tiempo-acumulado",
+            render: (f) => formatearTiempoAcumulado(f.horasAcumuladas),
+        },
+        {
+            key: "entrada",
+            header: "Entrada",
+            align: "center",
+            headClassName: "col-centrada",
+            className: "admin-hora",
+            render: (f) => formatearHora(f.entrada),
+        },
+        {
+            key: "breakInicio",
+            header: "Inicio desc.",
+            align: "center",
+            headClassName: "col-centrada",
+            className: "admin-hora",
+            render: (f) => formatearHora(f.breakInicio),
+        },
+        {
+            key: "breakFin",
+            header: "Fin desc.",
+            align: "center",
+            headClassName: "col-centrada",
+            className: "admin-hora",
+            render: (f) => formatearHora(f.breakFin),
+        },
+        {
+            key: "duracion",
+            header: "Duración",
+            align: "center",
+            headClassName: "col-centrada",
+            className: "admin-hora admin-duracion",
+            render: (f) => f.duracion,
+        },
+        {
+            key: "salida",
+            header: "Salida",
+            align: "center",
+            headClassName: "col-centrada",
+            className: "admin-hora",
+            render: (f) => formatearHora(f.salida),
+        },
+        {
+            key: "estado",
+            header: "Estado",
+            render: (f) => (
+                <span className={`admin-estado estado-${claseEstado(f.estado)}`}>
+                    {textoEstado(f.estado)}
+                </span>
+            ),
+        },
+        {
+            key: "justificacion",
+            header: "Justificación",
+            headClassName: "col-justificacion",
+            className: "col-justificacion",
+            render: (f) => {
+                const justificacion = buscarJustificacion(f);
+                return ["PENDIENTE", "ACEPTADA"].includes(justificacion?.estado) ? (
+                    <button
+                        type="button"
+                        className="btn-ver-justificacion"
+                        onClick={() => setJustificacionVer(f)}
+                    >
+                        Ver justificación
+                    </button>
+                ) : (
+                    <span className="admin-sin-justificacion">---</span>
+                );
+            },
+        },
+        {
+            key: "comentarioAdmin",
+            header: "Comentario Admin",
+            headClassName: "col-comentario-admin",
+            className: "col-comentario-admin",
+            render: (f) => {
+                const justificacion = buscarJustificacion(f);
+                return (
+                    <span
+                        className="admin-comentario-texto"
+                        title={justificacion?.comentario_admin?.trim() || ""}
+                    >
+                        {justificacion?.estado === "PENDIENTE"
+                            ? "Pendiente de revisión"
+                            : ["ACEPTADA", "RECHAZADA", "INJUSTIFICADA"].includes(justificacion?.estado)
+                                ? justificacion.comentario_admin?.trim() || "---"
+                                : "---"}
+                    </span>
+                );
+            },
+        },
+    ];
+
     return (
         <div className="admin-asistencia-container">
             {/* HEADER */}
             <header className="admin-asistencia-header">
                 <div>
-                    <p className="admin-asistencia-eyebrow">GESTIÓN DE PERSONAL</p>
                     <h1>Control de asistencia</h1>
                     <p className="admin-asistencia-sub">
                         Registro diario de entradas, descansos y salidas del equipo
@@ -471,50 +506,9 @@ const AsistenciaAdmin = () => {
                 </div>
             </header>
 
-            {/* FILTROS */}
             <section className="admin-filtros">
-                <span className="admin-filtros-titulo">FILTRAR</span>
-
-                <select value={filtroUsuario} onChange={(e) => setFiltroUsuario(e.target.value)}>
-                    <option value="">Usuario</option>
-                    {filas.map((f) => (
-                        <option key={f.id} value={f.id}>
-                            {f.nombre} {f.apellido}
-                        </option>
-                    ))}
-                </select>
-
-                <select value={filtroRol} onChange={(e) => setFiltroRol(e.target.value)}>
-                    <option value="">Rol</option>
-                    <option value="Administrador">Administrador</option>
-                    <option value="Practicante">Practicante</option>
-                </select>
-
-                <select value={filtroEstado} onChange={(e) => setFiltroEstado(e.target.value)}>
-                    <option value="">Estado</option>
-                    <option value="SIN_ENTRADA">Sin entrada</option>
-                    <option value="TRABAJANDO">Trabajando</option>
-                    <option value="EN_BREAK">En descanso</option>
-                    <option value="FINALIZADO">Finalizado</option>
-                </select>
-
-                <div className="admin-filtro-fecha">
-                    <CalendarBlank size={14} weight="bold" />
-                    <input
-                        id="asistencia-admin-fecha"
-                        type="date"
-                        lang="es-PE"
-                        value={fecha}
-                        onChange={(e) => {
-                            console.log("Fecha seleccionada:", e.target.value);
-                            setFecha(e.target.value);
-                        }}
-                        onClick={abrirCalendario}
-                    />
-                </div>
-
                 <div className="admin-filtro-buscador">
-                    <MagnifyingGlass size={14} weight="bold" />
+                    <MagnifyingGlass size={15} weight="bold" />
                     <input
                         type="text"
                         placeholder="Buscar nombre o correo..."
@@ -523,188 +517,47 @@ const AsistenciaAdmin = () => {
                     />
                 </div>
 
+                <div className="admin-filtro-fecha">
+                    <CalendarBlank size={14} weight="bold" />
+                    <input
+                        id="asistencia-admin-fecha"
+                        type="date"
+                        lang="es-PE"
+                        value={fecha}
+                        onChange={(e) => setFecha(e.target.value)}
+                        onClick={abrirCalendario}
+                    />
+                </div>
+
+                <select value={filtroRol} onChange={(e) => setFiltroRol(e.target.value)}>
+                    <option value="">Todos los roles</option>
+                    <option value="Administrador">Administrador</option>
+                    <option value="Practicante">Practicante</option>
+                </select>
+
+                <select value={filtroEstado} onChange={(e) => setFiltroEstado(e.target.value)}>
+                    <option value="">Todos los estados</option>
+                    <option value="SIN_ENTRADA">Sin entrada</option>
+                    <option value="TRABAJANDO">Trabajando</option>
+                    <option value="EN_BREAK">En descanso</option>
+                    <option value="FINALIZADO">Finalizado</option>
+                </select>
+
                 <button className="admin-filtro-limpiar" onClick={limpiar}>
                     Limpiar
                 </button>
             </section>
 
-            {/* TABLA */}
             <section className="admin-tabla-container">
-                <div className="admin-tabla-header">
-                    <div className="admin-tabla-header-info">
-                        <span>Asistencia del {formatearFechaCorta(fecha)}</span>
-                        <span className="admin-tabla-count">
-                            {filasFiltradas.length} {filasFiltradas.length === 1 ? "usuario" : "usuarios"}
-                        </span>
-                    </div>
-                    {fecha === hoy && (
-                        <div className="admin-actualizacion" aria-live="polite">
-                            <span className={`admin-punto${actualizando || cargandoInicial ? " admin-punto-pulse" : ""}`} />
-                            <span className="admin-actualizacion-texto">
-                                {segundosDesdeActualizacion === null
-                                    ? "Actualizando..."
-                                    : ` ${segundosDesdeActualizacion}s`}
-                            </span>
-                            <button
-                                type="button"
-                                className="admin-actualizar-ahora"
-                                onClick={() => consultarAhoraRef.current?.()}
-                                disabled={actualizando || cargandoInicial}
-                                aria-label="Actualizar ahora"
-                                title="Actualizar ahora"
-                            >
-                                <ArrowClockwise size={16} weight="bold" aria-hidden="true" />
-                            </button>
-                        </div>
-                    )}
-                </div>
-
-                {esMovil ? (
-                    <div className="admin-cards-lista">
-                        {cargandoInicial ? (
-                            <div className="admin-card-vacia">Cargando registros...</div>
-                        ) : filasFiltradas.length === 0 ? (
-                            <div className="admin-card-vacia">No hay usuarios con esos filtros.</div>
-                        ) : filasFiltradas.map((f) => (
-                            <TarjetaUsuario
-                                key={f.id}
-                                fila={f}
-                                justificacion={buscarJustificacion(f)}
-                                onVerJustificacion={() => setJustificacionVer(f)}
-                                onVerHorario={verHorarioUsuario}
-                            />
-                        ))}
-                    </div>
-                ) : (
-                    <div className="admin-tabla-scroll">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Usuario</th>
-                                    <th className="col-horario">Horario</th>
-                                    <th className="col-inicio-rastreo">Inicio de Rastreo</th>
-                                    <th className="col-inicio-practicas">Inicio de Prácticas</th>
-                                    <th className="col-tiempo-acumulado">Tiempo acumulado</th>
-                                    <th className="col-centrada">Entrada</th>
-                                    <th className="col-centrada">Inicio desc.</th>
-                                    <th className="col-centrada">Fin desc.</th>
-                                    <th className="col-centrada">Duración</th>
-                                    <th className="col-centrada">Salida</th>
-                                    <th>Estado</th>
-                                    <th className="col-justificacion">Justificación</th>
-                                    <th className="col-comentario-admin">Comentario Admin</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {cargandoInicial ? (
-                                    <tr>
-                                        <td colSpan="13" className="admin-tabla-vacia">
-                                            Cargando registros...
-                                        </td>
-                                    </tr>
-                                ) : filasFiltradas.length === 0 ? (
-                                    <tr>
-                                        <td colSpan="13" className="admin-tabla-vacia">
-                                            No hay usuarios con esos filtros.
-                                        </td>
-                                    </tr>
-                                ) : filasFiltradas.map((f) => {
-                                    const urlAvatar = construirUrlAvatar(f.avatar_url, f.avatarVersion);
-                                    const iniciales = `${(f.nombre[0] || "?").toUpperCase()}${(f.apellido[0] || "").toUpperCase()}`;
-                                    const justificacion = buscarJustificacion(f);
-
-                                    return (
-                                        <tr className={!f.tieneEntrada ? "fila-sin-entrada" : ""} key={f.id}>
-                                            <td>
-                                                <div className="admin-usuario">
-                                                    <div className="admin-avatar">
-                                                        {urlAvatar ? (
-                                                            <img
-                                                                src={urlAvatar}
-                                                                alt={`${f.nombre} ${f.apellido}`}
-                                                                loading="lazy"
-                                                                onError={(e) => {
-                                                                    // Si la imagen falla, ocultamos el img para que se vean las iniciales.
-                                                                    e.currentTarget.style.display = "none";
-                                                                    e.currentTarget.parentElement.textContent = iniciales;
-                                                                }}
-                                                            />
-                                                        ) : (
-                                                            iniciales
-                                                        )}
-                                                    </div>
-                                                    <div className="admin-usuario-info">
-                                                        <span className="admin-usuario-nombre">
-                                                            {f.nombre} {f.apellido}
-                                                        </span>
-                                                        <span className="admin-usuario-email">{f.email}</span>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td className="col-horario">
-                                                <button
-                                                    type="button"
-                                                    className="btn-ver-horario"
-                                                    onClick={() => verHorarioUsuario(
-                                                        f.id,
-                                                        `${f.nombre} ${f.apellido}`
-                                                    )}
-                                                    title="Ver horario de este usuario"
-                                                >
-                                                    Ver horario
-                                                </button>
-                                            </td>
-                                            <td className="col-inicio-rastreo">
-                                                {formatearFechaTabla(f.inicioRastreo)}
-                                            </td>
-                                            <td className="col-inicio-practicas">
-                                                {formatearFechaTabla(f.inicioPracticas)}
-                                            </td>
-                                            <td className="admin-tiempo-acumulado">
-                                                {formatearTiempoAcumulado(f.horasAcumuladas)}
-                                            </td>
-                                            <td className="admin-hora">{formatearHora(f.entrada)}</td>
-                                            <td className="admin-hora">{formatearHora(f.breakInicio)}</td>
-                                            <td className="admin-hora">{formatearHora(f.breakFin)}</td>
-                                            <td className="admin-hora admin-duracion">{f.duracion}</td>
-                                            <td className="admin-hora">{formatearHora(f.salida)}</td>
-                                            <td>
-                                                <span className={`admin-estado estado-${claseEstado(f.estado)}`}>
-                                                    {textoEstado(f.estado)}
-                                                </span>
-                                            </td>
-                                            <td className="col-justificacion">
-                                                {["PENDIENTE", "ACEPTADA"].includes(justificacion?.estado) ? (
-                                                    <button
-                                                        type="button"
-                                                        className="btn-ver-justificacion"
-                                                        onClick={() => setJustificacionVer(f)}
-                                                    >
-                                                        Ver justificación
-                                                    </button>
-                                                ) : (
-                                                    <span className="admin-sin-justificacion">---</span>
-                                                )}
-                                            </td>
-                                            <td className="col-comentario-admin">
-                                                <span
-                                                    className="admin-comentario-texto"
-                                                    title={justificacion?.comentario_admin?.trim() || ""}
-                                                >
-                                                    {justificacion?.estado === "PENDIENTE"
-                                                        ? "Pendiente de revisión"
-                                                        : ["ACEPTADA", "RECHAZADA", "INJUSTIFICADA"].includes(justificacion?.estado)
-                                                            ? justificacion.comentario_admin?.trim() || "---"
-                                                            : "---"}
-                                                </span>
-                                            </td>
-                                        </tr>
-                                    );
-                                })}
-                            </tbody>
-                        </table>
-                    </div>
-                )}
+                <Tabla
+                    rowKey="id"
+                    data={filasFiltradas}
+                    loading={cargandoInicial}
+                    loadingText="Cargando registros..."
+                    emptyText="No hay usuarios con esos filtros."
+                    rowClassName={(f) => (!f.tieneEntrada ? "fila-sin-entrada" : "")}
+                    columns={columnasTabla}
+                />
             </section>
             {modalHorarioAbierto && (
                 <ModalVerHorarioAdmin
