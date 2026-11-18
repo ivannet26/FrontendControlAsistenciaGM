@@ -1,62 +1,117 @@
-// src/components/InformesComp/InformeSemanal.jsx
 import { useEffect, useState } from "react";
-import { obtenerDatosInforme } from "../../services/informesService";
-import { Calendar, ChevronLeft, ChevronRight } from "lucide-react";
+import { Calendar } from "lucide-react";
+import {
+    obtenerDatosInforme,
+    obtenerOpcionesFiltros
+} from "../../services/informesService";
 import BotonExportar from "./BotonExportar";
 import FiltrosInforme from "./FiltrosInforme";
 import "./InformeSemanal.css";
 import LoadingOverlay from "../Loading/LoadingOverlay";
 
-const InformeSemanal = () => {
+const formatYMD = (d) => {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const dd = String(d.getDate()).padStart(2, "0");
+    return `${y}-${m}-${dd}`;
+};
+
+const rangoSemanaActual = () => {
     const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
     const lunes = new Date(hoy);
     lunes.setDate(hoy.getDate() - ((hoy.getDay() + 6) % 7));
     const domingo = new Date(lunes);
     domingo.setDate(lunes.getDate() + 6);
+    return { desde: formatYMD(lunes), hasta: formatYMD(domingo) };
+};
 
-    const [fechaDesde, setFechaDesde] = useState(lunes.toISOString().slice(0, 10));
-    const [fechaHasta, setFechaHasta] = useState(domingo.toISOString().slice(0, 10));
+const formatear = (seg) => {
+    const h = Math.floor(seg / 3600);
+    const m = Math.floor((seg % 3600) / 60);
+    const s = seg % 60;
+    return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+};
+
+const colores = [
+    "#10a5f5",
+    "#10a878",
+    "#e6a23c",
+    "#f56c6c",
+    "#8b5cf6",
+    "#ec4899",
+    "#42b8d8",
+    "#6b7d88",
+];
+
+const OPCIONES_VACIAS = {
+    equipo: [],
+    clientes: [],
+    proyectos: [],
+    tareas: [],
+    etiquetas: []
+};
+
+const InformeSemanal = () => {
+    const inicial = rangoSemanaActual();
+
+    const [fechaDesde, setFechaDesde] = useState(inicial.desde);
+    const [fechaHasta, setFechaHasta] = useState(inicial.hasta);
     const [filtros, setFiltros] = useState({});
+    const [opciones, setOpciones] = useState(OPCIONES_VACIAS);
     const [datos, setDatos] = useState(null);
     const [cargando, setCargando] = useState(false);
     const [error, setError] = useState(null);
 
     useEffect(() => {
+    let cancelado = false;
+    const cargarOpciones = async () => {
+        try {
+            const res = await obtenerOpcionesFiltros();
+            if (!cancelado) setOpciones({ ...OPCIONES_VACIAS, ...res });
+        } catch (err) {
+            console.error("Error al cargar opciones de filtros:", err);
+        }
+    };
+    cargarOpciones();
+    return () => {
+        cancelado = true;
+    };
+}, []);
+
+    useEffect(() => {
+        let cancelado = false;
         const cargar = async () => {
             try {
                 setCargando(true);
                 setError(null);
-                const data = await obtenerDatosInforme(fechaDesde, fechaHasta);
-                setDatos(data);
+                const data = await obtenerDatosInforme(fechaDesde, fechaHasta, filtros);
+                if (!cancelado) setDatos(data);
             } catch (err) {
                 console.error("Error al cargar informe:", err);
-                setError("No se pudo cargar el informe");
+                if (!cancelado) setError("No se pudo cargar el informe");
             } finally {
-                setCargando(false);
+                if (!cancelado) setCargando(false);
             }
         };
         cargar();
+        return () => {
+            cancelado = true;
+        };
     }, [fechaDesde, fechaHasta, filtros]);
 
-    const cambiarSemana = (offset) => {
-        const nueva = new Date(fechaDesde);
-        nueva.setDate(nueva.getDate() + offset * 7);
-        setFechaDesde(nueva.toISOString().slice(0, 10));
-        const nuevaHasta = new Date(nueva);
-        nuevaHasta.setDate(nuevaHasta.getDate() + 6);
-        setFechaHasta(nuevaHasta.toISOString().slice(0, 10));
+    const cambiarDesde = (e) => {
+        const nuevo = e.target.value;
+        if (!nuevo) return;
+        setFechaDesde(nuevo);
+        if (nuevo > fechaHasta) setFechaHasta(nuevo);
     };
 
-    const formatearFecha = (iso) => {
-        const [y, m, d] = iso.split("-");
-        return `${d}/${m}/${y}`;
-    };
-
-    const formatear = (seg) => {
-        const h = Math.floor(seg / 3600);
-        const m = Math.floor((seg % 3600) / 60);
-        const s = seg % 60;
-        return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+    const cambiarHasta = (e) => {
+        const nuevo = e.target.value;
+        if (!nuevo) return;
+        setFechaHasta(nuevo);
+        if (nuevo < fechaDesde) setFechaDesde(nuevo);
     };
 
     const maxSegundos = datos?.por_dia
@@ -65,36 +120,36 @@ const InformeSemanal = () => {
 
     const totalSegundos = datos?.tiempo_total || 0;
 
-    //  MISMA PALETA QUE EL PANEL
-    const colores = [
-        "#10a5f5", // azul (principal)
-        "#10a878", // verde
-        "#e6a23c", // naranja
-        "#f56c6c", // rojo
-        "#8b5cf6", // violeta
-        "#ec4899", // rosa
-        "#42b8d8", // celeste
-        "#6b7d88", // gris
-    ];
-
     return (
         <div className="panel-page">
-            {/* HEADER */}
             <div className="panel-header">
                 <h1>Informe de Tiempo</h1>
 
                 <div className="panel-actions">
-                    <div className="panel-date-selector">
-                        <button onClick={() => cambiarSemana(-1)}>
-                            <ChevronLeft size={16} />
-                        </button>
-                        <span>
-                            <Calendar size={14} />
-                            {formatearFecha(fechaDesde)} - {formatearFecha(fechaHasta)}
-                        </span>
-                        <button onClick={() => cambiarSemana(1)}>
-                            <ChevronRight size={16} />
-                        </button>
+                    <div className="panel-rango">
+                        <Calendar size={14} />
+
+                        <label>
+                            <span>Desde</span>
+                            <input
+                                type="date"
+                                value={fechaDesde}
+                                max={fechaHasta}
+                                onChange={cambiarDesde}
+                            />
+                        </label>
+
+                        <span className="panel-rango-separador">—</span>
+
+                        <label>
+                            <span>Hasta</span>
+                            <input
+                                type="date"
+                                value={fechaHasta}
+                                min={fechaDesde}
+                                onChange={cambiarHasta}
+                            />
+                        </label>
                     </div>
 
                     <BotonExportar
@@ -105,27 +160,22 @@ const InformeSemanal = () => {
                 </div>
             </div>
 
-            {/* FILTROS */}
-            <FiltrosInforme onAplicar={setFiltros} />
+            <FiltrosInforme opciones={opciones} onAplicar={setFiltros} />
 
-            <LoadingOverlay visible={cargando} texto="Cargando" subtexto="Porfavor espere" />
+            <LoadingOverlay visible={cargando} texto="Cargando" subtexto="Por favor espere" />
             {error && <div className="panel-error">{error}</div>}
 
             {datos && !cargando && (
                 <div className="panel-layout">
-                    {/* COLUMNA PRINCIPAL */}
                     <div className="panel-main">
-                        {/* TOTAL + CREAR FACTURA */}
                         <div className="panel-bloque">
                             <div className="panel-bloque-header">
                                 <span className="panel-bloque-titulo">
                                     Total: {formatear(totalSegundos)}
                                 </span>
-                                <button className="boton-exportar"></button>
                             </div>
                         </div>
 
-                        {/* GRÁFICO DE BARRAS POR DÍA */}
                         <div className="panel-bloque">
                             <div className="panel-bloque-header">
                                 <span className="panel-bloque-titulo">Tiempo por día</span>
@@ -153,7 +203,6 @@ const InformeSemanal = () => {
                             </div>
                         </div>
 
-                        {/* ACTIVIDADES REALIZADAS */}
                         <div className="top-container">
                             <div className="top-header">
                                 <span>Actividades realizadas</span>
@@ -182,7 +231,6 @@ const InformeSemanal = () => {
                         </div>
                     </div>
 
-                    {/* SIDEBAR: DONUT POR PROYECTO */}
                     <div className="panel-side">
                         <div className="panel-bloque">
                             <div className="panel-bloque-header">
@@ -194,8 +242,6 @@ const InformeSemanal = () => {
                                     <DonutSVG
                                         datos={datos.por_proyecto || []}
                                         total={totalSegundos}
-                                        formatear={formatear}
-                                        colores={colores}
                                     />
                                 </div>
 
@@ -234,7 +280,7 @@ const InformeSemanal = () => {
     );
 };
 
-const DonutSVG = ({ datos, total, formatear, colores }) => {
+const DonutSVG = ({ datos, total }) => {
     if (!datos || datos.length === 0 || total === 0) {
         return <div className="equipo-vacio">Sin datos</div>;
     }

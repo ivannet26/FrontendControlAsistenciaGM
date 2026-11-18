@@ -1,25 +1,20 @@
 import { useState, useRef, useEffect } from "react";
-import { ChevronLeft, ChevronRight, ChevronDown, Calendar } from "lucide-react";
+import { ChevronDown, Calendar } from "lucide-react";
 
 function PanelFiltros({
-    labelSemana,
     usuarioFiltro,
     setUsuarioFiltro,
-    onAnterior,
-    onSiguiente,
-    puedeAvanzar,
     fechaInicio,
-    fechaFin
+    fechaFin,
+    onCambiarRango
 }) {
 
     const [menuAbierto, setMenuAbierto] = useState(false);
     const refUsuario = useRef(null);
 
-    // Verificar si el usuario es administrador
     const usuario = JSON.parse(localStorage.getItem("usuario") || "{}");
     const ROLES_ADMIN = ["ADMINISTRACION", "ADMINISTRADOR"];
     const esAdmin = ROLES_ADMIN.includes(usuario?.rol);
-
 
     useEffect(() => {
         const cerrar = (e) => {
@@ -31,14 +26,19 @@ function PanelFiltros({
         return () => document.removeEventListener("mousedown", cerrar);
     }, []);
 
-
-    // Formatear: 2026-09-14 → 14/09/2026
-    const formatearFecha = (iso) => {
-        if (!iso) return "—";
-        const [y, m, d] = iso.split("-");
-        return `${d}/${m}/${y}`;
+    const cambiarInicio = (e) => {
+        const nuevoInicio = e.target.value;
+        if (!nuevoInicio) return;
+        const nuevoFin = nuevoInicio > fechaFin ? nuevoInicio : fechaFin;
+        onCambiarRango(nuevoInicio, nuevoFin);
     };
 
+    const cambiarFin = (e) => {
+        const nuevoFin = e.target.value;
+        if (!nuevoFin) return;
+        const nuevoInicio = nuevoFin < fechaInicio ? nuevoFin : fechaInicio;
+        onCambiarRango(nuevoInicio, nuevoFin);
+    };
 
     return (
         <div className="panel-header">
@@ -47,7 +47,6 @@ function PanelFiltros({
 
             <div className="panel-actions">
 
-                {/* Dropdown admin */}
                 {esAdmin ? (
                     <div className="panel-user-selector" ref={refUsuario}>
                         <button onClick={() => setMenuAbierto(!menuAbierto)}>
@@ -82,28 +81,30 @@ function PanelFiltros({
                     </div>
                 )}
 
-                {/* Selector de semana CON FECHAS */}
-                <div className="panel-date-selector">
-                    <button onClick={onAnterior} title="Semana anterior">
-                        <ChevronLeft size={16} />
-                    </button>
+                <div className="panel-rango">
+                    <Calendar size={14} />
 
-                    <span>
-                        <Calendar size={14} />
-                        {formatearFecha(fechaInicio)} - {formatearFecha(fechaFin)}
-                    </span>
+                    <label>
+                        <span>Desde</span>
+                        <input
+                            type="date"
+                            value={fechaInicio}
+                            max={fechaFin}
+                            onChange={cambiarInicio}
+                        />
+                    </label>
 
-                    <button
-                        onClick={onSiguiente}
-                        disabled={!puedeAvanzar}
-                        title="Semana siguiente"
-                        style={{
-                            opacity: puedeAvanzar ? 1 : 0.3,
-                            cursor: puedeAvanzar ? "pointer" : "not-allowed"
-                        }}
-                    >
-                        <ChevronRight size={16} />
-                    </button>
+                    <span className="panel-rango-separador">—</span>
+
+                    <label>
+                        <span>Hasta</span>
+                        <input
+                            type="date"
+                            value={fechaFin}
+                            min={fechaInicio}
+                            onChange={cambiarFin}
+                        />
+                    </label>
                 </div>
 
             </div>

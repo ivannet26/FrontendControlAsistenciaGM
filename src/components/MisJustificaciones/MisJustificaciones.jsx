@@ -40,7 +40,6 @@ const formatearFecha = (fechaIso) => {
     return `${dia}/${mes}/${año}`;
 };
 
-// El tipo y los minutos comparten un mismo chip neutro: "Tardanza · 45 min".
 const textoTipo = (justificacion) => {
     const nombre = TEXTO_TIPO[justificacion.tipo] || "Justificación";
     const minutos = justificacion.minutos_tarde;
@@ -131,11 +130,11 @@ const MisJustificaciones = ({
 
                                 return (
                                     <tr key={justificacion.id}>
-                                        <td>{formatearFecha(justificacion.fecha)}</td>
-                                        <td>{textoTipo(justificacion)}</td>
-                                        <td>{justificacion.asunto || "Sin asunto"}</td>
-                                        <td>{TEXTO_ESTADO[estado] || estado}</td>
-                                        <td>
+                                        <td data-label="Fecha">{formatearFecha(justificacion.fecha)}</td>
+                                        <td data-label="Tipo">{textoTipo(justificacion)}</td>
+                                        <td data-label="Asunto">{justificacion.asunto || "Sin asunto"}</td>
+                                        <td data-label="Estado">{TEXTO_ESTADO[estado] || estado}</td>
+                                        <td data-label="Comentario del Admin">
                                             {estado === "PENDIENTE"
                                                 ? "En revisión"
                                                 : justificacion.comentario_admin?.trim() || "Sin comentario"}

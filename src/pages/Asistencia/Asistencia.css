@@ -440,6 +440,81 @@
 
 
 /* =========================
+   TARJETAS DE REGISTRO (MÓVIL)
+   En escritorio se ocultan; la tabla es la que se muestra.
+========================= */
+
+.registros-cards {
+    display: none;
+    width: 100%;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+.registro-card {
+    width: 100%;
+    padding: 12px;
+    box-sizing: border-box;
+    overflow: hidden;
+    background: #101b22;
+    border: 1px solid #263740;
+    border-radius: 8px;
+}
+
+.registro-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding-bottom: 8px;
+    margin-bottom: 8px;
+    border-bottom: 1px solid #263740;
+}
+
+.registro-card-fecha {
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+    white-space: nowrap;
+}
+
+.registro-card-cuerpo {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.registro-card-fila {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-width: 0;
+}
+
+.registro-card-etiqueta {
+    min-width: 0;
+    color: #8ea0af;
+    font-size: 12px;
+}
+
+.registro-card-valor {
+    flex-shrink: 0;
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.registro-card-duracion .registro-card-valor {
+    color: #10a5f5;
+    font-weight: 600;
+}
+
+
+/* =========================
    ESTADO VACÍO
 ========================= */
 .asistencia-vacio {
@@ -562,4 +637,36 @@
 
 @media (max-width: 600px) {
     .asistencia-alerta-caja { padding: 32px 24px; }
+}
+
+/* =========================
+   MÓVIL — TABLA A TARJETAS
+   Se elimina el scroll horizontal: la tabla se oculta y el
+   mismo registro se muestra como tarjeta vertical.
+========================= */
+
+@media (max-width: 768px) {
+
+    .asistencia-registros table {
+        display: none;
+    }
+
+    .asistencia-tabla-scroll {
+        overflow-x: hidden;
+    }
+
+    .registros-cards {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        width: 100%;
+        padding: 12px;
+        overflow: hidden;
+        box-sizing: border-box;
+    }
+
+    .registro-card {
+        width: 100%;
+        box-sizing: border-box;
+    }
 }

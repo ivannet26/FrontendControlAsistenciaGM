@@ -26,6 +26,8 @@
 
   width: 365px;
 
+  box-sizing: border-box;
+
   background: #111c22;
 
   border: 1px solid #344650;
@@ -352,4 +354,396 @@
 .create-project svg {
     color: #10a5f5;
     flex-shrink: 0;
+}
+
+/* ============================================================
+   RESPONSIVE — DROPDOWN EN MÓVILES (<= 768px)
+   El panel se ancla al viewport (position: fixed) para que nunca se
+   salga por la izquierda. useDropdownMovil ajusta top/left/ancho.
+   ============================================================ */
+
+@media (max-width: 768px) {
+
+  .project-panel {
+
+    position: fixed;
+
+    /* Respaldo sin JS: pegado al borde izquierdo con 10px de margen. */
+    top: 70px;
+    left: 10px;
+    right: auto;
+
+    /* Ancho adaptable: 100% del viewport menos 10px por lado. */
+    width: calc(100% - 20px);
+    max-width: 100vw;
+
+    max-height: 60vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+
+    box-sizing: border-box;
+
+    /* Por encima del contenido, por debajo de los modales. */
+    z-index: 1200;
+
+  }
+
+  /* El panel ya hace scroll: la lista no debe crear uno doble. */
+  .project-list {
+
+    max-height: none;
+    overflow-y: visible;
+
+  }
+
+}
+
+
+/* ============================================================
+   UX — FLUIDEZ, TRUNCADO Y ANIMACIONES
+   ============================================================ */
+
+/* El selector puede encogerse dentro del header */
+.project-selector {
+
+  min-width: 0;
+
+}
+
+/* Botón del header: el nombre largo se trunca con "..." */
+.project-btn {
+
+  display: inline-flex;
+
+  align-items: center;
+
+  min-width: 0;
+
+  max-width: 220px;
+
+  overflow: hidden;
+
+  transition: color .15s ease, opacity .15s ease;
+
+}
+
+.project-btn:active {
+
+  opacity: .75;
+
+}
+
+.project-btn-text {
+
+  display: block;
+
+  max-width: 100%;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+
+  white-space: nowrap;
+
+}
+
+/* Fila del proyecto */
+.project-item {
+
+  gap: 8px;
+
+  padding: 8px 12px;
+
+  transition: background-color .15s ease;
+
+}
+
+.project-info {
+
+  min-width: 0;
+
+  overflow: hidden;
+
+}
+
+.project-name {
+
+  display: block;
+
+  flex: 1;
+
+  min-width: 0;
+
+  max-width: 100%;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+
+  white-space: nowrap;
+
+}
+
+/* Contador de tareas y estrella no se deforman */
+.task-control {
+
+  flex-shrink: 0;
+
+  white-space: nowrap;
+
+}
+
+.star,
+.task-star {
+
+  flex-shrink: 0;
+
+}
+
+/* "Crear Tarea" mantiene su tamaño aunque el nombre sea largo */
+.create-task-btn {
+
+  flex-shrink: 0;
+
+  min-width: 84px;
+
+  padding: 4px 8px;
+
+  border-radius: 4px;
+
+  white-space: nowrap;
+
+  text-align: right;
+
+  transition: background-color .15s ease, color .15s ease;
+
+}
+
+.create-task-btn:hover {
+
+  background: rgba(16, 165, 245, .12);
+
+  color: #4cc3ff;
+
+}
+
+/* Chevron: solo expande/contrae, no selecciona el proyecto */
+.toggle-tasks-btn {
+
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  width: 26px;
+
+  height: 26px;
+
+  padding: 0;
+
+  margin-left: 2px;
+
+  background: transparent;
+
+  border: none;
+
+  border-radius: 4px;
+
+  color: inherit;
+
+  cursor: pointer;
+
+  transition: background-color .15s ease;
+
+}
+
+.toggle-tasks-btn:hover {
+
+  background: rgba(255, 255, 255, .08);
+
+}
+
+.toggle-tasks-btn:active {
+
+  background: rgba(255, 255, 255, .14);
+
+}
+
+.chevron {
+
+  transition: transform .2s ease;
+
+}
+
+.chevron.open {
+
+  transform: rotate(180deg);
+
+}
+
+/* Lista de tareas: se expande/contrae con transición */
+.task-list {
+
+  display: grid;
+
+  grid-template-rows: 0fr;
+
+  opacity: 0;
+
+  overflow: hidden;
+
+  transition:
+    grid-template-rows .2s ease,
+    opacity .2s ease;
+
+}
+
+.task-list.abierto {
+
+  grid-template-rows: 1fr;
+
+  opacity: 1;
+
+}
+
+.task-list-inner {
+
+  min-height: 0;
+
+  overflow: hidden;
+
+}
+
+.task-item {
+
+  transition: background-color .15s ease;
+
+}
+
+.new-task {
+
+  transition: background-color .15s ease;
+
+}
+
+.create-project {
+
+  transition: background-color .15s ease, color .15s ease;
+
+}
+
+/* Panel: apertura suave */
+.project-panel {
+
+  transform-origin: top right;
+
+  animation: project-panel-in .18s ease;
+
+}
+
+@keyframes project-panel-in {
+
+  from {
+
+    opacity: 0;
+
+    transform: translateY(-6px) scaleY(.98);
+
+  }
+
+  to {
+
+    opacity: 1;
+
+    transform: translateY(0) scaleY(1);
+
+  }
+
+}
+
+/* En pantallas táctiles el :hover se queda pegado: se usa :active */
+@media (hover: none) {
+
+  .project-item:hover,
+  .task-item:hover,
+  .new-task:hover,
+  .create-project:hover,
+  .create-task-btn:hover {
+
+    background: transparent;
+
+  }
+
+  .project-item:active,
+  .task-item:active,
+  .new-task:active,
+  .create-project:active {
+
+    background: #24343d;
+
+  }
+
+  .create-task-btn:active {
+
+    background: rgba(16, 165, 245, .18);
+
+  }
+
+}
+
+@media (max-width: 768px) {
+
+  .project-item {
+
+    padding: 8px 10px;
+
+  }
+
+  .project-btn {
+
+    max-width: 55vw;
+
+  }
+
+  .create-task-btn {
+
+    min-width: 72px;
+
+    padding: 4px 6px;
+
+    font-size: 11px;
+
+  }
+
+  .project-panel {
+
+    transform-origin: top center;
+
+  }
+
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  .project-panel {
+
+    animation: none;
+
+  }
+
+  .project-item,
+  .task-item,
+  .new-task,
+  .create-project,
+  .project-btn,
+  .create-task-btn,
+  .toggle-tasks-btn,
+  .chevron,
+  .task-list {
+
+    transition: none;
+
+  }
+
 }

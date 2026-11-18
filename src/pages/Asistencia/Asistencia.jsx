@@ -614,39 +614,92 @@ const Asistencia = () => {
                                 <span>Aún no has registrado ninguna acción</span>
                             </div>
                         ) : (
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>Entrada</th>
-                                        <th>Inicio descanso</th>
-                                        <th>Fin descanso</th>
-                                        <th>Duración</th>
-                                        <th>Salida</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td className="asistencia-hora">
-                                            {formatearHora(entradaReg?.hora)}
-                                        </td>
-                                        <td className="asistencia-hora">
-                                            {formatearHora(breakInicioReg?.hora)}
-                                        </td>
-                                        <td className="asistencia-hora">
-                                            {formatearHora(breakFinReg?.hora)}
-                                        </td>
-                                        <td className="asistencia-hora asistencia-duracion">
-                                            {formatearDuracion(
-                                                breakInicioReg?.hora,
-                                                breakFinReg?.hora
-                                            )}
-                                        </td>
-                                        <td className="asistencia-hora">
-                                            {formatearHora(salidaReg?.hora)}
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                            <>
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Entrada</th>
+                                            <th>Inicio descanso</th>
+                                            <th>Fin descanso</th>
+                                            <th>Duración</th>
+                                            <th>Salida</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td className="asistencia-hora">
+                                                {formatearHora(entradaReg?.hora)}
+                                            </td>
+                                            <td className="asistencia-hora">
+                                                {formatearHora(breakInicioReg?.hora)}
+                                            </td>
+                                            <td className="asistencia-hora">
+                                                {formatearHora(breakFinReg?.hora)}
+                                            </td>
+                                            <td className="asistencia-hora asistencia-duracion">
+                                                {formatearDuracion(
+                                                    breakInicioReg?.hora,
+                                                    breakFinReg?.hora
+                                                )}
+                                            </td>
+                                            <td className="asistencia-hora">
+                                                {formatearHora(salidaReg?.hora)}
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                                {/* En móvil la tabla se oculta y se muestra esta tarjeta */}
+                                <div className="registros-cards">
+                                    <article className="registro-card">
+                                        <header className="registro-card-header">
+                                            <span className="registro-card-fecha">
+                                                {esHoy ? "Hoy" : formatearFechaCorta(fechaVista)}
+                                            </span>
+                                        </header>
+
+                                        <div className="registro-card-cuerpo">
+                                            <div className="registro-card-fila">
+                                                <span className="registro-card-etiqueta">Entrada</span>
+                                                <span className="registro-card-valor">
+                                                    {formatearHora(entradaReg?.hora)}
+                                                </span>
+                                            </div>
+
+                                            <div className="registro-card-fila">
+                                                <span className="registro-card-etiqueta">Inicio descanso</span>
+                                                <span className="registro-card-valor">
+                                                    {formatearHora(breakInicioReg?.hora)}
+                                                </span>
+                                            </div>
+
+                                            <div className="registro-card-fila">
+                                                <span className="registro-card-etiqueta">Fin descanso</span>
+                                                <span className="registro-card-valor">
+                                                    {formatearHora(breakFinReg?.hora)}
+                                                </span>
+                                            </div>
+
+                                            <div className="registro-card-fila registro-card-duracion">
+                                                <span className="registro-card-etiqueta">Duración</span>
+                                                <span className="registro-card-valor">
+                                                    {formatearDuracion(
+                                                        breakInicioReg?.hora,
+                                                        breakFinReg?.hora
+                                                    )}
+                                                </span>
+                                            </div>
+
+                                            <div className="registro-card-fila">
+                                                <span className="registro-card-etiqueta">Salida</span>
+                                                <span className="registro-card-valor">
+                                                    {formatearHora(salidaReg?.hora)}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </article>
+                                </div>
+                            </>
                         )}
                     </div>
                 </section>

@@ -5,6 +5,10 @@ import Timer from "../Timer/Timer";
 import EtiquetaSelector from "../EtiquetaSelector/EtiquetaSelector";
 
 
+/* Etiquetas visibles antes de agrupar el resto en el badge "+N". */
+const MAX_ETIQUETAS_VISIBLES = 2;
+
+
 function TimerBar({
 
     actividad,
@@ -150,32 +154,36 @@ function TimerBar({
 
                         <div className="etiquetas-activas">
 
-                            {/* Mostrar solo las primeras 4 etiquetas */}
+                            {/* Primeras etiquetas + badge con el resto */}
                             {
-                                etiquetasSeleccionadas.slice(0, 4).map(e => (
+                                etiquetasSeleccionadas
+                                    .slice(0, MAX_ETIQUETAS_VISIBLES)
+                                    .map(e => (
 
-                                    <span
-                                        key={e.id}
-                                        className="etiqueta-activa"
-                                    >
-                                        {e.nombre}
-                                    </span>
+                                        <span
+                                            key={e.id}
+                                            className="etiqueta-activa"
+                                            title={e.nombre}
+                                        >
+                                            <span className="etiqueta-texto">
+                                                {e.nombre}
+                                            </span>
+                                        </span>
 
-                                ))
+                                    ))
                             }
 
-                           
                             {
-                                etiquetasSeleccionadas.length > 4 && (
+                                etiquetasSeleccionadas.length > MAX_ETIQUETAS_VISIBLES && (
 
                                     <span
                                         className="etiqueta-activa etiqueta-mas"
                                         title={etiquetasSeleccionadas
-                                            .slice(4)
+                                            .slice(MAX_ETIQUETAS_VISIBLES)
                                             .map(e => e.nombre)
                                             .join(", ")}
                                     >
-                                        +{etiquetasSeleccionadas.length - 4}
+                                        +{etiquetasSeleccionadas.length - MAX_ETIQUETAS_VISIBLES}
                                     </span>
 
                                 )

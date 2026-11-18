@@ -1,6 +1,6 @@
 import { Search, Star, Plus } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import ModalProyecto from "../ModalProyecto/ModalProyecto";
 import ModalTarea from "../ModalTarea/ModalTarea";
 import toast from "react-hot-toast";
@@ -8,6 +8,7 @@ import { obtenerProyectos, crearProyectoAPI } from "../../../services/proyectosS
 import { obtenerTareasProyecto, crearTarea } from "../../../services/tareasService";
 
 import "./ProjectSelector.css";
+import useDropdownMovil from "../useDropdownMovil";
 
 
 function ProjectSelector({
@@ -23,6 +24,8 @@ function ProjectSelector({
     const [mostrarModalProyecto, setMostrarModalProyecto] = useState(false);
 
     const projectRef = useRef(null);
+    const projectBtnRef = useRef(null);
+    const projectPanelRef = useRef(null);
 
     const [proyectoSeleccionado, setProyectoSeleccionado] = useState(null);
 
@@ -34,6 +37,10 @@ function ProjectSelector({
 
     const [proyectos, setProyectos] = useState([]);
     const [tareasPorProyecto, setTareasPorProyecto] = useState({});
+
+
+    // En móvil mantiene el panel dentro del viewport
+    useDropdownMovil(mostrarProyectos, projectBtnRef, projectPanelRef);
 
 
     // Cargar proyectos del backend
@@ -132,9 +139,19 @@ function ProjectSelector({
     };
 
 
-    //  Toggle: solo despliega si el proyecto tiene tareas
+    // Toggle de la fila: selecciona el proyecto y despliega sus tareas.
     const toggleProyecto = (proyecto) => {
         if (bloqueado) return;
+
+        const estaAbierto = proyectosAbiertos.includes(proyecto.id);
+
+        // Al contraer solo se cierra la lista: no se cambia la selección.
+        if (estaAbierto) {
+            setProyectosAbiertos(prev =>
+                prev.filter(id => id !== proyecto.id)
+            );
+            return;
+        }
 
         setProyecto(proyecto);
         setTarea(null);
@@ -144,7 +161,17 @@ function ProjectSelector({
             return;
         }
 
-        // Si tiene tareas → toggle
+        setProyectosAbiertos(prev => [...prev, proyecto.id]);
+    };
+
+
+    // El chevron solo expande/contrae: no debe seleccionar el proyecto
+    // ni disparar el onClick de la fila (event.stopPropagation).
+    const toggleTareas = (e, proyecto) => {
+        e.stopPropagation();
+
+        if (bloqueado) return;
+
         setProyectosAbiertos(prev =>
             prev.includes(proyecto.id)
                 ? prev.filter(id => id !== proyecto.id)
@@ -153,30 +180,26 @@ function ProjectSelector({
     };
 
 
-    // Truncar nombres largos a 25 caracteres
-    const truncar = (texto, max = 25) =>
-        texto.length > max ? texto.slice(0, max) + "..." : texto;
-
-
     return (
         <div className="project-selector" ref={projectRef}>
 
             <button
+                ref={projectBtnRef}
                 className="project-btn"
                 style={{
                     color: proyecto?.color || "#10a5f5"
                 }}
                 onClick={() => setMostrarProyectos(!mostrarProyectos)}
+                title={proyecto?.nombre}
             >
-                {proyecto
-                    ? truncar(proyecto.nombre)
-                    : "+ Proyecto"
-                }
+                <span className="project-btn-text">
+                    {proyecto ? proyecto.nombre : "+ Proyecto"}
+                </span>
             </button>
 
 
             {mostrarProyectos && (
-                <div className="project-panel">
+                <div className="project-panel" ref={projectPanelRef}>
 
                     <div className="project-search">
                         <Search size={17} />
@@ -214,7 +237,7 @@ function ProjectSelector({
                                                 style={{ color: proyecto.color }}
                                                 title={proyecto.nombre}
                                             >
-                                                {truncar(proyecto.nombre)}
+                                                {proyecto.nombre}
                                             </span>
                                         </div>
 
@@ -226,10 +249,26 @@ function ProjectSelector({
                                                     {proyecto.tareas.length} Tareas
                                                 </span>
 
-                                                {abierto
-                                                    ? <ChevronUp size={16} />
-                                                    : <ChevronDown size={16} />
-                                                }
+                                                <button
+                                                    type="button"
+                                                    className="toggle-tasks-btn"
+                                                    aria-label={
+                                                        abierto
+                                                            ? "Contraer tareas"
+                                                            : "Expandir tareas"
+                                                    }
+                                                    aria-expanded={abierto}
+                                                    onClick={(e) => toggleTareas(e, proyecto)}
+                                                >
+                                                    <ChevronDown
+                                                        size={16}
+                                                        className={
+                                                            abierto
+                                                                ? "chevron open"
+                                                                : "chevron"
+                                                        }
+                                                    />
+                                                </button>
                                             </div>
                                         ) : (
                                             /* Si NO tiene tareas → botón "Crear Tarea" */
@@ -261,9 +300,11 @@ function ProjectSelector({
                                     </div>
 
 
-                                    {/*  Solo despliega si tiene tareas Y está abierto */}
-                                    {tieneTareas && abierto && (
-                                        <div className="task-list">
+                                    {/* Se mantiene montado para animar apertura y cierre */}
+                                    {tieneTareas && (
+                                        <div className={`task-list${abierto ? " abierto" : ""}`}>
+
+                                            <div className="task-list-inner">
 
                                             {proyecto.tareas.map((tarea) => (
                                                 <div
@@ -307,6 +348,8 @@ function ProjectSelector({
                                             >
                                                 <Plus size={16} />
                                                 Crear nueva Tarea
+                                            </div>
+
                                             </div>
 
                                         </div>

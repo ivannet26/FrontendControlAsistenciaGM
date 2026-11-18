@@ -1,11 +1,7 @@
-/* ============================================================
-   CONTENEDOR PRINCIPAL
-   ============================================================ */
-
 .panel-page {
     width: 100%;
-    min-height: 100vh;
-    padding: 18px 22px 24px 22px;
+    min-height: 100%;
+    padding: 0 22px 24px 22px;
     box-sizing: border-box;
     background: #24343d;
     color: #d3dde3;
@@ -13,11 +9,6 @@
     flex-direction: column;
     gap: 18px;
 }
-
-
-/* ============================================================
-   HEADER (título + filtros)
-   ============================================================ */
 
 .panel-header {
     display: flex;
@@ -39,6 +30,7 @@
     display: flex;
     gap: 8px;
     align-items: center;
+    flex-wrap: wrap;
 }
 
 .panel-actions > button {
@@ -59,49 +51,46 @@
     background: #162630;
 }
 
-
-/* Selector de fecha (con flechas) */
-
-.panel-date-selector {
+.panel-rango {
     display: flex;
     align-items: center;
+    gap: 12px;
     height: 38px;
+    padding: 0 14px;
     background: #111d24;
     border: 1px solid #344650;
-}
-
-.panel-date-selector button {
-    height: 100%;
-    padding: 0 11px;
-    background: transparent;
-    border: none;
     color: #aebcc5;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-}
-
-.panel-date-selector button:hover {
-    color: #10a5f5;
-}
-
-.panel-date-selector span {
-    padding: 0 15px;
-    color: #d3dde3;
-    font-size: 13px;
-    border-left: 1px solid #344650;
-    border-right: 1px solid #344650;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    height: 100%;
+    flex-shrink: 0;
     white-space: nowrap;
 }
 
+.panel-rango label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: #9eacb5;
+}
 
-/* ============================================================
-   LAYOUT PRINCIPAL (main + sidebar)
-   ============================================================ */
+.panel-rango input[type="date"] {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #d3dde3;
+    font-family: inherit;
+    font-size: 13px;
+    color-scheme: dark;
+    cursor: pointer;
+}
+
+.panel-rango input[type="date"]:focus-visible {
+    outline: 2px solid #10a5f5;
+    outline-offset: 2px;
+}
+
+.panel-rango-separador {
+    color: #607585;
+}
 
 .panel-layout {
     display: grid;
@@ -122,11 +111,6 @@
     top: 18px;
     min-width: 0;
 }
-
-
-/* ============================================================
-   TARJETAS DE RESUMEN (3 KPIs)
-   ============================================================ */
 
 .summary-container {
     display: grid;
@@ -168,11 +152,6 @@
     word-break: break-word;
 }
 
-
-/* ============================================================
-   BLOQUES GENÉRICOS (gráficos, contenedores)
-   ============================================================ */
-
 .panel-bloque {
     background: #101b22;
     border: 1px solid #263740;
@@ -194,20 +173,10 @@
     letter-spacing: 0.5px;
 }
 
-
-/* ============================================================
-   GRÁFICO BARRAS
-   ============================================================ */
-
 .chart-barras {
     width: 100%;
     height: 260px;
 }
-
-
-/* ============================================================
-   DONUT (gráfico circular + leyenda)
-   ============================================================ */
 
 .donut-container {
     display: grid;
@@ -279,11 +248,6 @@
     min-width: 48px;
     font-variant-numeric: tabular-nums;
 }
-
-
-/* ============================================================
-   TOP ACTIVIDADES (SIDEBAR)
-   ============================================================ */
 
 .top-container {
     background: #101b22;
@@ -405,11 +369,6 @@
     white-space: nowrap;
 }
 
-
-/* ============================================================
-   SELECTOR DE USUARIO (dropdown)
-   ============================================================ */
-
 .panel-user-selector {
     position: relative;
 }
@@ -460,11 +419,6 @@
     color: white;
 }
 
-
-/* ============================================================
-   LOADING / ERROR
-   ============================================================ */
-
 .panel-loading,
 .panel-error {
     padding: 36px;
@@ -478,11 +432,6 @@
 .panel-error {
     color: #f56c6c;
 }
-
-
-/* ============================================================
-   AVISO "SERVIDOR DESPERTANDO" / REINTENTO MANUAL
-   ============================================================ */
 
 .panel-aviso-servidor {
     margin: auto;
@@ -546,11 +495,6 @@
     font-size: 13px;
 }
 
-
-/* ============================================================
-   RESPONSIVE GENERAL
-   ============================================================ */
-
 @media (max-width: 1100px) {
     .panel-layout {
         grid-template-columns: 1fr;
@@ -589,11 +533,6 @@
         grid-column: span 2;
     }
 }
-
-
-/* ============================================================
-   CONTENEDOR ACTIVIDAD DE EQUIPO (CON SCOPE)
-   ============================================================ */
 
 .equipo-container {
     background: #101b22;
@@ -656,8 +595,6 @@
     background: rgba(16, 165, 245, 0.04);
 }
 
-/* --------- MIEMBRO --------- */
-
 .equipo-container .col-miembro {
     display: flex;
     align-items: center;
@@ -686,8 +623,6 @@
     text-overflow: ellipsis;
     white-space: nowrap;
 }
-
-/* --------- ACTIVIDAD --------- */
 
 .equipo-container .col-actividad {
     display: flex;
@@ -723,15 +658,11 @@
     flex-shrink: 0;
 }
 
-/* --------- HORA --------- */
-
 .equipo-container .col-hora {
     color: #d3dde3;
     font-size: 12.5px;
     font-variant-numeric: tabular-nums;
 }
-
-/* --------- ESTADO --------- */
 
 .equipo-container .col-estado {
     display: flex;
@@ -767,8 +698,6 @@
     font-weight: 500;
 }
 
-/* --------- TOTAL + BARRA --------- */
-
 .equipo-container .col-total {
     display: flex;
     align-items: center;
@@ -797,8 +726,6 @@
     height: 100%;
     transition: width 0.3s;
 }
-
-/* --------- ACCIONES --------- */
 
 .equipo-container .col-acciones {
     display: flex;
@@ -856,11 +783,6 @@
     transform: translateY(1px);
 }
 
-
-/* ============================================================
-   RESPONSIVE EQUIPO
-   ============================================================ */
-
 @media (max-width: 1100px) {
     .equipo-container .equipo-cabecera,
     .equipo-container .equipo-row {
@@ -917,18 +839,14 @@
     }
 }
 
-
-/* ============================================================
-   KPI Y PANEL USER LABEL
-   ============================================================ */
-
 .kpi-sub {
     font-size: 11px;
     color: #9fb2c0;
 }
 
 .panel-user-label {
-    height: 36px;
+    height: 38px;
+    min-width: 110px;
     padding: 0 14px;
     background: #111d24;
     border: 1px solid #344650;
@@ -937,40 +855,16 @@
     display: flex;
     align-items: center;
     gap: 6px;
-}
-
-
-/* ============================================================
-   PANEL FILTROS RESPONSIVE
-   ============================================================ */
-
-.panel-actions {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
-}
-
-.panel-user-selector,
-.panel-user-label,
-.panel-date-selector {
     flex-shrink: 0;
 }
 
-.panel-user-selector > button,
-.panel-user-label {
-    height: 38px;
+.panel-user-selector {
+    flex-shrink: 0;
+}
+
+.panel-user-selector > button {
     min-width: 110px;
 }
-
-.panel-date-selector {
-    white-space: nowrap;
-}
-
-
-/* ============================================================
-   TABLET
-   ============================================================ */
 
 @media (max-width: 900px) {
     .panel-header {
@@ -982,4 +876,14 @@
         width: 100%;
         justify-content: flex-end;
     }
-}/*
+}
+
+@media (max-width: 600px) {
+    .panel-rango {
+        width: 100%;
+        height: auto;
+        padding: 8px 12px;
+        flex-wrap: wrap;
+        box-sizing: border-box;
+    }
+}

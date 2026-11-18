@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import "./Panel.css";
 
 import PanelFiltros from "../../components/PanelComp/PanelFiltros";
@@ -14,11 +14,6 @@ import {
     obtenerActividadEquipo
 } from "../../services/panelService";
 
-
-// ============================================================
-// HELPERS
-// ============================================================
-
 const formatYMD = (d) => {
     const y = d.getFullYear();
     const m = String(d.getMonth() + 1).padStart(2, "0");
@@ -26,7 +21,7 @@ const formatYMD = (d) => {
     return `${y}-${m}-${dd}`;
 };
 
-const calcularRangoSemana = (offsetSemanas) => {
+const calcularRangoSemana = (offsetSemanas = 0) => {
     const hoy = new Date();
     hoy.setHours(0, 0, 0, 0);
 
@@ -45,18 +40,14 @@ const calcularRangoSemana = (offsetSemanas) => {
     };
 };
 
-// A partir de aquí mostramos el aviso de "el servidor está despertando".
-// No es un timeout: la petición sigue viva hasta los 60 s de axios.
 const AVISO_LENTO_MS = 8000;
-
-
-// ============================================================
-// COMPONENTE
-// ============================================================
 
 function Panel() {
 
-    const [offsetSemana, setOffsetSemana] = useState(0);
+    const rangoInicial = calcularRangoSemana(0);
+
+    const [fechaInicio, setFechaInicio] = useState(rangoInicial.fecha_inicio);
+    const [fechaFin, setFechaFin] = useState(rangoInicial.fecha_fin);
     const [usuarioFiltro, setUsuarioFiltro] = useState("yo");
 
     const [datos, setDatos] = useState(null);
@@ -66,24 +57,11 @@ function Panel() {
     const [error, setError] = useState(null);
     const [despertando, setDespertando] = useState(false);
 
-    // ✅ Solo cancelación: no hay reintentos ni polling
     const abortControllerRef = useRef(null);
     const avisoLentoRef = useRef(null);
 
-    // ✅ useMemo: el rango solo se recalcula cuando cambia offsetSemana
-    const rangoActual = useMemo(
-        () => calcularRangoSemana(offsetSemana),
-        [offsetSemana]
-    );
-
-
-    // ============================================================
-    // CARGA DE DATOS (una petición por rango/filtro, sin reintentos)
-    // ============================================================
-
     const cargarTodo = useCallback(async () => {
 
-        // Cancelar la petición anterior (cambio de semana/filtro)
         if (abortControllerRef.current) {
             abortControllerRef.current.abort();
         }
@@ -94,19 +72,18 @@ function Panel() {
         setError(null);
         setDespertando(false);
 
-        // Aviso pasivo a los 8 s: el usuario entiende la espera,
-        // pero NO abortamos ni relanzamos nada.
         window.clearTimeout(avisoLentoRef.current);
         avisoLentoRef.current = window.setTimeout(() => {
             if (!controller.signal.aborted) setDespertando(true);
         }, AVISO_LENTO_MS);
 
         try {
-            const { fecha_inicio, fecha_fin } = calcularRangoSemana(offsetSemana);
-
-            // Petición 1: resumen tiempo (timeout de 60 s en axios)
             const res = await obtenerResumenTiempo(
-                { fecha_inicio, fecha_fin, usuario_filtro: usuarioFiltro },
+                {
+                    fecha_inicio: fechaInicio,
+                    fecha_fin: fechaFin,
+                    usuario_filtro: usuarioFiltro
+                },
                 controller.signal
             );
 
@@ -114,18 +91,16 @@ function Panel() {
 
             setDatos(res);
 
-            // Petición 2: equipo (solo si aplica)
             if (usuarioFiltro === "equipo") {
                 try {
                     const resEquipo = await obtenerActividadEquipo(
-                        { fecha_inicio, fecha_fin },
+                        { fecha_inicio: fechaInicio, fecha_fin: fechaFin },
                         controller.signal
                     );
 
                     if (controller.signal.aborted) return;
                     setEquipo(resEquipo);
                 } catch (errEquipo) {
-                    // Un fallo del bloque de equipo no tumba el panel
                     if (!errEquipo.esCancelado && !controller.signal.aborted) {
                         console.error("Error cargando equipo:", errEquipo);
                         setEquipo(null);
@@ -136,7 +111,7 @@ function Panel() {
             }
 
         } catch (err) {
-            if (err.esCancelado || controller.signal.aborted) return; // Ignorar cancelaciones
+            if (err.esCancelado || controller.signal.aborted) return;
 
             console.error("Error cargando panel:", err);
             setError(
@@ -151,15 +126,7 @@ function Panel() {
                 setDespertando(false);
             }
         }
-    }, [offsetSemana, usuarioFiltro]);
-
-
-    // ============================================================
-    // EFECTO PRINCIPAL
-    // ------------------------------------------------------------
-    // Se ejecuta UNA vez por cambio de semana/filtro.
-    // Sin setInterval: no hay peticiones periódicas en segundo plano.
-    // ============================================================
+    }, [fechaInicio, fechaFin, usuarioFiltro]);
 
     useEffect(() => {
         cargarTodo();
@@ -172,23 +139,11 @@ function Panel() {
         };
     }, [cargarTodo]);
 
-
-    // ============================================================
-    // NAVEGACIÓN
-    // ============================================================
-
-    const semanaAnterior = () => setOffsetSemana(prev => prev - 1);
-    const semanaSiguiente = () => {
-        if (offsetSemana < 0) setOffsetSemana(prev => prev + 1);
+    const cambiarRango = (inicio, fin) => {
+        setFechaInicio(inicio);
+        setFechaFin(fin);
     };
 
-
-    // ============================================================
-    // RENDER
-    // ============================================================
-
-    // Sin datos todavía: mantenemos el lenguaje de "Cargando…"
-    // en lugar de soltar un error técnico de inmediato.
     if (error && !datos) {
         return (
             <div className="panel-page">
@@ -216,7 +171,6 @@ function Panel() {
         );
     }
 
-
     return (
         <div className="panel-page">
 
@@ -230,8 +184,6 @@ function Panel() {
                 }
             />
 
-            {/* Si ya había datos y falla una recarga, no se borra la pantalla:
-                se avisa arriba y se ofrece reintentar a mano. */}
             {error && datos && (
                 <div className="panel-banner-error">
                     <span>{error}</span>
@@ -249,14 +201,11 @@ function Panel() {
             {datos && (
                 <>
                     <PanelFiltros
-                        labelSemana={datos.label_semana}
                         usuarioFiltro={usuarioFiltro}
                         setUsuarioFiltro={setUsuarioFiltro}
-                        onAnterior={semanaAnterior}
-                        onSiguiente={semanaSiguiente}
-                        puedeAvanzar={offsetSemana < 0}
-                        fechaInicio={rangoActual.fecha_inicio}
-                        fechaFin={rangoActual.fecha_fin}
+                        fechaInicio={fechaInicio}
+                        fechaFin={fechaFin}
+                        onCambiarRango={cambiarRango}
                     />
 
                     <div className="panel-layout">

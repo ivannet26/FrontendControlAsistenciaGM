@@ -4,6 +4,8 @@ import { Tag, Search } from "lucide-react";
 
 import "./EtiquetaSelector.css";
 
+import useDropdownMovil from "../useDropdownMovil";
+
 
 
 function EtiquetaSelector({
@@ -24,6 +26,14 @@ function EtiquetaSelector({
     const [busqueda, setBusqueda] = useState("");
 
     const menuRef = useRef(null);
+
+    const botonRef = useRef(null);
+
+    const panelRef = useRef(null);
+
+    // En móvil mantiene el panel dentro del viewport
+    // (20px de margen por lado: el panel no ocupa toda la pantalla)
+    useDropdownMovil(abierto, botonRef, panelRef, 20);
 
 
 
@@ -209,7 +219,13 @@ function EtiquetaSelector({
 
             <button
 
+                ref={botonRef}
+
                 className="etiqueta-btn"
+
+                aria-label="Añadir o quitar etiquetas"
+
+                aria-expanded={abierto}
 
                 disabled={bloqueado}
 
@@ -237,7 +253,7 @@ function EtiquetaSelector({
                 abierto &&
 
 
-                <div className="etiqueta-panel">
+                <div className="etiqueta-panel" ref={panelRef}>
 
 
 
@@ -297,6 +313,8 @@ function EtiquetaSelector({
                                     key={e.id}
 
                                     className="etiqueta-item"
+
+                                    title={e.nombre}
 
                                 >
 
