@@ -1,12 +1,11 @@
 import { useEffect, useState } from "react";
-import {
-  getAuditoria,
-  getResumenAuditoria,
-} from "../../services/auditoriaService";
-import { getUsuarios } from "../../services/usuariosService";
 import { CalendarBlank, MagnifyingGlass } from "@phosphor-icons/react";
+import { getAuditoria, getResumenAuditoria } from "../../services/auditoriaService";
+import { getUsuarios } from "../../services/usuariosService";
 import Tabla from "../../components/Tabla/Tabla";
-import "./Auditoria.css";
+import Button from "../../components/ui/Button";
+import Input from "../../components/ui/Input";
+import Select from "../../components/ui/Select";
 
 const ENTIDADES_LABEL = {
   TIEMPO_REGISTRO: "Rastreador",
@@ -33,28 +32,40 @@ const ACCIONES_LABEL = {
   CREAR_TIEMPO_ADMIN: "Creó tiempo",
 };
 
-// Genera la fecha actual en formato YYYY-MM-DD usando la HORA LOCAL (no UTC)
-const obtenerFechaLocal = () => {
-  const d = new Date();
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
+const ACCIONES_VERBO = {
+  CREAR: "Crear",
+  EDITAR: "Editar",
+  ELIMINAR: "Eliminar",
+  ASIGNAR: "Asignar",
+  REMOVER: "Remover",
+  ARCHIVAR: "Archivar",
+  DESARCHIVAR: "Desarchivar",
+  DESACTIVAR: "Desactivar",
+  ACTIVAR: "Activar",
+};
+
+const FILTROS_VACIOS = {
+  usuario_id: "",
+  accion: "",
+  entidad: "",
+  fecha_inicio: "",
+  fecha_fin: "",
+  buscar: "",
+};
+
+const colorAccion = (accion) => {
+  if (["CREAR", "ACTIVAR", "ASIGNAR"].includes(accion)) return "text-emerald-400";
+  if (["ELIMINAR", "DESACTIVAR", "REMOVER"].includes(accion)) return "text-red-400";
+  if (["EDITAR", "EDITAR_TIEMPO", "CREAR_TIEMPO_ADMIN"].includes(accion)) return "text-sky-400";
+  return "text-gm-300";
 };
 
 const Auditoria = () => {
   const [registros, setRegistros] = useState([]);
   const [usuarios, setUsuarios] = useState([]);
   const [resumen, setResumen] = useState(null);
-
-  const [filtros, setFiltros] = useState({
-    usuario_id: "",
-    accion: "",
-    entidad: "",
-    fecha_inicio: obtenerFechaLocal(),
-    fecha_fin: obtenerFechaLocal(),
-    buscar: "",
-  });
+  const [cargando, setCargando] = useState(true);
+  const [filtros, setFiltros] = useState(FILTROS_VACIOS);
 
   useEffect(() => {
     getUsuarios().then(setUsuarios).catch(console.error);
@@ -63,25 +74,21 @@ const Auditoria = () => {
 
   useEffect(() => {
     const t = setTimeout(async () => {
+      setCargando(true);
       try {
-        const data = await getAuditoria(filtros);
-        setRegistros(data);
+        setRegistros(await getAuditoria(filtros));
       } catch (e) {
         console.error(e);
+      } finally {
+        setCargando(false);
       }
     }, 350);
     return () => clearTimeout(t);
   }, [filtros]);
 
-  const limpiar = () =>
-    setFiltros({
-      usuario_id: "",
-      accion: "",
-      entidad: "",
-      fecha_inicio: obtenerFechaLocal(),
-      fecha_fin: obtenerFechaLocal(),
-      buscar: "",
-    });
+  const cambiarFiltro = (campo) => (e) => setFiltros((f) => ({ ...f, [campo]: e.target.value }));
+  const limpiar = () => setFiltros(FILTROS_VACIOS);
+  const filtrosActivos = Object.values(filtros).some(Boolean);
 
   const fmt = (iso) =>
     new Date(iso).toLocaleString("es-PE", {
@@ -92,182 +99,66 @@ const Auditoria = () => {
       minute: "2-digit",
     });
 
-  const formatearFechaLegible = (iso) => {
-    if (!iso) return "—";
-    const [y, m, d] = iso.split("-").map(Number);
-    return new Date(y, m - 1, d).toLocaleDateString("es-PE", {
-      weekday: "long",
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-    });
-  };
-
   const columnas = [
+    { key: "fecha", header: "Fecha", render: (r) => <span className="text-xs text-gm-500">{fmt(r.fecha)}</span> },
     {
-      key: "fecha",
-      header: "Fecha",
-      className: "col-fecha",
-      render: (r) => fmt(r.fecha),
-    },
-    {
-      key: "usuario",
-      header: "Usuario",
-      className: "col-usuario",
+      key: "usuario", header: "Usuario",
       render: (r) => (
-        <>
-          <span className="nombre-usuario">{r.usuario_nombre || "—"}</span>
-          {r.usuario_email && (
-            <span className="email-usuario">{r.usuario_email}</span>
-          )}
-        </>
+        <div className="flex flex-col">
+          <span className="text-sm text-gm-100">{r.usuario_nombre || "—"}</span>
+          {r.usuario_email && <span className="text-xs text-gm-500">{r.usuario_email}</span>}
+        </div>
       ),
     },
+    { key: "accion", header: "Acción", render: (r) => <span className={`text-xs font-semibold ${colorAccion(r.accion)}`}>{ACCIONES_LABEL[r.accion] || r.accion || "—"}</span> },
     {
-      key: "accion",
-      header: "Acción",
-      className: "col-accion",
+      key: "entidad", header: "Módulo",
       render: (r) => (
-        <span className={`texto-accion accion-${r.accion}`}>
-          {ACCIONES_LABEL[r.accion] || r.accion || "—"}
-        </span>
+        <div className="flex flex-col">
+          <span className="text-xs text-gm-100">{ENTIDADES_LABEL[r.entidad] || r.entidad || "—"}</span>
+          {r.entidad_nombre && <span className="text-xs text-gm-500">{r.entidad_nombre}</span>}
+        </div>
       ),
     },
-    {
-      key: "entidad",
-      header: "Módulo",
-      className: "col-modulo",
-      render: (r) => (
-        <>
-          <span className="texto-entidad">
-            {ENTIDADES_LABEL[r.entidad] || r.entidad || "—"}
-          </span>
-          {r.entidad_nombre && (
-            <span className="entidad-nombre">{r.entidad_nombre}</span>
-          )}
-        </>
-      ),
-    },
-    {
-      key: "detalle",
-      header: "Descripción",
-      className: "col-descripcion",
-      render: (r) => r.detalle || "—",
-    },
-    {
-      key: "proyecto",
-      header: "Proyecto",
-      className: "col-proyecto",
-      render: (r) => r.proyecto_nombre || "—",
-    },
+    { key: "detalle", header: "Descripción", render: (r) => <span className="text-xs text-gm-300">{r.detalle || "—"}</span> },
+    { key: "proyecto", header: "Proyecto", render: (r) => <span className="text-xs text-gm-300">{r.proyecto_nombre || "—"}</span> },
   ];
 
   return (
-    <div className="auditoria-container">
-      <header className="auditoria-header">
-        <h1>Registro de auditoría</h1>
-        <p className="auditoria-sub">
-          Historial de actividades y eventos del sistema
-        </p>
+    <div className="flex w-full flex-col gap-4 p-4 text-gm-100 md:p-6">
+      <header>
+        <h1 className="m-0 text-2xl font-semibold text-white">Registro de auditoría</h1>
+        <p className="m-0 mt-1 text-sm text-gm-500">Historial de actividades y eventos del sistema</p>
       </header>
 
-      {/* Tarjetas de Resumen */}
-      <div className="auditoria-resumen">
-        <div className="resumen-card">
-          <span className="resumen-label">Registros</span>
-          <span className="resumen-valor">{resumen?.total ?? "—"}</span>
-        </div>
-        <div className="resumen-card">
-          <span className="resumen-label">Usuarios activos</span>
-          <span className="resumen-valor">
-            {resumen?.usuarios_activos ?? "—"}
-          </span>
-        </div>
-        <div className="resumen-card">
-          <span className="resumen-label">Creaciones</span>
-          <span className="resumen-valor">
-            {resumen?.por_accion?.CREAR ?? 0}
-          </span>
-        </div>
-        <div className="resumen-card">
-          <span className="resumen-label">Ediciones</span>
-          <span className="resumen-valor">
-            {resumen?.por_accion?.EDITAR ?? 0}
-          </span>
-        </div>
-        <div className="resumen-card">
-          <span className="resumen-label">Eliminaciones</span>
-          <span className="resumen-valor">
-            {resumen?.por_accion?.ELIMINAR ?? 0}
-          </span>
-        </div>
-      </div>
+      <section className="grid grid-cols-2 gap-3 md:grid-cols-5" aria-label="Resumen de auditoría">
+        {[
+          ["Registros", resumen?.total],
+          ["Usuarios activos", resumen?.usuarios_activos],
+          ["Creaciones", resumen?.por_accion?.CREAR ?? 0],
+          ["Ediciones", resumen?.por_accion?.EDITAR ?? 0],
+          ["Eliminaciones", resumen?.por_accion?.ELIMINAR ?? 0],
+        ].map(([etiqueta, valor]) => (
+          <div key={etiqueta} className="flex flex-col gap-2 border border-gm-800 bg-gm-950 p-4">
+            <span className="text-xs font-semibold text-gm-500">{etiqueta}</span>
+            <span className="text-2xl font-semibold text-white">{valor ?? "—"}</span>
+          </div>
+        ))}
+      </section>
 
-      {/* Filtros */}
-      <section className="auditoria-filtros">
-        <div className="filtro-buscador">
-          <MagnifyingGlass size={16} />
-          <input
-            type="text"
-            placeholder="Buscar por usuario o detalle..."
-            value={filtros.buscar}
-            onChange={(e) => setFiltros({ ...filtros, buscar: e.target.value })}
-          />
-        </div>
-
-        <div className="filtro-fechas">
-          <CalendarBlank size={16} />
-          <input
-            type="date"
-            value={filtros.fecha_inicio}
-            onChange={(e) =>
-              setFiltros({ ...filtros, fecha_inicio: e.target.value })
-            }
-          />
-          <span>→</span>
-          <input
-            type="date"
-            value={filtros.fecha_fin}
-            onChange={(e) =>
-              setFiltros({ ...filtros, fecha_fin: e.target.value })
-            }
-          />
-        </div>
-
-        <select
-          value={filtros.usuario_id}
-          onChange={(e) =>
-            setFiltros({ ...filtros, usuario_id: e.target.value })
-          }
-        >
+      <section className="flex flex-col gap-3 border border-gm-800 bg-gm-950 p-4 md:flex-row md:flex-wrap md:items-center" aria-label="Filtros de auditoría">
+        <Input className="w-full md:max-w-xs md:flex-1" icon={<MagnifyingGlass size={16} weight="bold" aria-hidden="true" />} type="text" placeholder="Buscar por usuario o detalle..." value={filtros.buscar} onChange={cambiarFiltro("buscar")} />
+        <Input className="w-full md:w-auto" icon={<CalendarBlank size={14} weight="bold" aria-hidden="true" />} type="date" lang="es-PE" value={filtros.fecha_inicio} onChange={cambiarFiltro("fecha_inicio")} aria-label="Desde" />
+        <Input className="w-full md:w-auto" type="date" lang="es-PE" value={filtros.fecha_fin} onChange={cambiarFiltro("fecha_fin")} aria-label="Hasta" />
+        <Select aria-label="Filtrar por usuario" value={filtros.usuario_id} onChange={cambiarFiltro("usuario_id")} className="w-full md:w-48">
           <option value="">Todos los usuarios</option>
-          {usuarios.map((u) => (
-            <option key={u.id} value={u.id}>
-              {u.nombre} {u.apellido}
-            </option>
-          ))}
-        </select>
-
-        <select
-          value={filtros.accion}
-          onChange={(e) => setFiltros({ ...filtros, accion: e.target.value })}
-        >
+          {usuarios.map((u) => <option key={u.id} value={u.id}>{u.nombre} {u.apellido}</option>)}
+        </Select>
+        <Select aria-label="Filtrar por acción" value={filtros.accion} onChange={cambiarFiltro("accion")} className="w-full md:w-44">
           <option value="">Todas las acciones</option>
-          <option value="CREAR">Crear</option>
-          <option value="EDITAR">Editar</option>
-          <option value="ELIMINAR">Eliminar</option>
-          <option value="ASIGNAR">Asignar</option>
-          <option value="REMOVER">Remover</option>
-          <option value="ARCHIVAR">Archivar</option>
-          <option value="DESARCHIVAR">Desarchivar</option>
-          <option value="DESACTIVAR">Desactivar</option>
-          <option value="ACTIVAR">Activar</option>
-        </select>
-
-        <select
-          value={filtros.entidad}
-          onChange={(e) => setFiltros({ ...filtros, entidad: e.target.value })}
-        >
+          {Object.entries(ACCIONES_VERBO).map(([valor, texto]) => <option key={valor} value={valor}>{texto}</option>)}
+        </Select>
+        <Select aria-label="Filtrar por módulo" value={filtros.entidad} onChange={cambiarFiltro("entidad")} className="w-full md:w-44">
           <option value="">Todos los módulos</option>
           <option value="PROYECTO">Proyecto</option>
           <option value="TAREA">Tarea</option>
@@ -276,77 +167,36 @@ const Auditoria = () => {
           <option value="CLIENTE">Cliente</option>
           <option value="ETIQUETA">Etiqueta</option>
           <option value="TIEMPO">Tiempo</option>
-        </select>
-
-        <button className="limpiar-btn" onClick={limpiar}>
-          Limpiar
-        </button>
+        </Select>
+        <Button variant="secondary" className="md:ml-auto" onClick={limpiar} disabled={!filtrosActivos}>Limpiar</Button>
       </section>
 
-      {/* VISTA ESCRITORIO / TABLET */}
-      <div className="auditoria-tabla-wrapper desktop-only">
-        {registros.length === 0 ? (
-          <div className="auditoria-vacio">
-            <p className="auditoria-vacio-titulo">Sin registros</p>
-            <p className="auditoria-vacio-sub">
-              {filtros.fecha_inicio === filtros.fecha_fin
-                ? formatearFechaLegible(filtros.fecha_inicio)
-                : `${formatearFechaLegible(filtros.fecha_inicio)} → ${formatearFechaLegible(filtros.fecha_fin)}`}
-            </p>
-          </div>
-        ) : (
-          <Tabla
-            variant="grid"
-            headClassName="auditoria-cabecera"
-            rowClassName="auditoria-row"
-            rowKey={(r) => `${r.origen}-${r.id}`}
-            columns={columnas}
-            data={registros}
-          />
-        )}
-      </div>
+      <section className="hidden border border-gm-800 bg-gm-950 md:block">
+        <Tabla rowKey={(r) => `${r.origen}-${r.id}`} columns={columnas} data={registros} loading={cargando} loadingText="Cargando registros..." emptyText="No se encontraron eventos para estos filtros." />
+      </section>
 
-      {/* VISTA MÓVIL (CARDS) */}
-      <div className="auditoria-cards-wrapper mobile-only">
-        {registros.length === 0 ? (
-          <div className="auditoria-vacio">
-            <p className="auditoria-vacio-titulo">Sin registros</p>
-            <p className="auditoria-vacio-sub">
-              No se encontraron eventos para este rango
-            </p>
-          </div>
+      <section className="flex flex-col gap-3 md:hidden" aria-label="Registros de auditoría">
+        {cargando ? (
+          <p className="m-0 border border-gm-800 bg-gm-950 p-8 text-center text-sm text-gm-500">Cargando registros...</p>
+        ) : registros.length === 0 ? (
+          <p className="m-0 border border-gm-800 bg-gm-950 p-8 text-center text-sm text-gm-500">No se encontraron eventos para estos filtros.</p>
         ) : (
           registros.map((r) => (
-            <article
-              key={`${r.origen}-${r.id}`}
-              className="auditoria-card-item"
-            >
-              <div className="card-top">
-                <span className="col-fecha">{fmt(r.fecha)}</span>
-                <span className={`texto-accion accion-${r.accion}`}>
-                  {ACCIONES_LABEL[r.accion] || r.accion}
-                </span>
+            <article key={`${r.origen}-${r.id}`} className="flex flex-col gap-2 border border-gm-800 bg-gm-950 p-4">
+              <div className="flex items-center justify-between gap-2 text-xs">
+                <span className="text-gm-500">{fmt(r.fecha)}</span>
+                <span className={`font-semibold ${colorAccion(r.accion)}`}>{ACCIONES_LABEL[r.accion] || r.accion}</span>
               </div>
-              <div className="card-body">
-                <span className="nombre-usuario">
-                  {r.usuario_nombre || "Desconocido"}
-                </span>
-                <p className="col-descripcion">
-                  {r.detalle || "Sin descripción"}
-                </p>
-              </div>
-              <div className="card-footer">
-                <span className="texto-entidad">
-                  {ENTIDADES_LABEL[r.entidad] || r.entidad}
-                </span>
-                {r.proyecto_nombre && (
-                  <span className="col-proyecto">{r.proyecto_nombre}</span>
-                )}
+              <p className="m-0 text-sm font-semibold text-white">{r.usuario_nombre || "Desconocido"}</p>
+              <p className="m-0 text-xs text-gm-300">{r.detalle || "Sin descripción"}</p>
+              <div className="flex items-center justify-between gap-2 border-t border-gm-800 pt-2 text-xs text-gm-500">
+                <span>{ENTIDADES_LABEL[r.entidad] || r.entidad}</span>
+                {r.proyecto_nombre && <span>{r.proyecto_nombre}</span>}
               </div>
             </article>
           ))
         )}
-      </div>
+      </section>
     </div>
   );
 };

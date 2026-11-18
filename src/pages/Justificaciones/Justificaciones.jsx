@@ -1,635 +1,163 @@
-import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
-import toast from "react-hot-toast";
-import {
-  CalendarBlank,
-  MagnifyingGlass,
-  Paperclip,
-  X,
-} from "@phosphor-icons/react";
-import { resolver as resolverJustificacion } from "../../services/justificacionesService";
-import { useJustificaciones } from "../../hooks/useJustificaciones";
+import { CalendarBlank, MagnifyingGlass, Paperclip, X } from "@phosphor-icons/react";
+import { Check, Image as ImageIcon, X as XIcon } from "lucide-react";
 import Tabla from "../../components/Tabla/Tabla";
 import ModalConfirm from "../../components/ModalConfirm/ModalConfirm";
-import "./Justificaciones.css";
-
-const POR_PAGINA = 10;
-const JUSTIFICACIONES_VACIAS = [];
-
-const OPCIONES_ESTADO = [
-  { valor: "TODAS", texto: "Todos los estados" },
-  { valor: "PENDIENTE", texto: "Pendiente" },
-  { valor: "ACEPTADA", texto: "Aceptada" },
-  { valor: "RECHAZADA", texto: "Rechazada" },
-];
-
-const TEXTO_TIPO = {
-  TARDANZA: "Tardanza",
-  Tardanza: "Tardanza",
-  FALTA: "Falta",
-  Falta: "Falta",
-  OLVIDO_MARCAR: "Olvidé marcar",
-  "Olvidé marcar": "Olvidé marcar",
-  OTRO: "Otro",
-  Otro: "Otro",
-};
-
-const TEXTO_ESTADO = {
-  PENDIENTE: "Pendiente",
-  ACEPTADA: "Aceptada",
-  RECHAZADA: "Rechazada",
-};
-
-const formatearFecha = (fechaIso) => {
-  if (!fechaIso) return "—";
-  const [año, mes, dia] = String(fechaIso).slice(0, 10).split("-");
-  return año && mes && dia ? `${dia}/${mes}/${año}` : String(fechaIso);
-};
-
-const obtenerNombreUsuario = (justificacion) =>
-  String(justificacion?.usuario_nombre || "").trim() || "Usuario desconocido";
-
-const obtenerCorreoUsuario = (justificacion) =>
-  String(justificacion?.usuario_email || justificacion?.correo || "").trim();
-
-const obtenerClaveUsuario = (justificacion) =>
-  String(
-    justificacion?.usuario_id ??
-      (obtenerCorreoUsuario(justificacion) ||
-        obtenerNombreUsuario(justificacion)),
-  );
-
-const claveIntentos = (justificacion) =>
-  [
-    String(justificacion?.usuario_id ?? ""),
-    String(justificacion?.tipo || "").toUpperCase(),
-    String(justificacion?.fecha || "").slice(0, 10),
-  ].join("|");
-
-const textoTipo = (justificacion) => {
-  const nombre =
-    TEXTO_TIPO[justificacion.tipo] ||
-    String(justificacion.tipo || "").trim() ||
-    "Justificación";
-  const minutos = justificacion.minutos_tarde;
-  const esTardanza = ["TARDANZA", "Tardanza"].includes(justificacion.tipo);
-
-  if (!esTardanza || minutos === null || minutos === undefined) return nombre;
-  return `${nombre} · ${minutos} min`;
-};
-
-const obtenerMensajeError = (error, mensajePredeterminado) => {
-  const detalle = error?.response?.data?.detail;
-  if (typeof detalle === "string" && detalle.trim()) return detalle;
-  return error?.message || mensajePredeterminado;
-};
+import Button from "../../components/ui/Button";
+import Input from "../../components/ui/Input";
+import Select from "../../components/ui/Select";
+import {
+  OPCIONES_ESTADO,
+  TEXTO_ESTADO,
+  formatearFecha,
+  obtenerCorreoUsuario,
+  obtenerNombreUsuario,
+  textoTipo,
+  useJustificacionesPage,
+} from "./useJustificacionesPage";
 
 const Justificaciones = () => {
-  const [usuarioFiltro, setUsuarioFiltro] = useState("");
-  const [estadoFiltro, setEstadoFiltro] = useState("PENDIENTE");
-  const [fechaFiltro, setFechaFiltro] = useState("");
-  const [busqueda, setBusqueda] = useState("");
-  const [pagina, setPagina] = useState(1);
-  const [confirmacion, setConfirmacion] = useState(null);
-  const [resolviendo, setResolviendo] = useState(false);
-  const [imagenAmpliada, setImagenAmpliada] = useState(null);
-  const [tabActiva, setTabActiva] = useState("PENDIENTES");
-  const vistaHistorial = tabActiva === "HISTORIAL";
+  const {
+    vistaHistorial, cargando, error, usuarios, listaFiltrada, listaPagina, paginaActual, totalPaginas, filtrosActivos,
+    usuarioFiltro, estadoFiltro, fechaFiltro, busqueda, confirmacion, imagenAmpliada, setImagenAmpliada, setPagina,
+    setBusqueda, setFechaFiltro, setUsuarioFiltro, setEstadoFiltro,
+    cambiarFiltro, limpiarFiltros, cambiarPestana, abrirConfirmacion, confirmarResolucion, cerrarConfirmacion, intentosDe,
+  } = useJustificacionesPage();
 
-  const { justificaciones, cargando, error, recargar } = useJustificaciones({
-    fuente: "todas",
-  });
-
-  useEffect(() => {
-    if (!imagenAmpliada) return undefined;
-
-    const cerrarConEscape = (evento) => {
-      if (evento.key === "Escape") setImagenAmpliada(null);
-    };
-
-    document.addEventListener("keydown", cerrarConEscape);
-    return () => document.removeEventListener("keydown", cerrarConEscape);
-  }, [imagenAmpliada]);
-
-  const listaCompleta = Array.isArray(justificaciones)
-    ? justificaciones
-    : JUSTIFICACIONES_VACIAS;
-  const usuarios = useMemo(() => {
-    const mapa = new Map();
-    listaCompleta.forEach((justificacion) => {
-      const id = obtenerClaveUsuario(justificacion);
-      if (!mapa.has(id)) {
-        mapa.set(id, {
-          id,
-          nombre: obtenerNombreUsuario(justificacion),
-        });
-      }
-    });
-    return [...mapa.values()].sort((a, b) => a.nombre.localeCompare(b.nombre));
-  }, [listaCompleta]);
-
-  const conteoIntentosPendientes = useMemo(() => {
-    const conteos = new Map();
-    listaCompleta
-      .filter(
-        (justificacion) =>
-          (justificacion.estado || "PENDIENTE") === "PENDIENTE",
-      )
-      .forEach((justificacion) => {
-        const clave = claveIntentos(justificacion);
-        conteos.set(clave, (conteos.get(clave) || 0) + 1);
-      });
-    return conteos;
-  }, [listaCompleta]);
-
-  const listaFiltrada = useMemo(() => {
-    const consulta = busqueda.trim().toLocaleLowerCase("es-PE");
-
-    return listaCompleta
-      .filter((justificacion) => {
-        const estado = justificacion.estado || "PENDIENTE";
-        if (!vistaHistorial && estado !== "PENDIENTE") return false;
-        if (vistaHistorial && !["ACEPTADA", "RECHAZADA"].includes(estado))
-          return false;
-        if (estadoFiltro !== "TODAS" && estado !== estadoFiltro) return false;
-        if (
-          usuarioFiltro &&
-          obtenerClaveUsuario(justificacion) !== usuarioFiltro
-        )
-          return false;
-
-        const fecha = String(justificacion.fecha || "").slice(0, 10);
-        if (fechaFiltro && fecha !== fechaFiltro) return false;
-
-        if (consulta) {
-          const contenido = [
-            obtenerNombreUsuario(justificacion),
-            obtenerCorreoUsuario(justificacion),
-            justificacion.tipo,
-            justificacion.asunto,
-            justificacion.mensaje,
-            justificacion.comentario_admin,
-            estado,
-          ]
-            .join(" ")
-            .toLocaleLowerCase("es-PE");
-          if (!contenido.includes(consulta)) return false;
-        }
-        return true;
-      })
-      .sort((a, b) =>
-        String(b.fecha || "").localeCompare(String(a.fecha || "")),
-      );
-  }, [
-    busqueda,
-    estadoFiltro,
-    fechaFiltro,
-    listaCompleta,
-    usuarioFiltro,
-    vistaHistorial,
-  ]);
-
-  const totalPaginas = Math.max(
-    1,
-    Math.ceil(listaFiltrada.length / POR_PAGINA),
-  );
-  const paginaActual = Math.min(pagina, totalPaginas);
-  const listaPagina = listaFiltrada.slice(
-    (paginaActual - 1) * POR_PAGINA,
-    paginaActual * POR_PAGINA,
-  );
-  const filtrosActivos = Boolean(
-    usuarioFiltro ||
-    fechaFiltro ||
-    busqueda ||
-    estadoFiltro !== (vistaHistorial ? "TODAS" : "PENDIENTE"),
-  );
-
-  const cambiarFiltro = (actualizar) => (evento) => {
-    actualizar(evento.target.value);
-    setPagina(1);
+  const Estado = ({ justificacion }) => {
+    const estado = justificacion.estado || "PENDIENTE";
+    const intentos = intentosDe(justificacion);
+    return (
+      <div className="flex flex-col items-start gap-1">
+        <span className="border border-gm-800 bg-gm-900 px-2 py-1 text-xs font-semibold text-gm-100">{TEXTO_ESTADO[estado] || estado}</span>
+        {estado === "PENDIENTE" && intentos > 1 && <span className="border border-amber-600 px-2 py-1 text-xs text-amber-300">{intentos} intentos · Actualización</span>}
+      </div>
+    );
   };
 
-  const limpiarFiltros = () => {
-    setUsuarioFiltro("");
-    setEstadoFiltro(vistaHistorial ? "TODAS" : "PENDIENTE");
-    setFechaFiltro("");
-    setBusqueda("");
-    setPagina(1);
+  const Acciones = ({ justificacion }) => {
+    const estado = justificacion.estado || "PENDIENTE";
+    return (
+      <div className="flex items-center gap-2">
+        {justificacion.evidencia_url && (
+          <Button variant="secondary" className="px-2" onClick={() => setImagenAmpliada(justificacion)} aria-label={`Ver adjunto de ${obtenerNombreUsuario(justificacion)}`} title="Ver imagen">
+            <ImageIcon size={16} aria-hidden="true" />
+          </Button>
+        )}
+        {estado === "PENDIENTE" ? (
+          <>
+            <Button variant="primary" className="px-2" onClick={() => abrirConfirmacion(justificacion, "ACEPTADA")} aria-label={`Aceptar justificación de ${obtenerNombreUsuario(justificacion)}`} title="Aceptar">
+              <Check size={16} aria-hidden="true" />
+            </Button>
+            <Button variant="danger" className="px-2" onClick={() => abrirConfirmacion(justificacion, "RECHAZADA")} aria-label={`Rechazar justificación de ${obtenerNombreUsuario(justificacion)}`} title="Rechazar">
+              <XIcon size={16} aria-hidden="true" />
+            </Button>
+          </>
+        ) : (
+          <span className="text-xs text-gm-500">{justificacion.revisado_por ? `Por ${justificacion.revisado_por}` : "Revisada"}</span>
+        )}
+      </div>
+    );
   };
 
-  const cambiarPestana = (pestana) => {
-    setTabActiva(pestana);
-    setEstadoFiltro(pestana === "HISTORIAL" ? "TODAS" : "PENDIENTE");
-    setPagina(1);
-  };
-
-  const abrirConfirmacion = (justificacion, estado) => {
-    setConfirmacion({
-      id: justificacion.id,
-      estado,
-      usuario: obtenerNombreUsuario(justificacion),
-    });
-  };
-
-  const confirmarResolucion = async (comentarioAdmin) => {
-    if (!confirmacion || resolviendo) return;
-
-    setResolviendo(true);
-    try {
-      await resolverJustificacion(
-        confirmacion.id,
-        confirmacion.estado,
-        comentarioAdmin,
-      );
-      toast.success(
-        confirmacion.estado === "ACEPTADA"
-          ? "Justificación aceptada."
-          : "Justificación rechazada.",
-        { duration: 3500, id: `justificacion-resuelta-${confirmacion.id}` },
-      );
-      setConfirmacion(null);
-      await recargar({ silencioso: true });
-    } catch (errorResolucion) {
-      toast.error(
-        obtenerMensajeError(
-          errorResolucion,
-          "No se pudo actualizar la justificación.",
-        ),
-        { duration: 4000, id: "justificacion-resolucion-error" },
-      );
-    } finally {
-      setResolviendo(false);
-    }
-  };
-
-  const columnasTabla = [
+  const columnas = [
     {
-      key: "usuario",
-      header: "Usuario",
-      render: (justificacion) => (
-        <div className="justificaciones-usuario">
-          <span className="justificaciones-usuario-nombre">
-            {obtenerNombreUsuario(justificacion)}
-          </span>
-          {obtenerCorreoUsuario(justificacion) && (
-            <span className="justificaciones-usuario-correo">
-              {obtenerCorreoUsuario(justificacion)}
-            </span>
-          )}
+      key: "usuario", header: "Usuario",
+      render: (j) => (
+        <div className="flex flex-col gap-1">
+          <span className="text-sm font-semibold text-white">{obtenerNombreUsuario(j)}</span>
+          {obtenerCorreoUsuario(j) && <span className="text-xs text-gm-500">{obtenerCorreoUsuario(j)}</span>}
         </div>
       ),
     },
-    {
-      key: "tipo",
-      header: "Tipo",
-      render: (justificacion) => (
-        <span className="justificaciones-tipo">{textoTipo(justificacion)}</span>
-      ),
-    },
-    {
-      key: "fecha",
-      header: "Fecha",
-      className: "justificaciones-fecha",
-      render: (justificacion) => formatearFecha(justificacion.fecha),
-    },
-    {
-      key: "asunto",
-      header: "Asunto",
-      className: "justificaciones-asunto-mensaje",
-      render: (justificacion) => (
-        <strong className="justificaciones-asunto">
-          {justificacion.asunto || "Sin asunto"}
-        </strong>
-      ),
-    },
-    {
-      key: "mensaje",
-      header: "Mensaje",
-      className: "justificaciones-asunto-mensaje",
-      render: (justificacion) => (
-        <p className="justificaciones-mensaje">
-          {justificacion.mensaje || "Sin mensaje"}
-        </p>
-      ),
-    },
-    {
-      key: "imagen",
-      header: "Imagen",
-      render: (justificacion) =>
-        justificacion.evidencia_url ? (
-          <button
-            type="button"
-            className="justificaciones-ver-imagen"
-            onClick={() => setImagenAmpliada(justificacion)}
-          >
-            Ver imagen
-          </button>
-        ) : (
-          <span className="justificaciones-sin-adjunto">Sin adjunto</span>
-        ),
-    },
-    {
-      key: "estado",
-      header: "Estado",
-      render: (justificacion) => {
-        const estado = justificacion.estado || "PENDIENTE";
-        const cantidadIntentos =
-          conteoIntentosPendientes.get(claveIntentos(justificacion)) || 1;
-
-        return (
-          <>
-            <span className="justificaciones-estado">
-              {TEXTO_ESTADO[estado] || estado}
-            </span>
-            {estado === "PENDIENTE" && cantidadIntentos > 1 && (
-              <span className="justificaciones-intentos-badge">
-                {cantidadIntentos} intentos · Actualización
-              </span>
-            )}
-          </>
-        );
-      },
-    },
-    {
-      key: "acciones",
-      header: "Acciones",
-      render: (justificacion) => {
-        const estado = justificacion.estado || "PENDIENTE";
-
-        return estado === "PENDIENTE" ? (
-          <div className="justificaciones-acciones">
-            <button
-              type="button"
-              className="justificaciones-accion accion-aceptar"
-              onClick={() => abrirConfirmacion(justificacion, "ACEPTADA")}
-            >
-              Aceptar
-            </button>
-            <button
-              type="button"
-              className="justificaciones-accion accion-rechazar"
-              onClick={() => abrirConfirmacion(justificacion, "RECHAZADA")}
-            >
-              Rechazar
-            </button>
-          </div>
-        ) : (
-          <div className="justificaciones-resumen-resolucion">
-            <span>
-              {justificacion.revisado_por
-                ? `Por ${justificacion.revisado_por}`
-                : "Revisada"}
-            </span>
-            <span>
-              {justificacion.comentario_admin?.trim() || "Sin comentario"}
-            </span>
-          </div>
-        );
-      },
-    },
+    { key: "tipo", header: "Tipo", render: (j) => <span className="text-xs text-gm-100">{textoTipo(j)}</span> },
+    { key: "fecha", header: "Fecha", render: (j) => <span className="text-xs text-gm-500">{formatearFecha(j.fecha)}</span> },
+    { key: "asunto", header: "Asunto", render: (j) => <span className="text-sm font-semibold text-white">{j.asunto || "Sin asunto"}</span> },
+    { key: "mensaje", header: "Mensaje", render: (j) => <p className="m-0 text-xs text-gm-300">{j.mensaje || "Sin mensaje"}</p> },
+    { key: "estado", header: "Estado", render: (j) => <Estado justificacion={j} /> },
+    { key: "acciones", header: "Acciones", render: (j) => <Acciones justificacion={j} /> },
   ];
 
+  const hayResultados = !cargando && listaFiltrada.length > 0;
+
   return (
-    <div className="justificaciones-container">
-      <header className="justificaciones-header">
-        <div>
-          <h1>Justificaciones</h1>
-          <p className="justificaciones-sub">
-            Revisa tardanzas, faltas y olvidos de marca enviados por el equipo
-          </p>
-        </div>
-
-        <div
-          className="equipo-tabs"
-          role="tablist"
-          aria-label="Vistas de justificaciones"
-        >
-          <button
-            type="button"
-            role="tab"
-            aria-selected={!vistaHistorial}
-            className={!vistaHistorial ? "activo" : ""}
-            onClick={() => cambiarPestana("PENDIENTES")}
-          >
-            Pendientes
-          </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={vistaHistorial}
-            className={vistaHistorial ? "activo" : ""}
-            onClick={() => cambiarPestana("HISTORIAL")}
-          >
-            Historial
-          </button>
-        </div>
-      </header>
-
-      <div className="equipo-contenedor">
-        <section
-          className="justificaciones-filtros"
-          aria-label="Filtros de justificaciones"
-        >
-          <div className="justificaciones-buscador">
-            <MagnifyingGlass size={15} weight="bold" aria-hidden="true" />
-            <input
-              type="text"
-              placeholder="Buscar justificación..."
-              value={busqueda}
-              onChange={cambiarFiltro(setBusqueda)}
-            />
-          </div>
-
-          <div className="justificaciones-filtro-fecha">
-            <CalendarBlank size={14} weight="bold" />
-            <input
-              type="date"
-              lang="es-PE"
-              value={fechaFiltro}
-              onChange={cambiarFiltro(setFechaFiltro)}
-            />
-          </div>
-
-          <div className="justificaciones-filtro-select">
-            <select
-              aria-label="Filtrar por usuario"
-              value={usuarioFiltro}
-              onChange={cambiarFiltro(setUsuarioFiltro)}
-            >
-              <option value="">Todos los usuarios</option>
-              {usuarios.map((usuario) => (
-                <option key={usuario.id} value={usuario.id}>
-                  {usuario.nombre}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {vistaHistorial && (
-            <div className="justificaciones-filtro-select">
-              <select
-                aria-label="Filtrar por estado"
-                value={estadoFiltro}
-                onChange={cambiarFiltro(setEstadoFiltro)}
-              >
-                {OPCIONES_ESTADO.map((opcion) => (
-                  <option key={opcion.valor} value={opcion.valor}>
-                    {opcion.texto}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
-
-          <button
-            type="button"
-            className="justificaciones-limpiar"
-            onClick={limpiarFiltros}
-            disabled={!filtrosActivos}
-          >
-            Limpiar
-          </button>
-        </section>
-
-        <section
-          className="justificaciones-panel"
-          aria-busy={cargando}
-          aria-label={
-            vistaHistorial
-              ? "Historial de justificaciones"
-              : "Justificaciones pendientes"
-          }
-        >
-          {error && (
-            <p className="justificaciones-error" role="alert">
-              {error}
-            </p>
-          )}
-
-          {cargando ? (
-            <p className="justificaciones-vacio" aria-busy="true">
-              Cargando justificaciones...
-            </p>
-          ) : listaFiltrada.length === 0 ? (
-            <p className="justificaciones-vacio">
-              {vistaHistorial
-                ? "No hay justificaciones procesadas para estos filtros."
-                : "No hay justificaciones para estos filtros."}
-            </p>
-          ) : (
-            <>
-              <Tabla
-                tableClassName="justificaciones-tabla"
-                rowKey="id"
-                columns={columnasTabla}
-                data={listaPagina}
-              />
-
-              <footer
-                className="justificaciones-paginacion"
-                aria-label="Paginación"
-              >
-                <button
-                  type="button"
-                  className="justificaciones-paginacion-boton"
-                  onClick={() => setPagina(paginaActual - 1)}
-                  disabled={paginaActual <= 1}
-                >
-                  Anterior
-                </button>
-                <div className="justificaciones-paginacion-paginas">
-                  {Array.from(
-                    { length: totalPaginas },
-                    (_, indice) => indice + 1,
-                  ).map((numero) => (
-                    <button
-                      type="button"
-                      key={numero}
-                      className={`justificaciones-pagina${numero === paginaActual ? " activo" : ""}`}
-                      aria-current={
-                        numero === paginaActual ? "page" : undefined
-                      }
-                      onClick={() => setPagina(numero)}
-                    >
-                      {numero}
-                    </button>
-                  ))}
-                </div>
-                <button
-                  type="button"
-                  className="justificaciones-paginacion-boton"
-                  onClick={() => setPagina(paginaActual + 1)}
-                  disabled={paginaActual >= totalPaginas}
-                >
-                  Siguiente
-                </button>
-              </footer>
-            </>
-          )}
-        </section>
+    <div className="flex flex-col gap-4">
+      <div className="inline-flex w-fit border border-gm-800 bg-gm-900 p-1" role="tablist" aria-label="Vistas de justificaciones">
+        <button type="button" role="tab" aria-selected={!vistaHistorial} className={`h-9 px-4 text-sm font-medium ${!vistaHistorial ? "bg-gm-950 text-white" : "bg-transparent text-gm-500"}`} onClick={() => cambiarPestana("PENDIENTES")}>Pendientes</button>
+        <button type="button" role="tab" aria-selected={vistaHistorial} className={`h-9 px-4 text-sm font-medium ${vistaHistorial ? "bg-gm-950 text-white" : "bg-transparent text-gm-500"}`} onClick={() => cambiarPestana("HISTORIAL")}>Historial</button>
       </div>
 
-      <ModalConfirm
-        abierto={Boolean(confirmacion)}
-        titulo={
-          confirmacion?.estado === "ACEPTADA"
-            ? "Aceptar justificación"
-            : "Rechazar justificación"
-        }
-        mensaje={
-          confirmacion
-            ? `¿Confirmas que deseas ${confirmacion.estado === "ACEPTADA" ? "aceptar" : "rechazar"} la justificación de ${confirmacion.usuario}?`
-            : ""
-        }
-        textoConfirmar={
-          confirmacion?.estado === "ACEPTADA" ? "Aceptar" : "Rechazar"
-        }
-        textoCancelar="Cancelar"
-        tipo="info"
-        onConfirmar={confirmarResolucion}
-        onCancelar={() => {
-          if (!resolviendo) setConfirmacion(null);
-        }}
-        requiereComentario
-      />
-
-      {imagenAmpliada &&
-        createPortal(
-          <div
-            className="justificaciones-lightbox"
-            role="presentation"
-            onClick={() => setImagenAmpliada(null)}
-          >
-            <div
-              className="justificaciones-lightbox-caja"
-              role="dialog"
-              aria-modal="true"
-              aria-label={`Adjunto de ${obtenerNombreUsuario(imagenAmpliada)}`}
-              onClick={(evento) => evento.stopPropagation()}
-            >
-              <img
-                src={imagenAmpliada.evidencia_url}
-                alt={`Adjunto de ${obtenerNombreUsuario(imagenAmpliada)}`}
-              />
-              <div className="justificaciones-lightbox-info">
-                <span>
-                  <Paperclip size={15} weight="bold" aria-hidden="true" />
-                  {obtenerNombreUsuario(imagenAmpliada)}
-                </span>
-                <button
-                  type="button"
-                  className="justificaciones-lightbox-cerrar"
-                  onClick={() => setImagenAmpliada(null)}
-                  aria-label="Cerrar adjunto"
-                >
-                  <X size={18} weight="bold" aria-hidden="true" />
-                </button>
-              </div>
-            </div>
-          </div>,
-          document.body,
+      <section className="flex flex-col gap-3 border border-gm-800 bg-gm-950 p-4 md:flex-row md:flex-wrap md:items-center" aria-label="Filtros de justificaciones">
+        <Input className="w-full md:flex-1" icon={<MagnifyingGlass size={16} weight="bold" aria-hidden="true" />} type="text" placeholder="Buscar justificación..." value={busqueda} onChange={cambiarFiltro(setBusqueda)} />
+        <Input className="w-full md:w-auto" icon={<CalendarBlank size={14} weight="bold" />} type="date" lang="es-PE" value={fechaFiltro} onChange={cambiarFiltro(setFechaFiltro)} />
+        <Select aria-label="Filtrar por usuario" value={usuarioFiltro} onChange={cambiarFiltro(setUsuarioFiltro)} className="w-full md:w-48">
+          <option value="">Todos los usuarios</option>
+          {usuarios.map((u) => <option key={u.id} value={u.id}>{u.nombre}</option>)}
+        </Select>
+        {vistaHistorial && (
+          <Select aria-label="Filtrar por estado" value={estadoFiltro} onChange={cambiarFiltro(setEstadoFiltro)} className="w-full md:w-44">
+            {OPCIONES_ESTADO.map((op) => <option key={op.valor} value={op.valor}>{op.texto}</option>)}
+          </Select>
         )}
+        <Button variant="secondary" className="md:ml-auto" onClick={limpiarFiltros} disabled={!filtrosActivos}>Limpiar</Button>
+      </section>
+
+      {error && <p className="m-0 border border-red-700 bg-gm-950 px-4 py-3 text-sm text-red-400" role="alert">{error}</p>}
+
+      <section className="hidden border border-gm-800 bg-gm-950 md:block" aria-busy={cargando} aria-label={vistaHistorial ? "Historial de justificaciones" : "Justificaciones pendientes"}>
+        <Tabla tableClassName="w-full table-fixed" rowKey="id" columns={columnas} data={listaPagina} loading={cargando} loadingText="Cargando justificaciones..." emptyText={vistaHistorial ? "No hay justificaciones procesadas para estos filtros." : "No hay justificaciones para estos filtros."} />
+      </section>
+
+      <section className="flex flex-col gap-3 md:hidden" aria-label={vistaHistorial ? "Historial de justificaciones" : "Justificaciones pendientes"}>
+        {cargando ? (
+          <p className="m-0 border border-gm-800 bg-gm-950 p-8 text-center text-sm text-gm-500">Cargando justificaciones...</p>
+        ) : listaPagina.length === 0 ? (
+          <p className="m-0 border border-gm-800 bg-gm-950 p-8 text-center text-sm text-gm-500">{vistaHistorial ? "No hay justificaciones procesadas para estos filtros." : "No hay justificaciones para estos filtros."}</p>
+        ) : (
+          listaPagina.map((j) => (
+            <article key={j.id} className="flex flex-col gap-3 border border-gm-800 bg-gm-950 p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="m-0 truncate text-sm font-semibold text-white">{obtenerNombreUsuario(j)}</p>
+                  {obtenerCorreoUsuario(j) && <p className="m-0 mt-1 truncate text-xs text-gm-500">{obtenerCorreoUsuario(j)}</p>}
+                </div>
+                <Estado justificacion={j} />
+              </div>
+              <div>
+                <p className="m-0 text-sm font-semibold text-white">{j.asunto || "Sin asunto"}</p>
+                <p className="m-0 mt-1 text-xs text-gm-300">{j.mensaje || "Sin mensaje"}</p>
+              </div>
+              <div className="flex items-center justify-between gap-3 border-t border-gm-800 pt-3">
+                <span className="text-xs text-gm-500">{textoTipo(j)} · {formatearFecha(j.fecha)}</span>
+                <Acciones justificacion={j} />
+              </div>
+            </article>
+          ))
+        )}
+      </section>
+
+      {hayResultados && (
+        <footer className="flex items-center justify-center gap-2" aria-label="Paginación">
+          <Button variant="secondary" className="px-2" onClick={() => setPagina(paginaActual - 1)} disabled={paginaActual <= 1} aria-label="Página anterior" title="Anterior"><span aria-hidden="true">←</span></Button>
+          <span className="px-2 text-sm text-gm-400">{paginaActual} / {totalPaginas}</span>
+          <Button variant="secondary" className="px-2" onClick={() => setPagina(paginaActual + 1)} disabled={paginaActual >= totalPaginas} aria-label="Página siguiente" title="Siguiente"><span aria-hidden="true">→</span></Button>
+        </footer>
+      )}
+
+      <ModalConfirm abierto={Boolean(confirmacion)} titulo={confirmacion?.estado === "ACEPTADA" ? "Aceptar justificación" : "Rechazar justificación"} mensaje={confirmacion ? `¿Confirmas que deseas ${confirmacion.estado === "ACEPTADA" ? "aceptar" : "rechazar"} la justificación de ${confirmacion.usuario}?` : ""} textoConfirmar={confirmacion?.estado === "ACEPTADA" ? "Aceptar" : "Rechazar"} textoCancelar="Cancelar" tipo="info" onConfirmar={confirmarResolucion} onCancelar={cerrarConfirmacion} requiereComentario />
+
+      {imagenAmpliada && createPortal(
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4" role="presentation" onClick={() => setImagenAmpliada(null)}>
+          <div className="w-full max-w-4xl overflow-hidden border border-gm-700 bg-gm-950" role="dialog" aria-modal="true" aria-label={`Adjunto de ${obtenerNombreUsuario(imagenAmpliada)}`} onClick={(e) => e.stopPropagation()}>
+            <img src={imagenAmpliada.evidencia_url} alt={`Adjunto de ${obtenerNombreUsuario(imagenAmpliada)}`} className="block w-full bg-black object-contain" />
+            <div className="flex items-center justify-between border-t border-gm-800 px-4 py-3 text-sm text-white">
+              <span className="inline-flex items-center gap-2"><Paperclip size={15} weight="bold" aria-hidden="true" />{obtenerNombreUsuario(imagenAmpliada)}</span>
+              <Button variant="ghost" className="px-2" onClick={() => setImagenAmpliada(null)} aria-label="Cerrar adjunto" title="Cerrar"><X size={18} weight="bold" aria-hidden="true" /></Button>
+            </div>
+          </div>
+        </div>,
+        document.body,
+      )}
     </div>
   );
 };

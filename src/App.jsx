@@ -1,4 +1,3 @@
-import React from "react";
 import { Toaster } from "react-hot-toast";
 
 import Login from "./pages/Login/Login.jsx";
@@ -22,11 +21,9 @@ import Equipo from "./pages/Equipo/Equipo.jsx";
 import Clientes from "./pages/Clientes/Clientes.jsx";
 import Etiquetas from "./pages/Etiquetas/Etiquetas.jsx";
 import InformesPage from "./pages/Informes/InformesPage.jsx";
-import GestionUsuarios from "./pages/GestionUsuarios/GestionUsuarios.jsx";
 import Auditoria from "./pages/Auditoria/Auditoria.jsx";
 import Asistencia from "./pages/Asistencia/Asistencia.jsx";
-import AsistenciaAdmin from "./pages/Asistencia/AsistenciaAdmin.jsx";
-import Justificaciones from "./pages/Justificaciones/Justificaciones.jsx";
+import Administracion from "./pages/Administracion/Administracion.jsx";
 import MiPerfil from "./components/MiPerfil/MiPerfil";
 
 function App() {
@@ -109,11 +106,6 @@ function App() {
             />
 
             <Route
-              path="gestion-usuarios"
-              element={<GestionUsuarios />}
-            />
-
-            <Route
               path="auditoria"
               element={<Auditoria />}
             />
@@ -125,13 +117,8 @@ function App() {
 
             <Route element={<RutaProtegida roles={["ADMINISTRADOR", "ADMINISTRACION"]} />}>
               <Route
-                path="asistencia/admin"
-                element={<AsistenciaAdmin />}
-              />
-
-              <Route
-                path="justificaciones"
-                element={<Justificaciones />}
+                path="administracion"
+                element={<Administracion />}
               />
             </Route>
 

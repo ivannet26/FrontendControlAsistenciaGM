@@ -17,7 +17,15 @@
    ============================================================ */
 
 .ps-sidebar-root {
-  transition: width 0.4s ease, min-width 0.4s ease !important;
+  transition:
+    width 0.4s ease,
+    min-width 0.4s ease !important;
+}
+
+/* Ancho del sidebar expandido en escritorio (react-pro-sidebar lo fija inline) */
+.ps-sidebar-root:not(.ps-collapsed) {
+  width: 220px !important;
+  min-width: 220px !important;
 }
 
 .ps-sidebar-container {
@@ -52,7 +60,9 @@
   align-items: center;
   justify-content: flex-start;
 
-  transition: margin 0.3s ease, color 0.2s ease !important;
+  transition:
+    margin 0.3s ease,
+    color 0.2s ease !important;
 }
 
 .ps-menu-label {
@@ -163,7 +173,9 @@
   color: #6f8391;
   text-transform: uppercase;
 
-  transition: opacity 0.2s ease, padding 0.3s ease;
+  transition:
+    opacity 0.2s ease,
+    padding 0.3s ease;
 }
 
 .ps-collapsed .menu-section {
@@ -200,7 +212,9 @@
   cursor: pointer;
   z-index: 20;
 
-  transition: background-color 0.2s ease, color 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
 }
 
 .sidebar-toggle:hover {
@@ -213,11 +227,12 @@
    ============================================================ */
 
 @media (max-width: 1200px) and (min-width: 769px) {
-  .sidebar-container { width: 60px; }
+  .sidebar-container {
+    width: 60px;
+  }
 }
 
 @media (max-width: 768px) {
-
   .sidebar-container {
     position: fixed;
     top: 0;
@@ -242,7 +257,9 @@
     transform: translateX(0);
   }
 
-  .sidebar-toggle { display: none; }
+  .sidebar-toggle {
+    display: none;
+  }
 
   .sidebar-overlay {
     position: fixed;
@@ -253,8 +270,12 @@
   }
 
   @keyframes fadeIn {
-    from { opacity: 0; }
-    to   { opacity: 1; }
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
   }
 }
 
@@ -286,7 +307,10 @@
   align-items: center;
   justify-content: center;
 
-  transition: left 0.25s ease, background 0.15s, color 0.15s;
+  transition:
+    left 0.25s ease,
+    background 0.15s,
+    color 0.15s;
 }
 
 .sidebar-toggle-movil:hover {

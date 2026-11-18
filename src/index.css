@@ -1,0 +1,23 @@
+@import "tailwindcss";
+
+@theme {
+  --color-gm-50: #f8f9fa;
+  --color-gm-100: #d3dde3;
+  --color-gm-200: #c5d1d8;
+  --color-gm-300: #b5c4cc;
+  --color-gm-400: #9eacb5;
+  --color-gm-500: #8ea0af;
+  --color-gm-600: #6b7c88;
+  --color-gm-700: #344650;
+  --color-gm-800: #263740;
+  --color-gm-900: #16242c;
+  --color-gm-950: #101b22;
+}
+
+@layer base {
+  button,
+  [role="button"],
+  a {
+    cursor: pointer;
+  }
+}
