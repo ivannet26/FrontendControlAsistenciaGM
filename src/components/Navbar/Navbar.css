@@ -135,3 +135,34 @@
     box-sizing: border-box !important;
     flex-shrink: 0 !important;
 }
+
+@media (max-width: 768px) {
+  .navbar-principal {
+    gap: 8px;
+    padding-inline: 54px 10px;
+  }
+
+  .navbar-logo {
+    flex: 0 1 180px;
+    min-width: 0;
+  }
+
+  .navbar-logo img {
+    max-width: 100%;
+  }
+
+  .navbar-info {
+    flex-shrink: 0;
+    gap: 6px;
+  }
+
+  .navbar-info .help-dropdown {
+    max-width: calc(100vw - 64px);
+  }
+}
+
+@media (max-width: 500px) {
+  .navbar-info > span {
+    display: none;
+  }
+}

@@ -17,9 +17,10 @@ import {
     Tag,
     FileText,
     UserCog,
-    Clock,
     UserCheck,
     ClipboardList,
+    Menu as MenuIcon,
+    X,
 } from "lucide-react";
 
 import "./Sidebar.css";
@@ -73,12 +74,12 @@ function Sidebar({ usuario }) {
             )}
 
             <ProSidebar
+                id="navegacion-principal"
                 collapsed={esMovil ? false : collapsed}
                 width="180px"
                 collapsedWidth="52px"
                 backgroundColor="#111c22"
                 rootStyles={{
-                    height: "100vh",
                     borderRight: "none",
                     transition: "width 1.3s ease",
                 }}
@@ -226,14 +227,17 @@ function Sidebar({ usuario }) {
                 )}
             </ProSidebar>
 
-            {/* BOTÓN FLOTANTE MÓVIL */}
+            {/* BOTÓN DE NAVEGACIÓN MÓVIL */}
             {esMovil && (
                 <button
                     className="sidebar-toggle-movil"
                     onClick={() => setMovilAbierto(!movilAbierto)}
-                    aria-label="Abrir menú"
+                    type="button"
+                    aria-controls="navegacion-principal"
+                    aria-expanded={movilAbierto}
+                    aria-label={movilAbierto ? "Cerrar menú" : "Abrir menú"}
                 >
-                    {movilAbierto ? "‹‹" : "››"}
+                    {movilAbierto ? <X size={22} aria-hidden="true" /> : <MenuIcon size={22} aria-hidden="true" />}
                 </button>
             )}
         </div>

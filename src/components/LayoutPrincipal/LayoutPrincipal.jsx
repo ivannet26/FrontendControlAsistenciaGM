@@ -1,4 +1,5 @@
 import "./LayoutPrincipal.css";
+import "./GestionResponsive.css";
 
 import Navbar from "../Navbar/Navbar.jsx";
 import Sidebar from "../Sidebar/Sidebar.jsx";

@@ -1,0 +1,13 @@
+.tabla-desplazable {
+    max-width: 100%;
+    overflow-x: auto;
+    scrollbar-color: #344650 #101b22;
+}
+
+.panel-flotante {
+    position: fixed;
+    z-index: 10001;
+    max-width: calc(100vw - 16px);
+    overflow: auto;
+    overscroll-behavior: contain;
+}
