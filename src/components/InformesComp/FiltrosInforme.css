@@ -1,54 +1,60 @@
-/* ============================================================
-   BARRA DE FILTROS (estilo panel)
-   ============================================================ */
-
 .filtros-informe {
     background: #101b22;
     border: 1px solid #263740;
-    padding: 10px 16px;
+    padding: 10px 14px;
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    gap: 16px;
+    align-items: flex-end;
+    gap: 12px;
     flex-wrap: wrap;
 }
 
 .filtros-fila {
-    display: flex;
-    gap: 6px;
-    align-items: center;
-    flex-wrap: wrap;
+    flex: 1;
+    min-width: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 8px 10px;
 }
 
 .filtro {
     display: flex;
-    align-items: center;
+    flex-direction: column;
     gap: 4px;
+    min-width: 0;
 }
 
 .filtro label {
     color: #9eacb5;
-    font-size: 12px;
+    font-size: 10px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    padding: 4px 6px;
+    padding: 0;
 }
 
-.filtro select,
-.filtro input {
+.filtro select {
+    width: 100%;
+    min-width: 0;
     height: 30px;
-    padding: 0 10px;
+    padding: 0 8px;
     background: #111d24;
     border: 1px solid #344650;
     color: #d3dde3;
     font-size: 12px;
     outline: none;
     box-sizing: border-box;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
 }
 
-.filtro select:focus,
-.filtro input:focus {
+.filtro select:focus {
     border-color: #10a5f5;
+}
+
+.filtro select:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
 }
 
 .filtro select option {
@@ -56,17 +62,33 @@
     color: #d3dde3;
 }
 
-.filtro input::placeholder {
-    color: #6b7d88;
+.filtro select,
+.filtro select option {
+    scrollbar-width: thin;
+    scrollbar-color: #10a5f5 #0d151c;
+}
+
+.filtro select::-webkit-scrollbar {
+    width: 4px;
+}
+
+.filtro select::-webkit-scrollbar-thumb {
+    background: #10a5f5;
+    border-radius: 10px;
+}
+
+.filtro select::-webkit-scrollbar-track {
+    background: #0d151c;
 }
 
 .filtros-acciones {
     display: flex;
     gap: 8px;
+    flex-shrink: 0;
 }
 
 .btn-aplicar {
-    height: 32px;
+    height: 30px;
     padding: 0 16px;
     background: #10a5f5;
     border: 1px solid #10a5f5;
@@ -76,6 +98,7 @@
     font-weight: 600;
     letter-spacing: 0.5px;
     transition: background 0.15s;
+    white-space: nowrap;
 }
 
 .btn-aplicar:hover {
@@ -83,7 +106,7 @@
 }
 
 .btn-limpiar {
-    height: 32px;
+    height: 30px;
     padding: 0 12px;
     background: transparent;
     border: 1px solid #344650;
@@ -95,4 +118,19 @@
 .btn-limpiar:hover {
     background: #162630;
     color: #d3dde3;
+}
+
+@media (max-width: 700px) {
+    .filtros-fila {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .filtros-acciones {
+        width: 100%;
+    }
+
+    .btn-aplicar,
+    .btn-limpiar {
+        flex: 1;
+    }
 }

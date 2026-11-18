@@ -142,14 +142,11 @@
 }
 
 .mis-justificaciones-editar {
-    justify-content: center;
-}
-
-.mis-justificaciones-editar {
     flex: 0 0 auto;
     min-height: 28px;
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 5px;
     padding: 0 7px;
     border: 1px solid #344650;
@@ -195,5 +192,83 @@
     .mis-justificaciones-acciones-cabecera,
     .mis-justificaciones-boton {
         width: 100%;
+    }
+
+    .mis-justificaciones-tabla-scroll {
+        overflow-x: visible;
+        padding: 12px;
+        box-sizing: border-box;
+    }
+
+    .mis-justificaciones-tabla {
+        min-width: 0;
+        table-layout: auto;
+    }
+
+    .mis-justificaciones-tabla,
+    .mis-justificaciones-tabla tbody,
+    .mis-justificaciones-tabla tr,
+    .mis-justificaciones-tabla td {
+        display: block;
+        width: 100% !important;
+        box-sizing: border-box;
+    }
+
+    .mis-justificaciones-tabla thead {
+        display: none;
+    }
+
+    .mis-justificaciones-tabla tr {
+        margin-bottom: 12px;
+        background: #16242c;
+        border: 1px solid #263740;
+    }
+
+    .mis-justificaciones-tabla tr:last-child {
+        margin-bottom: 0;
+    }
+
+    .mis-justificaciones-tabla td {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 16px;
+        padding: 9px 12px;
+        background: transparent;
+        text-align: right;
+    }
+
+    .mis-justificaciones-tabla td:last-child {
+        border-bottom: none;
+    }
+
+    .mis-justificaciones-tabla td::before {
+        content: attr(data-label);
+        flex: 0 0 auto;
+        color: #9eacb5;
+        font-size: 10px;
+        font-weight: 650;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        text-align: left;
+    }
+
+    .mis-justificaciones-tabla td:first-child {
+        white-space: normal;
+    }
+
+    .mis-justificaciones-acciones-celda {
+        display: block !important;
+        text-align: center !important;
+    }
+
+    .mis-justificaciones-acciones-celda:empty {
+        display: none !important;
+    }
+
+    .mis-justificaciones-editar {
+        width: 100%;
+        min-height: 34px;
+        justify-content: center;
     }
 }
