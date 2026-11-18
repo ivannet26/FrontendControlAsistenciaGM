@@ -20,7 +20,7 @@ const GestionUsuarios = () => {
   const [usuarioEditando, setUsuarioEditando] = useState(null);
   const [cargando, setCargando] = useState(true);
 
-  // ── Filtros ─────────────────────────────────────────────
+  // Filtros
   const [filtroRol, setFiltroRol] = useState("");
   const [busqueda, setBusqueda] = useState("");
 
@@ -33,15 +33,16 @@ const GestionUsuarios = () => {
     activo: true,
   });
 
-  // ── Modal de confirmación ───────────────────────────────
-  const [confirm, setConfirm] = useState({
+  const [confirm, setConfirm] = useState({ abierto: false });
+  const [toast, setToast] = useState({
     abierto: false,
-    titulo: "",
+    tipo: "info",
     mensaje: "",
-    textoConfirmar: "Confirmar",
-    tipo: "danger",
-    onConfirmar: null,
   });
+
+  const mostrarToast = (tipo, mensaje) =>
+    setToast({ abierto: true, tipo, mensaje });
+  const cerrarToast = () => setToast((t) => ({ ...t, abierto: false }));
 
   const abrirConfirm = (config) => {
     setConfirm({
@@ -54,9 +55,8 @@ const GestionUsuarios = () => {
     });
   };
 
-  const cerrarConfirm = () => {
+  const cerrarConfirm = () =>
     setConfirm((c) => ({ ...c, abierto: false, onConfirmar: null }));
-  };
 
   const ejecutarConfirm = async () => {
     const fn = confirm.onConfirmar;
@@ -64,36 +64,18 @@ const GestionUsuarios = () => {
     if (fn) await fn();
   };
 
-  // ── Toast ───────────────────────────────────────────────
-  const [toast, setToast] = useState({
-    abierto: false,
-    tipo: "info",
-    mensaje: "",
-  });
-
-  const mostrarToast = (tipo, mensaje) => {
-    setToast({ abierto: true, tipo, mensaje });
-  };
-
-  const cerrarToast = () => {
-    setToast((t) => ({ ...t, abierto: false }));
-  };
-
-  // ── Cargar usuarios ─────────────────────────────────────
   const cargarUsuarios = async (filtros = {}) => {
     setCargando(true);
     try {
       const data = await getUsuarios(filtros);
       setUsuarios(data);
-    } catch (error) {
-      console.error(error);
-      mostrarToast("error", "Error al cargar usuarios. Verifica tus permisos.");
+    } catch {
+      mostrarToast("error", "Error al cargar usuarios.");
     } finally {
       setCargando(false);
     }
   };
 
-  // ── Debounce para el buscador ───────────────────────────
   useEffect(() => {
     const timer = setTimeout(() => {
       const filtros = {};
@@ -101,11 +83,9 @@ const GestionUsuarios = () => {
       if (busqueda.trim()) filtros.buscar = busqueda.trim();
       cargarUsuarios(filtros);
     }, 350);
-
     return () => clearTimeout(timer);
   }, [filtroRol, busqueda]);
 
-  // ── Helper: recargar con filtros actuales ───────────────
   const recargarConFiltros = () => {
     const filtros = {};
     if (filtroRol) filtros.rol = filtroRol;
@@ -113,7 +93,6 @@ const GestionUsuarios = () => {
     cargarUsuarios(filtros);
   };
 
-  // ── Abrir modal CREAR ───────────────────────────────────
   const abrirCrear = () => {
     setUsuarioEditando(null);
     setFormData({
@@ -127,7 +106,6 @@ const GestionUsuarios = () => {
     setModalAbierto(true);
   };
 
-  // ── Abrir modal EDITAR ──────────────────────────────────
   const abrirEditar = (usuario) => {
     setUsuarioEditando(usuario);
     setFormData({
@@ -141,154 +119,124 @@ const GestionUsuarios = () => {
     setModalAbierto(true);
   };
 
-  // ── Guardar (Crear / Editar) ────────────────────────────
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // ── Validaciones de contraseña ──────────────────────────
-    if (!usuarioEditando) {
-      // CREAR: la contraseña es obligatoria
-      if (!formData.password) {
-        mostrarToast("error", "Debes ingresar una contraseña.");
-        return;
-      }
-      if (formData.password.length < 6) {
-        mostrarToast(
-          "error",
-          "La contraseña debe tener al menos 6 caracteres.",
-        );
-        return;
-      }
-    } else {
-      // EDITAR: solo valida si el admin escribió algo
-      if (formData.password && formData.password.length < 6) {
-        mostrarToast(
-          "error",
-          "La contraseña debe tener al menos 6 caracteres.",
-        );
-        return;
-      }
+    if (
+      !usuarioEditando &&
+      (!formData.password || formData.password.length < 6)
+    ) {
+      mostrarToast("error", "La contraseña debe tener al menos 6 caracteres.");
+      return;
     }
 
     try {
+      const payload = { ...formData };
+      if (usuarioEditando && !payload.password) delete payload.password;
+
       if (usuarioEditando) {
-        const payload = { ...formData };
-        if (!payload.password) delete payload.password;
         await editarUsuario(usuarioEditando.id, payload);
         mostrarToast("success", "Usuario actualizado correctamente.");
       } else {
-        await crearUsuario(formData);
+        await crearUsuario(payload);
         mostrarToast("success", "Usuario creado correctamente.");
       }
       setModalAbierto(false);
       recargarConFiltros();
     } catch (error) {
-      const detalle = Array.isArray(error.response?.data?.detail)
-        ? error.response.data.detail
-            .map((e) => `${e.loc?.join(".")}: ${e.msg}`)
-            .join(" | ")
-        : error.response?.data?.detail;
-      mostrarToast("error", detalle || "Error al guardar el usuario");
+      mostrarToast(
+        "error",
+        error.response?.data?.detail || "Error al guardar el usuario",
+      );
     }
   };
 
-  // ── Activar / Desactivar ────────────────────────────────
   const toggleActivo = (usuario) => {
     const accion = usuario.activo ? "desactivar" : "activar";
     abrirConfirm({
       titulo: `¿${accion.charAt(0).toUpperCase() + accion.slice(1)} usuario?`,
-      mensaje: (
-        <>
-          ¿Estás seguro de <strong>{accion}</strong> a{" "}
-          <strong>
-            {usuario.nombre} {usuario.apellido}
-          </strong>
-          ?
-          {usuario.activo && (
-            <> No podrá iniciar sesión hasta que lo reactives.</>
-          )}
-        </>
-      ),
+      mensaje: `¿Estás seguro de ${accion} a ${usuario.nombre} ${usuario.apellido}?`,
       textoConfirmar: accion.charAt(0).toUpperCase() + accion.slice(1),
       tipo: usuario.activo ? "warning" : "info",
       onConfirmar: async () => {
         try {
-          if (usuario.activo) {
-            await desactivarUsuario(usuario.id);
-            mostrarToast("success", "Usuario desactivado.");
-          } else {
-            await activarUsuario(usuario.id);
-            mostrarToast("success", "Usuario activado.");
-          }
+          if (usuario.activo) await desactivarUsuario(usuario.id);
+          else await activarUsuario(usuario.id);
+          mostrarToast("success", `Usuario ${accion}do exitosamente.`);
           recargarConFiltros();
-        } catch (error) {
-          mostrarToast(
-            "error",
-            error.response?.data?.detail || "Error al cambiar estado",
-          );
+        } catch {
+          mostrarToast("error", "Error al cambiar estado");
         }
       },
     });
   };
 
-  // ── Eliminar usuario desde el modal ─────────────────────
   const handleEliminarDesdeModal = (usuario) => {
     abrirConfirm({
       titulo: "Eliminar cuenta permanentemente",
-      mensaje: (
-        <>
-          Vas a eliminar a{" "}
-          <strong>
-            {usuario.nombre} {usuario.apellido}
-          </strong>
-          <br />
-          <span style={{ color: "#8ea0af", fontSize: "13px" }}>
-            Correo: {usuario.email}
-          </span>
-          <br />
-          <br />
-          Esta acción <strong>NO se puede deshacer</strong>. Si el usuario tiene
-          tareas o registros asociados, el sistema rechazará la operación y
-          deberás desactivarlo en su lugar.
-        </>
-      ),
+      mensaje: `Vas a eliminar a ${usuario.nombre} ${usuario.apellido}. Esta acción no se puede deshacer.`,
       textoConfirmar: "Eliminar",
       tipo: "danger",
       onConfirmar: async () => {
         try {
           await eliminarUsuario(usuario.id);
           setModalAbierto(false);
-          setUsuarioEditando(null);
-          mostrarToast("success", "Usuario eliminado correctamente.");
           recargarConFiltros();
-        } catch (error) {
-          mostrarToast(
-            "error",
-            error.response?.data?.detail || "Error al eliminar el usuario",
-          );
+          mostrarToast("success", "Usuario eliminado.");
+        } catch {
+          mostrarToast("error", "No se pudo eliminar el usuario.");
         }
       },
     });
   };
 
-  // ── Render ──────────────────────────────────────────────
+  // Subcomponentes visuales
+  const BadgeRol = ({ rol }) => <span className="rol-badge">{rol}</span>;
+
+  const BadgeEstado = ({ activo }) => (
+    <span
+      className={`estado-badge ${activo ? "estado-activo" : "estado-inactivo"}`}
+    >
+      <span className="estado-punto" />
+      {activo ? "Activo" : "Inactivo"}
+    </span>
+  );
+
+  const AccionesBotones = ({ u }) => (
+    <div className="acciones-usuario">
+      <button className="btn-editar" onClick={() => abrirEditar(u)}>
+        Editar
+      </button>
+      <button
+        className={u.activo ? "btn-desactivar" : "btn-activar"}
+        onClick={() => toggleActivo(u)}
+      >
+        {u.activo ? "Desactivar" : "Activar"}
+      </button>
+    </div>
+  );
+
   return (
     <div className="usuarios-container">
       <header className="usuarios-header">
         <div>
           <h1>Gestión de usuarios</h1>
           <p className="usuarios-sub">
-            Administración de cuentas, roles y accesos del personal
+            Administración de cuentas, roles y accesos
           </p>
         </div>
-        <button type="button" onClick={abrirCrear} className="btn-crear-usuario">
-          Crear usuario
+        <button
+          type="button"
+          onClick={abrirCrear}
+          className="btn-crear-usuario"
+        >
+          + Crear usuario
         </button>
       </header>
 
+      {/* Filtros */}
       <section className="filtros-usuarios">
         <div className="buscador">
-          <MagnifyingGlass size={15} weight="bold" />
+          <MagnifyingGlass size={16} />
           <input
             type="text"
             placeholder="Buscar por nombre o correo..."
@@ -319,8 +267,8 @@ const GestionUsuarios = () => {
         </button>
       </section>
 
-      {/* TABLA */}
-      <div className="tabla-usuarios-container">
+      {/* VISTA DESKTOP / TABLET: TABLA */}
+      <div className="tabla-usuarios-container desktop-only">
         <Tabla
           rowKey="id"
           data={usuarios}
@@ -337,123 +285,152 @@ const GestionUsuarios = () => {
                 </span>
               ),
             },
-            { key: "email", header: "Email" },
+            {
+              key: "email",
+              header: "Email",
+            },
             {
               key: "rol",
               header: "Rol",
-              align: "center",
-              render: (u) => (
-                <span className={`rol-badge rol-${u.rol}`}>{u.rol}</span>
-              ),
+              render: (u) => <BadgeRol rol={u.rol} />,
             },
             {
               key: "estado",
               header: "Estado",
-              align: "center",
-              render: (u) => (
-                <span
-                  className={`estado-badge ${u.activo ? "estado-activo" : "estado-inactivo"}`}
-                >
-                  <span className="estado-punto"></span>
-                  {u.activo ? "Activo" : "Inactivo"}
-                </span>
-              ),
+              render: (u) => <BadgeEstado activo={u.activo} />,
             },
             {
               key: "acciones",
               header: "Acciones",
-              align: "center",
-              render: (u) => (
-                <div className="acciones-usuario">
-                  <button className="btn-editar" onClick={() => abrirEditar(u)}>
-                    Editar
-                  </button>
-                  <button
-                    className={u.activo ? "btn-desactivar" : "btn-activar"}
-                    onClick={() => toggleActivo(u)}
-                  >
-                    {u.activo ? "Desactivar" : "Activar"}
-                  </button>
-                </div>
-              ),
+              render: (u) => <AccionesBotones u={u} />,
             },
           ]}
         />
       </div>
 
-      {/* MODAL CREAR / EDITAR */}
+      {/* VISTA MÓVIL: CARDS */}
+      <div className="usuarios-cards-container mobile-only">
+        {cargando && (
+          <p
+            style={{
+              color: "var(--text-muted)",
+              textAlign: "center",
+              padding: "16px",
+            }}
+          >
+            Cargando usuarios...
+          </p>
+        )}
+        {!cargando && usuarios.length === 0 && (
+          <p
+            style={{
+              color: "var(--text-muted)",
+              textAlign: "center",
+              padding: "16px",
+            }}
+          >
+            No hay usuarios para estos filtros.
+          </p>
+        )}
+        {!cargando &&
+          usuarios.map((u) => (
+            <article key={u.id} className="usuario-card">
+              <div className="usuario-card-header">
+                <div>
+                  <div className="nombre">
+                    {u.nombre} {u.apellido}
+                  </div>
+                  <div className="email">{u.email}</div>
+                </div>
+                <BadgeEstado activo={u.activo} />
+              </div>
+              <div className="usuario-card-meta">
+                <span>Rol de acceso</span>
+                <BadgeRol rol={u.rol} />
+              </div>
+              <AccionesBotones u={u} />
+            </article>
+          ))}
+      </div>
+
+      {/* MODAL */}
       {modalAbierto && (
         <div className="modal-overlay">
           <div className="modal-usuario">
             <div className="modal-header">
-              <h2>
-                {usuarioEditando ? "Editar Usuario" : "Crear Nuevo Usuario"}
-              </h2>
-              <button onClick={() => setModalAbierto(false)}>×</button>
+              <h2>{usuarioEditando ? "Editar Usuario" : "Nuevo Usuario"}</h2>
+              <button
+                className="btn-cerrar-modal"
+                onClick={() => setModalAbierto(false)}
+              >
+                ×
+              </button>
             </div>
 
             <form onSubmit={handleSubmit}>
               <div className="modal-body">
-                <label>Nombre</label>
-                <input
-                  type="text"
-                  placeholder="Ej. Juan"
-                  required
-                  value={formData.nombre}
-                  onChange={(e) =>
-                    setFormData({ ...formData, nombre: e.target.value })
-                  }
-                />
-
-                <label>Apellido</label>
-                <input
-                  type="text"
-                  placeholder="Ej. Pérez"
-                  required
-                  value={formData.apellido}
-                  onChange={(e) =>
-                    setFormData({ ...formData, apellido: e.target.value })
-                  }
-                />
-
-                <label>Correo electrónico</label>
-                <input
-                  type="email"
-                  placeholder="correo@ejemplo.com"
-                  required
-                  value={formData.email}
-                  onChange={(e) =>
-                    setFormData({ ...formData, email: e.target.value })
-                  }
-                />
+                <label>
+                  Nombre
+                  <input
+                    type="text"
+                    required
+                    value={formData.nombre}
+                    onChange={(e) =>
+                      setFormData({ ...formData, nombre: e.target.value })
+                    }
+                  />
+                </label>
 
                 <label>
-                  {usuarioEditando ? "Nueva contraseña" : "Contraseña"}
+                  Apellido
+                  <input
+                    type="text"
+                    required
+                    value={formData.apellido}
+                    onChange={(e) =>
+                      setFormData({ ...formData, apellido: e.target.value })
+                    }
+                  />
                 </label>
-                <input
-                  type="password"
-                  placeholder={
-                    usuarioEditando
-                      ? "Dejar en blanco para no cambiar"
-                      : "Contraseña inicial"
-                  }
-                  required={!usuarioEditando}
-                  value={formData.password}
-                  onChange={(e) =>
-                    setFormData({ ...formData, password: e.target.value })
-                  }
-                />
 
-                <label>Rol</label>
-                <select
-                  value={formData.rol}
-                  onChange={(e) =>
-                    setFormData({ ...formData, rol: e.target.value })
-                  }
-                >
-                  <option value="PRACTICANTE">Practicante</option>
-                  <option value="ADMINISTRADOR">Administrador</option>
-                </select>
+                <label>
+                  Correo electrónico
+                  <input
+                    type="email"
+                    required
+                    value={formData.email}
+                    onChange={(e) =>
+                      setFormData({ ...formData, email: e.target.value })
+                    }
+                  />
+                </label>
+
+                <label>
+                  {usuarioEditando
+                    ? "Nueva contraseña (opcional)"
+                    : "Contraseña"}
+                  <input
+                    type="password"
+                    required={!usuarioEditando}
+                    value={formData.password}
+                    onChange={(e) =>
+                      setFormData({ ...formData, password: e.target.value })
+                    }
+                  />
+                </label>
+
+                <label>
+                  Rol
+                  <select
+                    value={formData.rol}
+                    onChange={(e) =>
+                      setFormData({ ...formData, rol: e.target.value })
+                    }
+                  >
+                    <option value="PRACTICANTE">Practicante</option>
+                    <option value="ADMINISTRADOR">Administrador</option>
+                  </select>
+                </label>
 
                 {usuarioEditando && (
                   <label className="checkbox-row">
@@ -461,10 +438,7 @@ const GestionUsuarios = () => {
                       type="checkbox"
                       checked={formData.activo}
                       onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          activo: e.target.checked,
-                        })
+                        setFormData({ ...formData, activo: e.target.checked })
                       }
                     />
                     Usuario activo
@@ -479,8 +453,7 @@ const GestionUsuarios = () => {
                     className="btn-eliminar-modal"
                     onClick={() => handleEliminarDesdeModal(usuarioEditando)}
                   >
-                    <Trash2 size={14} />
-                    Eliminar cuenta
+                    <Trash2 size={15} /> Eliminar
                   </button>
                 )}
 
@@ -502,7 +475,6 @@ const GestionUsuarios = () => {
         </div>
       )}
 
-      {/* MODAL DE CONFIRMACIÓN (reemplaza window.confirm) */}
       <ModalConfirm
         abierto={confirm.abierto}
         titulo={confirm.titulo}
@@ -513,7 +485,6 @@ const GestionUsuarios = () => {
         onCancelar={cerrarConfirm}
       />
 
-      {/* TOAST (reemplaza window.alert) */}
       <Toast
         abierto={toast.abierto}
         tipo={toast.tipo}

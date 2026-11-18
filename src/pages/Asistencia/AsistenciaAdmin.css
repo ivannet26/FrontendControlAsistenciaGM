@@ -1,711 +1,327 @@
-/* El ancho compartido garantiza la alineación entre resumen, filtros y tabla. */
+/* ============================================================
+   BASE Y HEADER
+============================================================ */
 .admin-asistencia-container {
-    width: 100%;
-    max-width: none;
-    margin: 0;
-    padding: 24px;
-    box-sizing: border-box;
-    color: #d3dde3;
-}
-
-.admin-asistencia-container > * {
-    width: 100%;
-    box-sizing: border-box;
+  width: 100%;
+  padding: 24px;
+  box-sizing: border-box;
+  color: #d3dde3;
 }
 
 .admin-asistencia-header {
-    margin-bottom: 24px;
+  margin-bottom: 24px;
 }
 
 .admin-asistencia-header h1 {
-    margin: 0;
-    color: #ffffff;
-    font-size: 24px;
-    font-weight: 600;
-    letter-spacing: -0.2px;
+  margin: 0 0 6px;
+  color: #ffffff;
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: -0.2px;
 }
 
 .admin-asistencia-sub {
-    margin: 4px 0 0;
-    color: #8ea0af;
-    font-size: 13px;
-    line-height: 1.5;
-}
-
-.admin-filtros {
-    min-width: 0;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    background: #101b22;
-    border: 1px solid #263740;
-    border-radius: 8px;
-    padding: 10px 14px;
-    margin-bottom: 16px;
-    flex-wrap: wrap;
-    justify-content: flex-start;
-}
-
-.admin-filtro-buscador {
-    width: 260px;
-    flex: 0 0 260px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    height: 36px;
-    padding: 0 10px;
-    background: #16242c;
-    border: 1px solid #263740;
-    border-radius: 6px;
-    color: #8ea0af;
-    transition: border-color 0.15s ease;
-}
-
-.admin-filtro-buscador:focus-within { border-color: #10a5f5; }
-
-.admin-filtro-buscador input {
-    width: 100%;
-    min-width: 0;
-    height: 100%;
-    background: transparent;
-    border: 0;
-    outline: none;
-    color: #d3dde3;
-    font-family: inherit;
-    font-size: 13px;
-}
-
-.admin-filtro-buscador input::placeholder { color: #8ea0af; }
-
-.admin-filtro-fecha {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    height: 36px;
-    padding: 0 10px;
-    background: #16242c;
-    border: 1px solid #263740;
-    border-radius: 6px;
-    color: #8ea0af;
-    transition: border-color 0.15s ease;
-}
-
-.admin-filtro-fecha:focus-within { border-color: #10a5f5; }
-
-.admin-filtro-fecha input {
-    width: 112px;
-    background: transparent;
-    color: #d3dde3;
-    border: 0;
-    outline: none;
-    font-family: inherit;
-    font-size: 13px;
-    cursor: pointer;
-    color-scheme: dark;
-}
-
-.admin-filtros select {
-    height: 36px;
-    padding: 0 12px;
-    background: #16242c;
-    color: #d3dde3;
-    border: 1px solid #263740;
-    border-radius: 6px;
-    font-family: inherit;
-    font-size: 13px;
-    outline: none;
-    cursor: pointer;
-    transition: border-color 0.15s ease;
-}
-
-.admin-filtros select:hover,
-.admin-filtros select:focus { border-color: #10a5f5; }
-
-.admin-filtro-limpiar {
-    margin-left: auto;
-    height: 36px;
-    padding: 0 14px;
-    background: transparent;
-    border: 1px solid #263740;
-    border-radius: 6px;
-    color: #8ea0af;
-    font-family: inherit;
-    font-size: 13px;
-    cursor: pointer;
-    transition: all 0.15s ease;
-}
-
-.admin-filtro-limpiar:hover {
-    border-color: #10a5f5;
-    color: #10a5f5;
-}
-
-.admin-tabla-container {
-    width: 100%;
-    min-width: 0;
-    background: #101b22;
-    border: 1px solid #263740;
-    border-radius: 8px;
-    overflow: hidden;
-}
-
-.admin-tabla-container table {
-    min-width: 1100px;
-    table-layout: fixed;
-}
-
-.admin-tabla-container th.col-centrada { text-align: center; }
-.admin-tabla-container th.col-tiempo-acumulado { text-align: center; }
-.admin-tabla-container th.col-inicio-rastreo,
-.admin-tabla-container th.col-inicio-practicas {
-    text-align: center;
-    white-space: normal;
-    line-height: 1.25;
-}
-
-.admin-tabla-container .col-horario {
-    width: 7%;
-    padding: 0 4px;
-    text-align: center;
-}
-
-.admin-tabla-container td.admin-hora {
-    text-align: center;
-    font-variant-numeric: tabular-nums;
-}
-
-.admin-tabla-container td.admin-tiempo-acumulado {
-    text-align: center;
-    color: #d3dde3;
-    font-variant-numeric: tabular-nums;
-    overflow-wrap: anywhere;
-}
-
-.admin-tabla-container td.col-inicio-rastreo,
-.admin-tabla-container td.col-inicio-practicas {
-    text-align: center;
-    color: #d3dde3;
-    font-variant-numeric: tabular-nums;
-    white-space: nowrap;
-}
-
-/* 13 columnas (sin "Check"). El espacio se concentra en "Comentario Admin"
-   (16%), tomando 1% de las columnas de fechas/tiempo acumulado y 2% de
-   Justificación. La suma de los anchos debe ser exactamente 100%. */
-.admin-tabla-container th:nth-child(1),
-.admin-tabla-container td:nth-child(1) { width: 11%; }
-.admin-tabla-container th:nth-child(2),
-.admin-tabla-container td:nth-child(2) { width: 7%; }
-.admin-tabla-container th:nth-child(3),
-.admin-tabla-container td:nth-child(3) { width: 7%; }
-.admin-tabla-container th:nth-child(4),
-.admin-tabla-container td:nth-child(4) { width: 7%; }
-.admin-tabla-container th:nth-child(5),
-.admin-tabla-container td:nth-child(5) { width: 7%; }
-.admin-tabla-container th:nth-child(6),
-.admin-tabla-container td:nth-child(6) { width: 6%; }
-.admin-tabla-container th:nth-child(7),
-.admin-tabla-container td:nth-child(7) { width: 6%; }
-.admin-tabla-container th:nth-child(8),
-.admin-tabla-container td:nth-child(8) { width: 6%; }
-.admin-tabla-container th:nth-child(9),
-.admin-tabla-container td:nth-child(9) { width: 6%; }
-.admin-tabla-container th:nth-child(10),
-.admin-tabla-container td:nth-child(10) { width: 6%; }
-.admin-tabla-container th:nth-child(11),
-.admin-tabla-container td:nth-child(11) { width: 7%; }
-.admin-tabla-container th:nth-child(12),
-.admin-tabla-container td:nth-child(12) { width: 8%; }
-.admin-tabla-container th:nth-child(13),
-.admin-tabla-container td:nth-child(13) { width: 16%; }
-
-.admin-tabla-container th.col-comentario-admin {
-    width: 16%;
-    min-width: 150px;
-    white-space: normal;
-    line-height: 1.25;
-}
-
-.admin-tabla-container td.col-comentario-admin {
-    width: 16%;
-    min-width: 150px;
-    overflow-wrap: break-word;
-    word-break: break-word;
-    hyphens: auto;
-}
-
-/* El texto del comentario ocupa el ancho completo de su celda y parte
-   en un máximo de dos líneas sin desbordarse. */
-.admin-tabla-container .admin-comentario-texto {
-    display: block;
-    max-width: 100%;
-    white-space: normal;
-    overflow-wrap: break-word;
-    word-break: break-word;
-    line-height: 1.4;
-}
-
-/* Columnas comprimidas: menos padding lateral para que la fecha y el
-   tiempo acumulado quepan sin empujar al resto de la tabla. */
-.admin-tabla-container th:nth-child(3),
-.admin-tabla-container td:nth-child(3),
-.admin-tabla-container th:nth-child(4),
-.admin-tabla-container td:nth-child(4),
-.admin-tabla-container th:nth-child(5),
-.admin-tabla-container td:nth-child(5),
-.admin-tabla-container th:nth-child(11),
-.admin-tabla-container td:nth-child(11) {
-    padding-left: 8px;
-    padding-right: 8px;
-}
-
-.btn-ver-horario {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0;
-    width: 100%;
-    max-width: 110px;
-    padding: 6px 10px;
-    border: 1px solid #344650;
-    background: transparent;
-    color: #b5c4cc;
-    font-family: inherit;
-    font-size: 11px;
-    cursor: pointer;
-    transition: all 0.15s ease;
-    white-space: nowrap;
-}
-
-.btn-ver-horario:hover {
-    border-color: #10a5f5;
-    color: #10a5f5;
-    background: rgba(16, 165, 245, 0.08);
-}
-
-.admin-tabla-container tbody tr.fila-sin-entrada { background: #0d171d; }
-.admin-tabla-container tbody tr.fila-sin-entrada:hover { background: #1d303a; }
-
-.admin-usuario {
-    min-width: 0;
-    display: flex;
-    align-items: center;
-    gap: 7px;
-}
-
-/* ---------- AVATAR DEL USUARIO ---------- */
-
-.admin-avatar {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #16242c;
-    color: #d3dde3;
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-    flex-shrink: 0;
-    border: 1px solid #263740;
-    box-sizing: border-box;
-}
-
-.admin-avatar img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center;
-    display: block;
-    border: none;
-    border-radius: 50%;
-}
-
-.admin-usuario-info {
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-}
-
-.admin-usuario-nombre {
-    overflow: hidden;
-    color: #ffffff;
-    font-size: 11px;
-    font-weight: 500;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-}
-
-.admin-usuario-email {
-    overflow: hidden;
-    color: #8ea0af;
-    font-size: 10px;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-}
-
-/* Chip neutro, como los chips de rol de Equipo. */
-.admin-rol {
-    display: inline-flex;
-    align-items: center;
-    padding: 5px 10px;
-    border: 1px solid rgba(129, 126, 126, 0.4);
-    background: #101b22;
-    color: #f8f9fa;
-    font-size: 12px;
-    line-height: 1.3;
-    white-space: nowrap;
-}
-
-.admin-hora {
-    color: #d3dde3;
-    font-variant-numeric: tabular-nums;
-    white-space: nowrap;
-}
-
-.admin-duracion {
-    color: #10a5f5;
-    font-weight: 600;
-}
-
-/* ---------- ESTADO ---------- */
-
-.admin-estado {
-    display: inline-flex;
-    align-items: center;
-    padding: 4px 9px;
-    border: 1px solid #64748b;
-    background: rgba(100, 116, 139, 0.15);
-    color: #64748b;
-    font-size: 10px;
-    font-weight: 600;
-    letter-spacing: 0.3px;
-    white-space: nowrap;
-}
-
-.estado-trabajando {
-    border-color: #10b981;
-    background: rgba(16, 185, 129, 0.15);
-    color: #10b981;
-}
-
-.estado-en-break {
-    border-color: #f59e0b;
-    background: rgba(245, 158, 11, 0.15);
-    color: #f59e0b;
-}
-
-.estado-finalizado {
-    border-color: #9eacb5;
-    background: rgba(158, 172, 181, 0.15);
-    color: #9eacb5;
-}
-
-.estado-sin-entrada {
-    border-color: #dc2626;
-    background: rgba(220, 38, 38, 0.15);
-    color: #dc2626;
-}
-
-/* ---------- JUSTIFICACIÓN ACEPTADA ---------- */
-
-.btn-ver-justificacion {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    max-width: 100%;
-    padding: 5px 8px;
-    border: 1px solid #344650;
-    background: transparent;
-    color: #b5c4cc;
-    font-family: inherit;
-    font-size: 10.5px;
-    line-height: 1.3;
-    text-align: center;
-    white-space: normal;
-    cursor: pointer;
-    transition: border-color 0.15s ease, color 0.15s ease;
-}
-
-.btn-ver-justificacion:hover {
-    border-color: #b5c4cc;
-    color: #ffffff;
-}
-
-.admin-sin-justificacion {
-    color: #6f8391;
-    font-size: 12px;
-}
-
-.admin-tabla-container th.col-justificacion,
-.admin-tabla-container td.col-justificacion {
-    padding-left: 8px;
-    padding-right: 8px;
-}
-
-@media (max-width: 900px) {
-    .admin-filtros {
-        align-items: stretch;
-    }
-
-    .admin-filtros select,
-    .admin-filtro-fecha,
-    .admin-filtro-buscador,
-    .admin-filtro-limpiar {
-        flex: 1 1 180px;
-        width: auto;
-    }
-
-    .admin-filtro-buscador { min-width: 180px; }
-}
-
-@media (max-width: 600px) {
-    .admin-asistencia-container { padding: 16px 10px; }
-    .admin-asistencia-header h1 { font-size: 24px; }
-
-    .admin-filtros select,
-    .admin-filtro-fecha,
-    .admin-filtro-buscador,
-    .admin-filtro-limpiar {
-        flex: 1 1 100%;
-        width: 100%;
-    }
-
-    .admin-filtro-fecha input { flex: 1; width: 100%; }
-    .admin-filtro-buscador { min-width: 0; }
-
-    .admin-tabla-header {
-        align-items: flex-start;
-        flex-direction: column;
-    }
+  margin: 0;
+  color: #8ea0af;
+  font-size: 13px;
 }
 
 /* ============================================================
-   DROPDOWN CUSTOM (reemplaza select nativo para scroll azul)
-   ============================================================ */
+   BARRA DE FILTROS
+============================================================ */
+.admin-filtros {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #101b22;
+  border: 1px solid #263740;
+  border-radius: 8px;
+  padding: 14px 18px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
 
+.admin-filtro-buscador,
+.admin-filtro-fecha,
+.admin-filtros select,
+.admin-filtro-limpiar {
+  background: #16242c;
+  border: 1px solid #263740;
+  border-radius: 6px;
+  padding: 8px 12px;
+  color: #d3dde3;
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.admin-filtro-buscador {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 1 40px;
+}
+
+.admin-filtro-buscador input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #d3dde3;
+  font-size: 13px;
+  padding: 0;
+}
+
+.admin-filtro-fecha {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.admin-filtro-fecha input {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #d3dde3;
+  font-size: 13px;
+  cursor: pointer;
+  color-scheme: dark;
+  padding: 0;
+}
+
+.admin-filtro-buscador:focus-within,
+.admin-filtro-fecha:focus-within,
+.admin-filtros select:focus {
+  border-color: #10a5f5;
+}
+
+.admin-filtro-limpiar {
+  margin-left: auto;
+  background: transparent;
+  cursor: pointer;
+  padding: 8px 16px;
+}
+
+.admin-filtro-limpiar:hover {
+  border-color: #10a5f5;
+  color: #10a5f5;
+}
+
+/* ============================================================
+   CUSTOM DROPDOWN
+============================================================ */
 .admin-dropdown {
-    position: relative;
-    min-width: 130px;
-    flex: 0 0 auto;
+  position: relative;
+  min-width: 140px;
 }
 
 .admin-dropdown-trigger {
-    width: 100%;
-    height: 34px;
-    padding: 0 10px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-    background: #162630;
-    color: #d3dde3;
-    border: 1px solid #344650;
-    font-family: inherit;
-    font-size: 12px;
-    cursor: pointer;
-    transition: all 0.15s ease;
-    text-align: left;
-    overflow: hidden;
-}
-
-.admin-dropdown-trigger span {
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    flex: 1;
+  width: 100%;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  background: #16242c;
+  color: #d3dde3;
+  border: 1px solid #263740;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
 }
 
 .admin-dropdown-trigger:hover,
 .admin-dropdown-trigger.is-open {
-    border-color: #10a5f5;
-    color: #ffffff;
+  border-color: #10a5f5;
+  color: #ffffff;
 }
 
 .admin-dropdown-lista {
-    position: absolute;
-    top: calc(100% + 4px);
-    left: 0;
-    min-width: 100%;
-    max-width: 260px;
-    max-height: 260px;
-    overflow-y: auto;
-    background: #162630;
-    border: 1px solid #344650;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
-    z-index: 1000;
-    padding: 4px;
-    box-sizing: border-box;
-
-    /* Scroll azul delgado */
-    scrollbar-width: thin;
-    scrollbar-color: #10a5f5 #101b22;
-}
-
-.admin-dropdown-lista::-webkit-scrollbar {
-    width: 6px;
-}
-
-.admin-dropdown-lista::-webkit-scrollbar-track {
-    background: #101b22;
-}
-
-.admin-dropdown-lista::-webkit-scrollbar-thumb {
-    background: #10a5f5;
-    border-radius: 10px;
-}
-
-.admin-dropdown-lista::-webkit-scrollbar-thumb:hover {
-    background: #078ed5;
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  min-width: 100%;
+  max-height: 240px;
+  overflow-y: auto;
+  background: #16242c;
+  border: 1px solid #263740;
+  border-radius: 6px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+  z-index: 1000;
+  padding: 4px;
+  scrollbar-width: thin;
+  scrollbar-color: #10a5f5 #101b22;
 }
 
 .admin-dropdown-item {
-    width: 100%;
-    padding: 8px 10px;
-    background: transparent;
-    border: 0;
-    color: #d3dde3;
-    font-family: inherit;
-    font-size: 12px;
-    text-align: left;
-    cursor: pointer;
-    transition: all 0.15s ease;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: block;
+  width: 100%;
+  padding: 8px 10px;
+  background: transparent;
+  border: none;
+  color: #d3dde3;
+  font-size: 12px;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 4px;
 }
 
 .admin-dropdown-item:hover {
-    background: #1d303a;
-    color: #ffffff;
+  background: #1d303a;
+  color: #ffffff;
 }
 
 .admin-dropdown-item.is-selected {
-    color: #10a5f5;
-    background: rgba(16, 165, 245, 0.1);
+  color: #10a5f5;
+  background: rgba(16, 165, 245, 0.1);
 }
 
-@media (max-width: 900px) {
-    .admin-dropdown {
-        flex: 1 1 180px;
-        min-width: 0;
-    }
+/* ============================================================
+   CONTENIDO DE CELDAS DE TABLA (SOLO ESTILOS INTERNOS)
+============================================================ */
+.admin-usuario {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
-@media (max-width: 600px) {
-    .admin-dropdown {
-        flex: 1 1 100%;
-        width: 100%;
-    }
-}/* ============================================================
-   AJUSTES DE LEGIBILIDAD Y SCROLL DELGADO
-   ============================================================ */
+.admin-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #16242c;
+  border: 1px solid #263740;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 12px;
+  flex-shrink: 0;
+}
 
-/* Nombre y email del usuario más grandes */
+.admin-avatar img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.admin-usuario-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
 .admin-usuario-nombre {
-    font-size: 13px;
-    font-weight: 500;
-    line-height: 1.3;
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 13px;
 }
 
 .admin-usuario-email {
-    font-size: 11.5px;
-    line-height: 1.3;
-    margin-top: 1px;
+  color: #8ea0af;
+  font-size: 11px;
 }
 
-/* Avatar un poco más grande */
-.admin-avatar {
-    width: 38px;
-    height: 38px;
-    font-size: 13px;
-}
-
-/* Rol y estado más legibles */
 .admin-rol,
 .admin-estado {
-    padding: 6px 12px;
-    font-size: 11px;
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
 }
 
-.admin-hora {
-    font-size: 13px;
+.admin-rol {
+  background: #16242c;
+  border: 1px solid #263740;
+  color: #d3dde3;
+}
+
+.estado-trabajando {
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid #10b981;
+  color: #10b981;
+}
+.estado-en-break {
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid #f59e0b;
+  color: #f59e0b;
+}
+.estado-finalizado {
+  background: rgba(158, 172, 181, 0.15);
+  border: 1px solid #9eacb5;
+  color: #9eacb5;
+}
+.estado-sin-entrada {
+  background: rgba(220, 38, 38, 0.15);
+  border: 1px solid #dc2626;
+  color: #dc2626;
+}
+
+.btn-ver-horario {
+  padding: 6px 12px;
+  background: transparent;
+  border: 1px solid #263740;
+  border-radius: 4px;
+  color: #d3dde3;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.btn-ver-horario:hover {
+  border-color: #10a5f5;
+  color: #10a5f5;
+}
+
+.btn-ver-justificacion {
+  padding: 4px 8px;
+  border: 1px solid #344650;
+  border-radius: 4px;
+  background: transparent;
+  color: #b5c4cc;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.btn-ver-justificacion:hover {
+  border-color: #10a5f5;
+  color: #fff;
+}
+
+.admin-sin-justificacion {
+  color: #6f8391;
+  font-size: 12px;
 }
 
 .admin-duracion {
-    font-size: 13px;
+  color: #10a5f5;
+  font-weight: 600;
 }
 
-/* Header de la tabla más alto */
-.admin-tabla-header {
-    padding: 16px 20px;
-    font-size: 13px;
-}
+/* ============================================================
+   RESPONSIVE
+============================================================ */
+@media (max-width: 650px) {
+  .admin-asistencia-container {
+    padding: 16px;
+  }
 
-/* Scroll del dropdown MÁS DELGADO */
-.admin-dropdown-lista::-webkit-scrollbar {
-    width: 4px;
-}
+  .admin-filtros {
+    padding: 14px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
 
-.admin-dropdown-lista::-webkit-scrollbar-track {
-    background: #101b22;
-}
-
-.admin-dropdown-lista::-webkit-scrollbar-thumb {
-    background: #10a5f5;
-    border-radius: 10px;
-}
-
-.admin-dropdown-lista::-webkit-scrollbar-thumb:hover {
-    background: #078ed5;
-}
-
-/* Firefox - scroll delgado */
-.admin-dropdown-lista {
-    scrollbar-width: thin;
-    scrollbar-color: #10a5f5 #101b22;
-}
-
-/* Ajuste del dropdown para mejor legibilidad */
-.admin-dropdown-item {
-    padding: 10px 12px;
-    font-size: 13px;
-}
-
-.admin-dropdown-trigger {
-    height: 38px;
-    font-size: 13px;
-    padding: 0 12px;
-}
-
-/* Filtros un poco más altos también */
-.admin-filtros select,
-.admin-filtro-fecha,
-.admin-filtro-buscador,
-.admin-filtro-limpiar {
-    height: 38px;
-    font-size: 13px;
-}
-
-.admin-filtro-fecha input {
-    font-size: 13px;
-}
-
-.admin-filtro-buscador input {
-    font-size: 13px;
-}
-
-/* Responsive: mantiene proporciones en móvil */
-@media (max-width: 900px) {
-    .admin-usuario-nombre {
-        font-size: 12px;
-    }
-    
-    .admin-usuario-email {
-        font-size: 11px;
-    }
+  .admin-filtro-buscador,
+  .admin-filtro-fecha,
+  .admin-dropdown,
+  .admin-filtro-limpiar {
+    width: 100%;
+    margin-left: 0;
+    box-sizing: border-box;
+  }
 }

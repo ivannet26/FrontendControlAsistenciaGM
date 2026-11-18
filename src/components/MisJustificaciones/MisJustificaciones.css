@@ -165,6 +165,67 @@
     color: #10a5f5;
 }
 
+/* ============================================================
+   RESPONSIVE — MÓVIL: cards (<= 600px)
+============================================================ */
+@media (max-width: 600px) {
+  .mis-justificaciones {
+    background: transparent;
+    border: none;
+  }
+
+  .mis-justificaciones-tabla thead {
+    display: none;
+  }
+
+  .mis-justificaciones-tabla,
+  .mis-justificaciones-tabla tbody {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    background: transparent;
+  }
+
+  .mis-justificaciones-tabla tr {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 14px;
+    margin-bottom: 12px;
+    background: #16242c;
+    border: 1px solid #263740;
+    border-radius: 8px;
+  }
+
+  .mis-justificaciones-tabla tr:last-child {
+    margin-bottom: 0;
+  }
+
+  .mis-justificaciones-tabla td {
+    display: block;
+    width: 100%;
+    padding: 0;
+    border: none;
+    text-align: left;
+    background: transparent;
+  }
+
+  .mis-justificaciones-tabla td:nth-child(5) {
+    display: none;
+  }
+
+  .mis-justificaciones-tabla td:nth-child(1) { order: 1; font-size: 12px; color: #8ea0af; }
+  .mis-justificaciones-tabla td:nth-child(4) { order: 2; }
+  .mis-justificaciones-tabla td:nth-child(2) { order: 3; }
+  .mis-justificaciones-tabla td:nth-child(3) { order: 4; }
+  .mis-justificaciones-tabla td:nth-child(6) { order: 5; margin-top: 4px; }
+
+  .mis-justificaciones-editar {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+}
+
 .mis-justificaciones-boton:focus-visible,
 .mis-justificaciones-editar:focus-visible {
     outline: 2px solid #10a5f5;

@@ -1,565 +1,387 @@
-/* =========================
-   CONTENEDOR PRINCIPAL
-========================= */
+/* ============================================================
+   CONTENEDOR Y HEADER
+============================================================ */
 .asistencia-container {
-    width: 100%;
-    max-width: 1720px;
-    margin: 0;
-    padding: 16px 20px 28px 8px;
-    box-sizing: border-box;
-    display: block;
-    align-items: start;
-    color: #d3dde3;
+  width: 100%;
+  padding: 24px;
+  box-sizing: border-box;
+  color: #d3dde3;
 }
 
 .asistencia-contenido {
-    min-width: 0;
+  min-width: 0;
 }
 
 .asistencia-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    margin-bottom: 16px;
-}
-
-.asistencia-tabs {
-    display: flex;
-    margin-top: 0;
-    margin-bottom: 16px;
-}
-
-.asistencia-tabs button {
-    min-height: 46px;
-    padding: 0 25px;
-    border: 1px solid #263740;
-    border-bottom: none;
-    background: #101b22;
-    color: #aebcc5;
-    font-size: 13px;
-    cursor: pointer;
-}
-
-.asistencia-tabs button.activo {
-    background: #162630;
-    color: #fff;
-}
-
-.asistencia-tab-justificaciones {
-    width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
 }
 
 .asistencia-eyebrow {
-    margin: 0 0 5px;
-    color: #10a5f5;
-    font-size: 11px;
-    letter-spacing: 1px;
-    font-weight: 650;
-    text-transform: uppercase;
+  margin: 0 0 4px;
+  color: #10a5f5;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  font-weight: 700;
+  text-transform: uppercase;
 }
 
 .asistencia-header h1 {
-    margin: 0;
-    color: #ffffff;
-    font-size: 26px;
-    font-weight: 450;
-    letter-spacing: 0.3px;
+  margin: 0;
+  color: #ffffff;
+  font-size: 24px;
+  font-weight: 600;
 }
 
 .asistencia-fecha {
-    margin: 6px 0 0;
-    color: #8ea0af;
-    font-size: 13px;
+  margin: 4px 0 0;
+  color: #8ea0af;
+  font-size: 13px;
 }
 
+/* Tabs */
+.asistencia-tabs {
+  display: flex;
+  margin-bottom: 16px;
+}
 
-/* =========================
-   LAYOUT 2 COLUMNAS
-========================= */
+.asistencia-tabs button {
+  padding: 10px 24px;
+  border: 1px solid #263740;
+  border-bottom: none;
+  background: #101b22;
+  color: #8ea0af;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.asistencia-tabs button.activo {
+  background: #16242c;
+  color: #ffffff;
+  border-top: 2px solid #10a5f5;
+}
+
+/* ============================================================
+   LAYOUT 2 COLUMNAS (DESKTOP)
+============================================================ */
 .asistencia-layout {
-    display: grid;
-    grid-template-columns: minmax(0, 55fr) minmax(360px, 45fr);
-    align-items: start;
-    gap: 16px;
-    overflow: visible;
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(340px, 0.8fr);
+  align-items: start;
+  gap: 16px;
 }
 
 .asistencia-columna-izquierda {
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
 }
 
 .asistencia-columna-progreso {
-    min-width: 0;
-    min-height: 100%;
-    height: auto;
-    overflow: visible;
+  min-width: 0;
 }
 
-.asistencia-columna-progreso > .progreso-horas {
-    min-height: 620px;
-    height: auto;
-    overflow: visible;
-}
-
-
-/* =========================
+/* ============================================================
    RELOJ
-========================= */
+============================================================ */
 .asistencia-reloj {
-    padding: 20px;
-    text-align: center;
-    background: #101b22;
-    border: 1px solid #263740;
+  padding: 24px 20px;
+  text-align: center;
+  background: #101b22;
+  border: 1px solid #263740;
+  border-radius: 8px;
 }
 
 .asistencia-reloj-label {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  color: #8ea0af;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
 }
 
-.asistencia-reloj-label svg { color: #10a5f5; }
-
-.asistencia-reloj-label span {
-    color: #9eacb5;
-    font-size: 10px;
-    letter-spacing: 0.7px;
-    font-weight: 600;
+.asistencia-reloj-label svg {
+  color: #10a5f5;
 }
 
 .asistencia-reloj > strong {
-    color: #ffffff;
-    font-size: 32px;
-    line-height: 1.15;
-    font-weight: 600;
-    font-variant-numeric: tabular-nums;
-    letter-spacing: 0.5px;
+  color: #ffffff;
+  font-size: 34px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.5px;
 }
 
 .asistencia-falta-justificada {
-    margin-top: 12px;
-    padding: 12px;
-    border: 1px solid #2f8f6f;
-    background: #12372d;
-    color: #ffffff;
-}
-
-.asistencia-falta-justificada strong,
-.asistencia-falta-justificada span {
-    display: block;
-}
-
-.asistencia-falta-justificada span {
-    margin-top: 4px;
-    color: #b9d8cf;
-    font-size: 12px;
+  margin-top: 14px;
+  padding: 12px;
+  border: 1px solid #2f8f6f;
+  border-radius: 6px;
+  background: rgba(18, 55, 45, 0.6);
+  color: #ffffff;
+  font-size: 12px;
 }
 
 .asistencia-solo-lectura {
-    margin: -4px 0 0;
-    color: #8ea0af;
-    font-size: 10px;
+  margin-top: 4px;
+  color: #8ea0af;
+  font-size: 11px;
 }
 
-
-/* =========================
-   BOTONES DE ACCIÓN (paleta quemada)
-========================= */
+/* ============================================================
+   BOTONES DE ACCIÓN (ENTRADA, BREAK, SALIDA)
+============================================================ */
 .asistencia-acciones {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 8px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
 }
 
 .asistencia-accion {
-    min-width: 0;
-    min-height: 74px;
-    padding: 16px;
-    border: 1px solid;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    text-align: left;
-    font-family: inherit;
-    cursor: pointer;
-    transition: all 0.15s ease;
+  padding: 16px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-align: left;
+  cursor: pointer;
+  transition: filter 0.15s ease;
 }
 
-.asistencia-accion > svg { flex: 0 0 22px; }
+.asistencia-accion:not(:disabled):hover {
+  filter: brightness(1.15);
+}
 
 .asistencia-accion-entrada {
-    border-color: #0d7a5f;
-    background: #0d7a5f;
-    color: #ffffff;
+  background: #0d7a5f;
+  color: #fff;
 }
-
 .asistencia-accion-descanso {
-    border-color: #b45309;
-    background: #b45309;
-    color: #ffffff;
+  background: #b45309;
+  color: #fff;
 }
-
 .asistencia-accion-salida {
-    border-color: #991b1b;
-    background: #991b1b;
-    color: #ffffff;
+  background: #991b1b;
+  color: #fff;
 }
-
-.asistencia-accion:not(:disabled):hover { filter: brightness(1.15); }
 
 .asistencia-accion-texto {
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .asistencia-accion-titulo {
-    color: #ffffff;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
 }
 
 .asistencia-accion-sub {
-    color: #ffffff;
-    font-size: 10px;
-    opacity: 0.75;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 11px;
 }
 
 .asistencia-accion:disabled {
-    border-color: #263740;
-    background: #16242c;
-    color: #4a5c66;
-    cursor: not-allowed;
-    opacity: 0.7;
-    filter: none;
+  background: #16242c;
+  border-color: #263740;
+  color: #4a5c66;
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
 .asistencia-accion:disabled .asistencia-accion-titulo,
-.asistencia-accion:disabled .asistencia-accion-sub { color: #4a5c66; }
+.asistencia-accion:disabled .asistencia-accion-sub {
+  color: #4a5c66;
+}
 
-
-/* =========================
-   PANEL DE REGISTROS
-========================= */
+/* ============================================================
+   HEADER DEL CONTENEDOR DE ASISTENCIAS
+============================================================ */
 .asistencia-registros {
-    min-width: 0;
-    overflow: hidden;
-    background: #101b22;
-    border: 1px solid #263740;
+  border: 1px solid #263740;
+  border-radius: 8px;
+  overflow: hidden;
 }
 
-.asistencia-error-carga {
-    padding: 10px 14px;
-    border-bottom: 1px solid #dc2626;
-    background: rgba(220, 38, 38, 0.15);
-    color: #dc2626;
-    font-size: 12px;
-}
-
-.asistencia-aviso-historico {
-    min-height: 34px;
-    padding: 6px 10px;
-    box-sizing: border-box;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    border-bottom: 1px solid #273943;
-    background: #111d24;
-    color: #8ea0af;
-    font-size: 11px;
-}
-
-.asistencia-aviso-historico button {
-    padding: 2px 0;
-    border: 0;
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    background: transparent;
-    color: #10a5f5;
-    font: inherit;
-    cursor: pointer;
-    transition: all 0.15s ease;
-}
-
-.asistencia-aviso-historico button:hover {
-    color: #10a5f5;
-    text-decoration: underline;
-}
-
-
-/* =========================
-   HEADER DE LA SECCIÓN
-========================= */
 .asistencia-seccion-header {
-    min-height: 48px;
-    padding: 8px 14px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    border-bottom: 1px solid #263740;
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #263740;
+  background: #101b22;
 }
 
 .asistencia-seccion-header h2 {
-    margin: 0;
-    color: #ffffff;
-    font-size: 14px;
-    font-weight: 700;
+  margin: 0;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
 }
 
 .asistencia-seccion-header-derecha {
-    display: flex;
-    align-items: center;
-    gap: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-
-/* =========================
-   BADGES DE ESTADO
-========================= */
-.asistencia-estado {
-    display: inline-flex;
-    align-items: center;
-    padding: 4px 10px;
-    border: 1px solid #64748b;
-    background: rgba(100, 116, 139, 0.15);
-    color: #64748b;
-    font-size: 11px;
-    font-weight: 600;
-    text-transform: uppercase;
-    white-space: nowrap;
+.asistencia-aviso-historico {
+  padding: 8px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #263740;
+  background: #16242c;
+  color: #8ea0af;
+  font-size: 11px;
 }
 
-.estado-trabajando { border-color: #10b981; background: rgba(16, 185, 129, 0.15); color: #10b981; }
-.estado-en-break { border-color: #f59e0b; background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
-.estado-finalizado { border-color: #9eacb5; background: rgba(158, 172, 181, 0.15); color: #9eacb5; }
-.estado-sin-entrada { border-color: #64748b; background: rgba(100, 116, 139, 0.15); color: #64748b; }
+.asistencia-aviso-historico button {
+  background: transparent;
+  border: none;
+  color: #10a5f5;
+  cursor: pointer;
+}
 
+.asistencia-error-carga {
+  padding: 10px 14px;
+  background: rgba(220, 38, 38, 0.15);
+  border-bottom: 1px solid #dc2626;
+  color: #ef4444;
+  font-size: 12px;
+}
 
-/* =========================
-   SELECTOR DE FECHA (calendario nativo)
-========================= */
+/* Selector fecha nativo */
 .asistencia-selector-fecha {
-    position: relative;
-    display: inline-flex;
+  position: relative;
 }
 
 .asistencia-ver-dias {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 30px;
-    height: 28px;
-    padding: 0;
-    background: transparent;
-    border: 1px solid #344650;
-    color: #b5c4cc;
-    cursor: pointer;
-    transition: all 0.15s ease;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid #263740;
+  border-radius: 4px;
+  color: #8ea0af;
+  cursor: pointer;
 }
 
-.asistencia-ver-dias:hover,
-.asistencia-ver-dias:focus-visible {
-    border-color: #10a5f5;
-    color: #10a5f5;
-    outline: none;
+.asistencia-ver-dias:hover {
+  border-color: #10a5f5;
+  color: #10a5f5;
 }
 
-/* Input nativo invisible — solo sirve para abrir el calendario */
 .asistencia-input-fecha-oculto {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    border: 0;
-    opacity: 0;
-    pointer-events: none;
-    color-scheme: dark;
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
 }
 
-
-/* =========================
-   TABLA
-========================= */
-.asistencia-tabla-scroll {
-    width: 100%;
-    overflow-x: auto;
+/* Badges Estado */
+.asistencia-estado {
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
 }
 
-.asistencia-registros table {
-    width: 100%;
-    border-collapse: collapse;
-    text-align: left;
+.estado-trabajando {
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid #10b981;
+  color: #10b981;
 }
-
-.asistencia-registros th {
-    padding: 12px 20px;
-    background: #16242c;
-    border-bottom: 1px solid #263740;
-    color: #9eacb5;
-    font-size: 11px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.4px;
-    white-space: nowrap;
+.estado-en-break {
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid #f59e0b;
+  color: #f59e0b;
 }
-
-.asistencia-registros td {
-    padding: 16px 20px;
-    border-top: 1px solid #263740;
-    color: #d3dde3;
-    font-size: 14px;
-    font-variant-numeric: tabular-nums;
-    white-space: nowrap;
+.estado-finalizado {
+  background: rgba(158, 172, 181, 0.15);
+  border: 1px solid #9eacb5;
+  color: #9eacb5;
 }
-
-.asistencia-registros tbody tr { transition: all 0.15s ease; }
-.asistencia-registros tbody tr:hover { background: #1d303a; }
+.estado-sin-entrada {
+  background: rgba(100, 116, 139, 0.15);
+  border: 1px solid #64748b;
+  color: #8ea0af;
+}
 
 .asistencia-hora {
-    color: #ffffff;
+  color: #ffffff;
 }
-
 .asistencia-duracion {
-    color: #10a5f5 !important;
-    font-weight: 600;
+  color: #10a5f5;
+  font-weight: 600;
 }
 
-
-/* =========================
-   ESTADO VACÍO
-========================= */
-.asistencia-vacio {
-    height: 220px;
-    padding: 24px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    color: #4a5c66;
-    text-align: center;
-}
-
-.asistencia-vacio svg {
-    margin-bottom: 12px;
-    color: #4a5c66;
-}
-
-.asistencia-vacio span {
-    font-size: 13px;
-}
-
-
-/* =========================
-   RESPONSIVE
-========================= */
-@media (max-width: 1500px) {
-    .asistencia-container {
-        grid-template-columns: minmax(0, 1fr) minmax(280px, 340px);
-        gap: 20px;
-    }
-}
-
-@media (max-width: 1400px) {
-    .asistencia-layout { grid-template-columns: 1fr; }
-    .asistencia-registros { grid-row: 2; }
-    .asistencia-columna-progreso { min-height: auto; }
-    .asistencia-columna-progreso > .progreso-horas { min-height: 560px; }
-}
-
-@media (max-width: 980px) {
-    .asistencia-container {
-        grid-template-columns: 1fr;
-        gap: 24px;
-    }
-
-    .asistencia-progreso {
-        position: static;
-    }
-}
-
-@media (max-width: 600px) {
-    .asistencia-container { padding: 14px 10px; }
-    .asistencia-header { align-items: flex-start; }
-    .asistencia-header h1 { font-size: 23px; }
-    .asistencia-reloj > strong { font-size: 29px; }
-    .asistencia-accion { padding: 12px 9px; gap: 8px; }
-    .asistencia-accion > svg { flex-basis: 20px; width: 20px; }
-    .asistencia-accion-titulo { font-size: 10px; }
-    .asistencia-accion-sub { font-size: 9px; }
-    .asistencia-registros th,
-    .asistencia-registros td { padding-right: 12px; padding-left: 12px; font-size: 12px; }
-}
-
-/* =========================
-   CONFIRMACIÓN DE FICHAJE
-========================= */
+/* Confirmación modal alerta */
 .asistencia-alerta-overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 10000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    background: rgba(0, 0, 0, 0.6);
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 10000;
 }
 
 .asistencia-alerta-caja {
-    width: min(100%, 460px);
-    padding: 40px 60px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    background: #101b22;
-    border: 1px solid #263740;
-    text-align: center;
-    animation: asistencia-alerta-entrada 0.3s ease both;
+  background: #101b22;
+  border: 1px solid #263740;
+  border-radius: 8px;
+  padding: 30px;
+  text-align: center;
+  max-width: 400px;
+  width: 100%;
 }
 
 .asistencia-alerta-icono {
-    margin-bottom: 16px;
-    color: #10b981;
-    animation: asistencia-alerta-icono-entrada 0.45s ease-out both;
+  color: #10b981;
+  margin-bottom: 12px;
 }
-
 .asistencia-alerta-titulo {
-    margin: 0;
-    color: #ffffff;
-    font-size: 18px;
-    font-weight: 600;
+  color: #fff;
+  margin: 0 0 6px;
+  font-size: 18px;
 }
-
 .asistencia-alerta-subtitulo {
-    margin: 8px 0 0;
-    color: #8ea0af;
-    font-size: 14px;
+  color: #8ea0af;
+  font-size: 13px;
+  margin: 0;
 }
 
-@keyframes asistencia-alerta-entrada {
-    from { opacity: 0; transform: scale(0.9); }
-    to { opacity: 1; transform: scale(1); }
+/* ============================================================
+   RESPONSIVE
+============================================================ */
+@media (max-width: 1024px) {
+  .asistencia-layout {
+    grid-template-columns: 1fr;
+  }
 }
 
-@keyframes asistencia-alerta-icono-entrada {
-    0% { opacity: 0; transform: scale(0.7); }
-    65% { opacity: 1; transform: scale(1.12); }
-    100% { transform: scale(1); }
-}
+@media (max-width: 650px) {
+  .asistencia-container {
+    padding: 14px;
+  }
 
-@media (max-width: 600px) {
-    .asistencia-alerta-caja { padding: 32px 24px; }
+  .asistencia-acciones {
+    grid-template-columns: 1fr;
+  }
 }
