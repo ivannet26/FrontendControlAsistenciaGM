@@ -67,8 +67,8 @@
 .catalogo-boton { cursor: pointer; touch-action: manipulation; }
 .catalogo-boton:hover:not(:disabled) { background: #263840; }
 .catalogo-boton:disabled { opacity: .56; cursor: default; }
-.catalogo-boton.catalogo-primario { background: #10a5f5; border-color: #10a5f5; color: #0f1a20; font-weight: 600; }
-.catalogo-boton.catalogo-primario:hover:not(:disabled) { background: #42b7fa; }
+.catalogo-boton.catalogo-primario { background: #0875b5; border-color: #0875b5; border-radius: 0; color: #fff; font-weight: 600; }
+.catalogo-boton.catalogo-primario:hover:not(:disabled) { background: #087cba; }
 .catalogo-boton.catalogo-destructivo { background: #a83e48; border-color: #cb616b; color: #fff; font-weight: 600; }
 .catalogo-boton.catalogo-destructivo:hover:not(:disabled) { background: #8d303b; }
 
