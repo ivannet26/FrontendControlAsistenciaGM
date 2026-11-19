@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { resolver as resolverJustificacion } from "../../services/justificacionesService";
 import { useJustificaciones } from "../../hooks/useJustificaciones";
@@ -60,20 +61,27 @@ const obtenerMensajeError = (error, predeterminado) => {
 };
 
 export const useJustificacionesPage = () => {
+  const queryClient = useQueryClient();
   const [usuarioFiltro, setUsuarioFiltro] = useState("");
   const [estadoFiltro, setEstadoFiltro] = useState("PENDIENTE");
   const [fechaFiltro, setFechaFiltro] = useState("");
   const [busqueda, setBusqueda] = useState("");
   const [pagina, setPagina] = useState(1);
   const [confirmacion, setConfirmacion] = useState(null);
-  const [resolviendo, setResolviendo] = useState(false);
   const [imagenAmpliada, setImagenAmpliada] = useState(null);
   const [tabActiva, setTabActiva] = useState("PENDIENTES");
   const vistaHistorial = tabActiva === "HISTORIAL";
 
-  const { justificaciones, cargando, error, recargar } = useJustificaciones({
+  const { justificaciones, cargando, error } = useJustificaciones({
     fuente: "todas",
   });
+  const resolverMutation = useMutation({
+    mutationFn: ({ id, estado, comentario }) =>
+      resolverJustificacion(id, estado, comentario),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ["justificaciones"] }),
+  });
+  const resolviendo = resolverMutation.isPending;
   const listaCompleta = useMemo(
     () => (Array.isArray(justificaciones) ? justificaciones : []),
     [justificaciones],
@@ -189,26 +197,22 @@ export const useJustificacionesPage = () => {
 
   const confirmarResolucion = async (comentarioAdmin) => {
     if (!confirmacion || resolviendo) return;
-    setResolviendo(true);
     try {
-      await resolverJustificacion(
-        confirmacion.id,
-        confirmacion.estado,
-        comentarioAdmin,
-      );
+      await resolverMutation.mutateAsync({
+        id: confirmacion.id,
+        estado: confirmacion.estado,
+        comentario: comentarioAdmin,
+      });
       toast.success(
         confirmacion.estado === "ACEPTADA"
           ? "Justificación aceptada."
           : "Justificación rechazada.",
       );
       setConfirmacion(null);
-      await recargar({ silencioso: true });
     } catch (e) {
       toast.error(
         obtenerMensajeError(e, "No se pudo actualizar la justificación."),
       );
-    } finally {
-      setResolviendo(false);
     }
   };
 

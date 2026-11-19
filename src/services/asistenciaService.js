@@ -22,10 +22,6 @@ const ENDPOINTS_ACCION = {
     SALIDA: "/salida",
 };
 
-let resumenHorasCache = null;
-let resumenHorasExpira = 0;
-let resumenHorasEnCurso = null;
-
 export function obtenerFechaLocal() {
     const ahora = new Date();
     const año = ahora.getFullYear();
@@ -40,31 +36,8 @@ export async function obtenerRegistrosHoy() {
 }
 
 export async function obtenerResumenHoras() {
-    const ahora = Date.now();
-    if (resumenHorasCache && ahora < resumenHorasExpira) {
-        return resumenHorasCache;
-    }
-    if (resumenHorasEnCurso) {
-        return resumenHorasEnCurso;
-    }
-
-    resumenHorasEnCurso = axios.get(`${API_URL}/resumen-horas`, getConfig())
-        .then((response) => {
-            resumenHorasCache = response.data;
-            resumenHorasExpira = Date.now() + 30000;
-            return response.data;
-        })
-        .finally(() => {
-            resumenHorasEnCurso = null;
-        });
-
-    return resumenHorasEnCurso;
-}
-
-export function invalidarResumenHoras() {
-    resumenHorasCache = null;
-    resumenHorasExpira = 0;
-    resumenHorasEnCurso = null;
+    const response = await axios.get(`${API_URL}/resumen-horas`, getConfig());
+    return response.data;
 }
 
 export async function obtenerRegistrosPorFecha(fecha) {
@@ -82,7 +55,6 @@ export async function registrarEvento(tipo) {
     }
 
     const response = await axios.post(`${API_URL}${endpoint}`, {}, getConfig());
-    invalidarResumenHoras();
     return response.data;
 }
 

@@ -4,6 +4,7 @@ import Tabla from "../../components/Tabla/Tabla";
 import Button from "../../components/ui/Button";
 import Input from "../../components/ui/Input";
 import Select from "../../components/ui/Select";
+import Paginacion from "../../components/ui/Paginacion";
 import ModalVerHorarioAdmin from "../../components/ModalVerHorarioAdmin/ModalVerHorarioAdmin";
 import ModalVerJustificacion from "../../components/ModalVerJustificacion/ModalVerJustificacion";
 import { useAsistenciaAdmin } from "./useAsistenciaAdmin";
@@ -95,16 +96,16 @@ const AsistenciaAdmin = () => {
       </section>
 
       <section className="hidden border border-gm-800 bg-gm-950 md:block">
-        <Tabla rowKey="id" data={c.filasFiltradas} loading={c.cargandoInicial} loadingText="Cargando registros..." emptyText="No hay usuarios con esos filtros." columns={columnas} />
+        <Tabla rowKey="id" data={c.filasPagina} loading={c.cargandoInicial} loadingText="Cargando registros..." emptyText="No hay usuarios con esos filtros." columns={columnas} />
       </section>
 
       <section className="flex flex-col gap-3 md:hidden" aria-label="Control de asistencia">
         {c.cargandoInicial ? (
           <p className="m-0 border border-gm-800 bg-gm-950 p-8 text-center text-sm text-gm-500">Cargando registros...</p>
-        ) : c.filasFiltradas.length === 0 ? (
+        ) : c.filasPagina.length === 0 ? (
           <p className="m-0 border border-gm-800 bg-gm-950 p-8 text-center text-sm text-gm-500">No hay usuarios con esos filtros.</p>
         ) : (
-          c.filasFiltradas.map((f) => {
+          c.filasPagina.map((f) => {
             const j = c.buscarJustificacion(f);
             const tieneJustificacion = ["PENDIENTE", "ACEPTADA"].includes(j?.estado);
             return (
@@ -136,6 +137,13 @@ const AsistenciaAdmin = () => {
           })
         )}
       </section>
+
+      <Paginacion
+        pagina={c.paginaActual}
+        totalPaginas={c.totalPaginas}
+        onChange={c.setPagina}
+        label="Paginación de asistencia"
+      />
 
       {c.modalHorario.abierto && (
         <ModalVerHorarioAdmin abierto={c.modalHorario.abierto} usuarioNombre={c.modalHorario.nombre} imagenUrl={c.modalHorario.imagenUrl} cargando={c.modalHorario.cargando} onCerrar={c.cerrarHorario} />

@@ -3,7 +3,6 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import logoGM from "../../assets/logo-mg.png";
 import { useNavigate } from "react-router-dom";
-import { register } from "../../services/authService";
 
 function Register() {
     const [nombre, setNombre] = useState("");
@@ -14,87 +13,10 @@ function Register() {
     const [error, setError] = useState("");
     const navigate = useNavigate();
 
+    // Registration is now admin-only; normal users cannot create accounts
     const handleSubmit = async (e) => {
-
         e.preventDefault();
-
-
-        if (
-            !nombre ||
-            !apellido ||
-            !correo ||
-            !password ||
-            !confirmPassword
-        ) {
-
-            setError("Complete todos los campos.");
-
-            return;
-
-        }
-
-
-        if (password !== confirmPassword) {
-
-            setError("Las contraseñas no coinciden.");
-
-            return;
-
-        }
-
-
-        if (password.length < 6) {
-
-            setError("La contraseña debe tener mínimo 6 caracteres.");
-
-            return;
-
-        }
-
-
-        const nuevoUsuario = {
-
-            nombre,
-
-            apellido,
-
-            email: correo,
-
-            password
-
-        };
-
-
-        try {
-
-
-            const respuesta = await register(nuevoUsuario);
-
-
-            console.log(
-                "Usuario registrado:",
-                respuesta
-            );
-
-
-            setError("");
-
-
-            toast.success("Registro correcto");
-
-
-            navigate("/login");
-
-
-        } catch(error) {
-
-
-            setError(error.message);
-
-
-        }
-
-
+        setError("El registro es exclusivo para el administrador. El admin creará tu cuenta manualmente.");
     };
 
     return (
@@ -116,8 +38,8 @@ function Register() {
                         </h1>
 
                         <p className="left-description">
-                            Crea tu cuenta para acceder a la plataforma
-                            de gestión de asistencia del personal.
+                            El administrador creará tus cuentas manualmente.
+                            Por favor contacta al admin para acceder a la plataforma.
                         </p>
 
                     </div>
@@ -141,7 +63,7 @@ function Register() {
 
 
                     <h2 className="login-title">
-                        Crear cuenta
+                        Registro temporalmente disabled
                     </h2>
 
 
@@ -244,7 +166,6 @@ function Register() {
 
         </div>
     );
-
 }
 
 export default Register;

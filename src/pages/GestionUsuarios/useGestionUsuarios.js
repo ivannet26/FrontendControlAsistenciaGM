@@ -1,4 +1,10 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import {
+  keepPreviousData,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import {
   activarUsuario,
@@ -18,47 +24,87 @@ const FORM_VACIO = {
   activo: true,
 };
 
+const POR_PAGINA = 10;
+
 export const useGestionUsuarios = () => {
-  const [usuarios, setUsuarios] = useState([]);
-  const [cargando, setCargando] = useState(true);
+  const queryClient = useQueryClient();
   const [busqueda, setBusqueda] = useState("");
+  const [busquedaDebounced, setBusquedaDebounced] = useState("");
   const [filtroRol, setFiltroRol] = useState("");
+  const [pagina, setPagina] = useState(1);
   const [modalAbierto, setModalAbierto] = useState(false);
   const [usuarioEditando, setUsuarioEditando] = useState(null);
   const [formData, setFormData] = useState(FORM_VACIO);
   const [confirm, setConfirm] = useState({ abierto: false });
-  const montado = useRef(false);
-
-  const cargar = async (filtros = {}) => {
-    setCargando(true);
-    try {
-      setUsuarios(await getUsuarios(filtros));
-    } catch {
-      toast.error("Error al cargar usuarios.");
-    } finally {
-      setCargando(false);
-    }
-  };
 
   useEffect(() => {
-    const f = {};
-    if (filtroRol) f.rol = filtroRol;
-    if (busqueda.trim()) f.buscar = busqueda.trim();
-    if (!montado.current) {
-      montado.current = true;
-      cargar(f);
-      return;
-    }
-    const timer = setTimeout(() => cargar(f), 350);
-    return () => clearTimeout(timer);
-  }, [filtroRol, busqueda]);
+    const timer = window.setTimeout(
+      () => setBusquedaDebounced(busqueda),
+      350,
+    );
+    return () => window.clearTimeout(timer);
+  }, [busqueda]);
 
-  const recargar = () => {
+  const filtros = useMemo(() => {
     const f = {};
     if (filtroRol) f.rol = filtroRol;
-    if (busqueda.trim()) f.buscar = busqueda.trim();
-    cargar(f);
-  };
+    if (busquedaDebounced.trim()) f.buscar = busquedaDebounced.trim();
+    return f;
+  }, [filtroRol, busquedaDebounced]);
+
+  const usuariosQuery = useQuery({
+    queryKey: ["usuarios", filtros],
+    queryFn: () => getUsuarios(filtros),
+    placeholderData: keepPreviousData,
+  });
+
+  useEffect(() => {
+    if (usuariosQuery.error) toast.error("Error al cargar usuarios.");
+  }, [usuariosQuery.error]);
+
+  const invalidarUsuarios = () =>
+    queryClient.invalidateQueries({ queryKey: ["usuarios"] });
+
+  const guardarMutation = useMutation({
+    mutationFn: ({ id, payload }) =>
+      id ? editarUsuario(id, payload) : crearUsuario(payload),
+    onSuccess: (_, { id }) => {
+      toast.success(
+        id
+          ? "Usuario actualizado correctamente."
+          : "Usuario creado correctamente.",
+      );
+      setModalAbierto(false);
+      void invalidarUsuarios();
+    },
+    onError: (error) => {
+      toast.error(
+        error.response?.data?.detail || "Error al guardar el usuario",
+      );
+    },
+  });
+
+  const toggleMutation = useMutation({
+    mutationFn: ({ id, activo }) =>
+      activo ? desactivarUsuario(id) : activarUsuario(id),
+    onSuccess: (_, { activo }) => {
+      toast.success(
+        `Usuario ${activo ? "desactivado" : "activado"} exitosamente.`,
+      );
+      void invalidarUsuarios();
+    },
+    onError: () => toast.error("Error al cambiar estado"),
+  });
+
+  const eliminarMutation = useMutation({
+    mutationFn: eliminarUsuario,
+    onSuccess: () => {
+      setModalAbierto(false);
+      toast.success("Usuario eliminado.");
+      void invalidarUsuarios();
+    },
+    onError: () => toast.error("No se pudo eliminar el usuario."),
+  });
 
   const abrirCrear = () => {
     setUsuarioEditando(null);
@@ -79,7 +125,7 @@ export const useGestionUsuarios = () => {
   };
   const cerrarModal = () => setModalAbierto(false);
 
-  const guardar = async (e) => {
+  const guardar = (e) => {
     e.preventDefault();
     if (
       !usuarioEditando &&
@@ -88,23 +134,12 @@ export const useGestionUsuarios = () => {
       toast.error("La contraseña debe tener al menos 6 caracteres.");
       return;
     }
-    try {
-      const payload = { ...formData };
-      if (usuarioEditando && !payload.password) delete payload.password;
-      if (usuarioEditando) {
-        await editarUsuario(usuarioEditando.id, payload);
-        toast.success("Usuario actualizado correctamente.");
-      } else {
-        await crearUsuario(payload);
-        toast.success("Usuario creado correctamente.");
-      }
-      setModalAbierto(false);
-      recargar();
-    } catch (error) {
-      toast.error(
-        error.response?.data?.detail || "Error al guardar el usuario",
-      );
-    }
+    const payload = { ...formData };
+    if (usuarioEditando && !payload.password) delete payload.password;
+    guardarMutation.mutate({
+      id: usuarioEditando?.id ?? null,
+      payload,
+    });
   };
 
   const pedirConfirm = (config) => setConfirm({ abierto: true, ...config });
@@ -123,16 +158,7 @@ export const useGestionUsuarios = () => {
       mensaje: `¿Estás seguro de ${accion} a ${u.nombre} ${u.apellido}?`,
       textoConfirmar: accion.charAt(0).toUpperCase() + accion.slice(1),
       tipo: u.activo ? "warning" : "info",
-      onConfirmar: async () => {
-        try {
-          if (u.activo) await desactivarUsuario(u.id);
-          else await activarUsuario(u.id);
-          toast.success(`Usuario ${accion}do exitosamente.`);
-          recargar();
-        } catch {
-          toast.error("Error al cambiar estado");
-        }
-      },
+      onConfirmar: () => toggleMutation.mutate({ id: u.id, activo: u.activo }),
     });
   };
 
@@ -142,16 +168,7 @@ export const useGestionUsuarios = () => {
       mensaje: `Vas a eliminar a ${u.nombre} ${u.apellido}. Esta acción no se puede deshacer.`,
       textoConfirmar: "Eliminar",
       tipo: "danger",
-      onConfirmar: async () => {
-        try {
-          await eliminarUsuario(u.id);
-          setModalAbierto(false);
-          recargar();
-          toast.success("Usuario eliminado.");
-        } catch {
-          toast.error("No se pudo eliminar el usuario.");
-        }
-      },
+      onConfirmar: () => eliminarMutation.mutate(u.id),
     });
   };
 
@@ -161,13 +178,33 @@ export const useGestionUsuarios = () => {
     setFormData((f) => ({ ...f, [campo]: valor }));
   };
 
+  const usuarios = usuariosQuery.data ?? [];
+  const totalPaginas = Math.max(1, Math.ceil(usuarios.length / POR_PAGINA));
+  const paginaActual = Math.min(pagina, totalPaginas);
+  const usuariosPagina = usuarios.slice(
+    (paginaActual - 1) * POR_PAGINA,
+    paginaActual * POR_PAGINA,
+  );
+
+  const actualizarBusqueda = (valor) => {
+    setBusqueda(valor);
+    setPagina(1);
+  };
+  const actualizarFiltroRol = (valor) => {
+    setFiltroRol(valor);
+    setPagina(1);
+  };
+
   return {
-    usuarios,
-    cargando,
+    usuarios: usuariosPagina,
+    paginaActual,
+    totalPaginas,
+    setPagina,
+    cargando: usuariosQuery.isPending,
     busqueda,
-    setBusqueda,
+    setBusqueda: actualizarBusqueda,
     filtroRol,
-    setFiltroRol,
+    setFiltroRol: actualizarFiltroRol,
     modalAbierto,
     usuarioEditando,
     formData,
@@ -184,6 +221,7 @@ export const useGestionUsuarios = () => {
     limpiarFiltros: () => {
       setBusqueda("");
       setFiltroRol("");
+      setPagina(1);
     },
     filtrosActivos: Boolean(busqueda || filtroRol),
   };

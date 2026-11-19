@@ -1,5 +1,6 @@
 // src/hooks/useJustificaciones.js
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
     EVENTO_JUSTIFICACIONES_ACTUALIZADAS,
     contarPendientes as contarPendientesServicio,
@@ -13,6 +14,11 @@ const obtenerMensajeError = (error, mensajePredeterminado) => {
     const detalle = error?.response?.data?.detail;
     if (typeof detalle === "string" && detalle.trim()) return detalle;
     return error?.message || mensajePredeterminado;
+};
+
+const validarLista = (datos) => {
+    if (datos?.error) throw new Error(datos.message);
+    return Array.isArray(datos) ? datos : [];
 };
 
 /**
@@ -32,170 +38,64 @@ export function useJustificaciones({
     intervaloRefresco = 0,
     intervaloContador = 60000,
 } = {}) {
-    const [justificaciones, setJustificaciones] = useState([]);
-    const [cargando, setCargando] = useState(Boolean(autoCargar && fuente));
-    const [error, setError] = useState("");
-    const [pendientes, setPendientes] = useState(0);
-
-    const activoRef = useRef(true);
-    const peticionRef = useRef(0);
+    const queryClient = useQueryClient();
 
     // Los filtros llegan como objeto nuevo en cada render: se comparan por valor.
     const filtrosClave = JSON.stringify(filtros ?? {});
     const filtrosEstables = useMemo(() => JSON.parse(filtrosClave), [filtrosClave]);
 
-    const solicitarLista = useCallback(() => {
-        if (fuente === "todas") return obtenerTodas(filtrosEstables);
-        if (fuente === "mias") return obtenerMias();
-        return Promise.resolve([]);
-    }, [fuente, filtrosEstables]);
-
-    // Carga inicial y recarga cuando cambian la fuente o los filtros.
-    useEffect(() => {
-        activoRef.current = true;
-
-        if (!autoCargar || !fuente) {
-            return () => {
-                activoRef.current = false;
-            };
-        }
-
-        const peticion = ++peticionRef.current;
-
-        const cargar = async () => {
-            setCargando(true);
-            try {
-                const datos = await solicitarLista();
-                if (!activoRef.current || peticion !== peticionRef.current) return;
-
-                if (datos?.error) throw new Error(datos.message);
-                setJustificaciones(Array.isArray(datos) ? datos : []);
-                setError("");
-            } catch (err) {
-                if (!activoRef.current || peticion !== peticionRef.current) return;
-                setError(obtenerMensajeError(err, MENSAJE_ERROR));
-            } finally {
-                if (activoRef.current && peticion === peticionRef.current) {
-                    setCargando(false);
-                }
-            }
-        };
-
-        void cargar();
-
-        return () => {
-            activoRef.current = false;
-        };
-    }, [autoCargar, fuente, solicitarLista]);
-
-    // Recarga manual (botones o acciones de la vista).
-    const recargar = useCallback(async (opciones = {}) => {
-        const { silencioso = false } = opciones;
-        if (!fuente) return [];
-
-        const peticion = ++peticionRef.current;
-        if (!silencioso) setCargando(true);
-
-        try {
-            const datos = await solicitarLista();
-            if (!activoRef.current || peticion !== peticionRef.current) return [];
-
-            if (datos?.error) throw new Error(datos.message);
-            const lista = Array.isArray(datos) ? datos : [];
-            setJustificaciones(lista);
-            setError("");
-            return lista;
-        } catch (err) {
-            if (!activoRef.current || peticion !== peticionRef.current) return [];
-
-            setError(obtenerMensajeError(err, MENSAJE_ERROR));
+    const listaQuery = useQuery({
+        queryKey: ["justificaciones", "lista", fuente, filtrosEstables],
+        queryFn: async () => {
+            if (fuente === "todas") return validarLista(await obtenerTodas(filtrosEstables));
+            if (fuente === "mias") return validarLista(await obtenerMias());
             return [];
-        } finally {
-            if (activoRef.current && peticion === peticionRef.current && !silencioso) {
-                setCargando(false);
-            }
-        }
-    }, [fuente, solicitarLista]);
+        },
+        enabled: Boolean(autoCargar && fuente),
+        refetchInterval: intervaloRefresco || false,
+        refetchIntervalInBackground: false,
+    });
 
-    const refrescarContador = useCallback(async () => {
-        try {
+    const contadorQuery = useQuery({
+        queryKey: ["justificaciones", "pendientes"],
+        queryFn: async () => {
             const total = await contarPendientesServicio();
-            if (!activoRef.current) return 0;
+            if (total?.error) throw new Error(total.message);
+            return Number(total) || 0;
+        },
+        enabled: conContador,
+        refetchInterval: intervaloContador || false,
+        refetchIntervalInBackground: false,
+    });
 
-            const valor = Number(total) || 0;
-            setPendientes(valor);
-            return valor;
-        } catch {
-            // El contador no debe romper la interfaz: se deja el último valor.
-            return 0;
-        }
-    }, []);
-
-    // Contador de pendientes: al montar, cuando cambia algo y por intervalo.
+    // Las mutaciones del servicio notifican por evento: se invalida todo y cada
+    // consumidor vuelve a consultar con su propia caché compartida.
     useEffect(() => {
-        if (!conContador) return undefined;
-
-        let cancelado = false;
-
-        const consultarContador = async () => {
-            try {
-                const total = await contarPendientesServicio();
-                if (cancelado) return;
-
-                setPendientes(Number(total) || 0);
-            } catch {
-                // Sin conexión se mantiene el último valor conocido.
-            }
-        };
-
-        void consultarContador();
-
         const manejarActualizacion = () => {
-            void consultarContador();
-        };
-        window.addEventListener(EVENTO_JUSTIFICACIONES_ACTUALIZADAS, manejarActualizacion);
-
-        const intervalo = intervaloContador
-            ? window.setInterval(() => {
-                if (document.visibilityState !== "visible") return;
-                void consultarContador();
-            }, intervaloContador)
-            : null;
-
-        return () => {
-            cancelado = true;
-            window.removeEventListener(EVENTO_JUSTIFICACIONES_ACTUALIZADAS, manejarActualizacion);
-            if (intervalo) window.clearInterval(intervalo);
-        };
-    }, [conContador, intervaloContador]);
-
-    useEffect(() => {
-        if (!fuente) return undefined;
-
-        const manejarActualizacion = () => {
-            void recargar({ silencioso: true });
+            void queryClient.invalidateQueries({ queryKey: ["justificaciones"] });
         };
         window.addEventListener(EVENTO_JUSTIFICACIONES_ACTUALIZADAS, manejarActualizacion);
         return () => window.removeEventListener(EVENTO_JUSTIFICACIONES_ACTUALIZADAS, manejarActualizacion);
-    }, [fuente, recargar]);
+    }, [queryClient]);
 
-    // Refresco periódico y silencioso de la lista.
-    useEffect(() => {
-        if (!intervaloRefresco || !fuente) return undefined;
+    const recargar = async () => {
+        if (!fuente) return [];
+        const resultado = await listaQuery.refetch();
+        return Array.isArray(resultado.data) ? resultado.data : [];
+    };
 
-        const intervalo = window.setInterval(() => {
-            if (document.visibilityState !== "visible") return;
-            void recargar({ silencioso: true });
-        }, intervaloRefresco);
-
-        return () => window.clearInterval(intervalo);
-    }, [intervaloRefresco, fuente, recargar]);
+    const refrescarContador = async () => {
+        const resultado = await contadorQuery.refetch();
+        return Number(resultado.data) || 0;
+    };
 
     return {
-        justificaciones,
-        cargando,
-        error,
-        pendientes,
+        justificaciones: listaQuery.data ?? [],
+        cargando: Boolean(autoCargar && fuente) && listaQuery.isPending,
+        error: listaQuery.error
+            ? obtenerMensajeError(listaQuery.error, MENSAJE_ERROR)
+            : "",
+        pendientes: contadorQuery.data ?? 0,
         recargar,
         refrescarContador,
     };

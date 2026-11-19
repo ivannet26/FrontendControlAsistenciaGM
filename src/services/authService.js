@@ -23,19 +23,10 @@ export async function login(email, password) {
 }
 
 export async function register(datosUsuario) {
-  const response = await fetch(`${API_URL}/auth/registro`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(datosUsuario),
-  });
-
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error(data.detail || "Error al registrar usuario");
-  }
-
-  return data;
+  // Registration is now admin-only; this function is kept for reference
+  // but will always fail for normal users since the endpoint was removed.
+  // The frontend pages should inform users that only the admin can create accounts.
+  throw new Error("El registro solo está disponible para el administrador. El admin creará tu cuenta.");
 }
 
 export function logout() {

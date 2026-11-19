@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import { User, LogOut, Shield, Download } from "lucide-react";
 import { construirUrlAvatar, useUsuarioActual } from "../../hooks/useUsuarioActual";
 import "./ProfileMenu.css";
@@ -9,12 +10,14 @@ const URL_DESCARGA =
 function ProfileMenu() {
   const navigate = useNavigate();
   const usuario = useUsuarioActual();
+  const queryClient = useQueryClient();
 
   const handleCerrarSesion = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("access_token");
     localStorage.removeItem("usuario");
     sessionStorage.clear();
+    queryClient.clear();
     navigate("/login");
   };
 

@@ -5,6 +5,7 @@ import Button from "../../components/ui/Button";
 import Input from "../../components/ui/Input";
 import Select from "../../components/ui/Select";
 import ModalConfirm from "../../components/ModalConfirm/ModalConfirm";
+import Paginacion from "../../components/ui/Paginacion";
 import ModalUsuario from "./ModalUsuario";
 import { useGestionUsuarios } from "./useGestionUsuarios";
 
@@ -170,6 +171,13 @@ const GestionUsuarios = () => {
           ))
         )}
       </section>
+
+      <Paginacion
+        pagina={u.paginaActual}
+        totalPaginas={u.totalPaginas}
+        onChange={u.setPagina}
+        label="Paginación de usuarios"
+      />
 
       <ModalUsuario
         abierto={u.modalAbierto}

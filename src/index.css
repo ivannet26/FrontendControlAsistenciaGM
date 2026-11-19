@@ -20,4 +20,8 @@
   a {
     cursor: pointer;
   }
+
+  input[type="date"] {
+    color-scheme: dark;
+  }
 }
