@@ -1,121 +1,29 @@
-import { useState } from "react";
-import toast from "react-hot-toast";
-import "../ClientesComp/ModalClientes.css";
+import DialogoCatalogo from "../Catalogo/DialogoCatalogo";
+import { nombreRequerido } from "../Catalogo/estadoCatalogo";
 
-
-function ModalCliente({
-    cerrar,
-    guardar,
-    clienteEditar
-}) {
-
-    const [nombre, setNombre] = useState(clienteEditar?.nombre || "");
-    const [email, setEmail] = useState(clienteEditar?.email || "");
-    const [direccion, setDireccion] = useState(clienteEditar?.direccion || "");
-    const [nota, setNota] = useState(clienteEditar?.nota || "");
-    const [moneda, setMoneda] = useState(clienteEditar?.moneda || "USD");
-
-    // ✅ Un solo destinatario CC
-    const [cc1, setCc1] = useState(clienteEditar?.destinatarios_cc?.[0] || "");
-
-
-    const guardarCliente = () => {
-
-        if (!nombre.trim()) {
-            toast.error("El nombre es obligatorio");
-            return;
-        }
-
-        // Construir lista de CC sin vacíos
-        const destinatarios_cc = cc1.trim() ? [cc1.trim()] : [];
-
-        const nuevoCliente = {
-            id: clienteEditar?.id,
-            nombre: nombre.trim(),
-            email: email.trim() || null,
-            destinatarios_cc,
-            direccion: direccion.trim() || null,
-            nota: nota.trim() || null,
-            moneda
-        };
-
-        guardar(nuevoCliente);
-    };
-
-
-    return (
-        <div className="modal-overlay">
-
-            <div className="modal-cliente">
-
-                <div className="modal-header">
-                    <h2>
-                        {clienteEditar ? "Editar cliente" : "Añadir nuevo cliente"}
-                    </h2>
-                    <button onClick={cerrar}>×</button>
-                </div>
-
-                <div className="modal-body">
-
-                    <label>Nombre *</label>
-                    <input
-                        placeholder="Nombre del cliente"
-                        value={nombre}
-                        onChange={(e) => setNombre(e.target.value)}
-                    />
-
-                    <label>Email</label>
-                    <input
-                        placeholder="correo@ejemplo.com"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                    />
-
-                    <label>Destinatario en copia (CC)</label>
-                    <input
-                        placeholder="cc@ejemplo.com"
-                        value={cc1}
-                        onChange={(e) => setCc1(e.target.value)}
-                    />
-
-                    <label>Dirección</label>
-                    <input
-                        placeholder="Dirección"
-                        value={direccion}
-                        onChange={(e) => setDireccion(e.target.value)}
-                    />
-
-                    <label>Nota</label>
-                    <input
-                        placeholder="Nota interna"
-                        value={nota}
-                        onChange={(e) => setNota(e.target.value)}
-                    />
-
-                    <label>Moneda</label>
-                    <select
-                        value={moneda}
-                        onChange={(e) => setMoneda(e.target.value)}
-                    >
-                        <option value="USD">USD</option>
-                        <option value="PEN">PEN</option>
-                        <option value="EUR">EUR</option>
-                    </select>
-
-                </div>
-
-                <div className="modal-footer">
-                    <button className="cancelar" onClick={cerrar}>
-                        Cancelar
-                    </button>
-                    <button className="guardar" onClick={guardarCliente}>
-                        Guardar
-                    </button>
-                </div>
-
-            </div>
-        </div>
-    );
+export default function ModalCliente({ cliente, clientes, cerrar, guardar }) {
+    return <DialogoCatalogo titulo={cliente.id ? "Editar cliente" : "Nuevo cliente"} cerrar={cerrar}
+        guardar={(datos) => guardar({
+            nombre: nombreRequerido(datos, clientes, cliente.id),
+            email: datos.get("email").trim() || null,
+            destinatarios_cc: datos.getAll("cc").map((correo) => correo.trim()).filter(Boolean),
+            direccion: datos.get("direccion").trim() || null,
+            nota: datos.get("nota").trim() || null,
+            moneda: datos.get("moneda"),
+        })}>
+        <label>Nombre<input name="nombre" placeholder="Nombre del cliente" defaultValue={cliente.nombre} maxLength={150} required /></label>
+        <label>Correo electrónico<input type="email" name="email" defaultValue={cliente.email || ""} maxLength={150} /></label>
+        <fieldset className="catalogo-cc">
+            <legend>Destinatarios en copia</legend>
+            {[0, 1, 2].map((i) => <label key={i}>Correo {i + 1}
+                <input type="email" name="cc" defaultValue={cliente.destinatarios_cc?.[i] || ""} maxLength={150} />
+            </label>)}
+        </fieldset>
+        <label>Dirección<textarea name="direccion" defaultValue={cliente.direccion || ""} /></label>
+        <label>Nota<textarea name="nota" defaultValue={cliente.nota || ""} /></label>
+        <label>Moneda<select name="moneda" aria-label="Moneda" defaultValue={cliente.moneda || "USD"}>
+            {cliente.moneda && !["USD", "PEN", "EUR"].includes(cliente.moneda) && <option>{cliente.moneda}</option>}
+            {["USD", "PEN", "EUR"].map((moneda) => <option key={moneda}>{moneda}</option>)}
+        </select></label>
+    </DialogoCatalogo>;
 }
-
-export default ModalCliente;

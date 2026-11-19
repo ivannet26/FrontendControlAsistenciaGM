@@ -1,294 +1,90 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
-
-import ProyectoTable from "./ProyectoTable";
-import ProyectoFiltros from "./ProyectoFiltros";
+import { AccionesFila, Encabezado, FilasCatalogo, Herramientas, ListadoRegistros, OrdenCompacto } from "../Catalogo/Catalogo";
+import { coincide, esAdministrador, reemplazar, useListado, usePaginacion } from "../Catalogo/estadoCatalogo";
+import { ConfirmacionCatalogo } from "../Catalogo/DialogoCatalogo";
+import useArchivo from "../Catalogo/useArchivo";
 import ModalProyecto from "./ModalProyecto";
-import LoadingOverlay from "../Loading/LoadingOverlay";   
-
-import {
-    obtenerProyectos,
-    crearProyectoAPI,
-    editarProyectoAPI,
-    archivarProyectoAPI,
-    restaurarProyectoAPI,
-    eliminarProyectoAPI
-} from "../../services/proyectosService";
-
 import { obtenerClientes } from "../../services/clientesService";
+import { obtenerProyectos, crearProyectoAPI, editarProyectoAPI, archivarProyectoAPI,
+    restaurarProyectoAPI, eliminarProyectoAPI } from "../../services/proyectosService";
+import { useUsuarioActual } from "../../hooks/useUsuarioActual";
+import { estadoProyecto, formatearTiempo } from "./proyectoVista";
 
-import "./Proyectos.css";
+const cargarProyectos = () => obtenerProyectos({ estado: "todo" });
+const endpoints = { archivar: archivarProyectoAPI, restaurar: restaurarProyectoAPI, eliminar: eliminarProyectoAPI };
 
+export default function ProyectosComp() {
+    const admin = esAdministrador(useUsuarioActual().rol);
+    const proyectos = useListado(cargarProyectos);
+    const clientes = useListado(obtenerClientes);
+    const archivo = useArchivo(proyectos, endpoints, "También podrían eliminarse sus tareas y registros de tiempo asociados.");
+    const [editar, setEditar] = useState(null);
+    const [busqueda, buscar] = useState("");
+    const [estado, filtrarEstado] = useState("");
+    const [cliente, filtrarCliente] = useState("");
+    const activo = Boolean(busqueda || estado || cliente);
 
-function ProyectosComp() {
+    const filas = proyectos.datos.filter((proyecto) =>
+        coincide(proyecto.nombre, busqueda) &&
+        (!cliente || String(proyecto.cliente_id) === cliente) &&
+        (!estado || (proyecto.archivado ? estado === "ARCHIVADO" : proyecto.estado === estado))
+    );
+    const columnas = [
+        { id: "nombre", titulo: "Proyecto", ancho: "minmax(0, 1.5fr)", ordenar: (p) => p.nombre,
+            render: (p) => <span className="catalogo-nombre-color">
+                {p.color && <span className="catalogo-color" style={{ backgroundColor: p.color }} aria-hidden="true" />}
+                <Link to={`/app/proyectos/${p.id}`}>{p.nombre}</Link>
+            </span> },
+        { id: "cliente", titulo: "Cliente", ordenar: (p) => p.nombre_cliente,
+            render: (p) => p.nombre_cliente || "Sin cliente" },
+        { id: "estado", titulo: "Estado", ancho: "minmax(7rem, 0.5fr)",
+            ordenar: (p) => estadoProyecto(p),
+            render: (p) => estadoProyecto(p) },
+        { id: "tiempo", titulo: "Registrado", ancho: "minmax(7rem, 0.5fr)", orden: { asc: "Menor tiempo", desc: "Mayor tiempo" },
+            ordenar: (p) => p.segundos_registrados ?? (p.horas_registradas ?? 0) * 3600,
+            render: (p) => formatearTiempo(p) },
+    ];
+    if (admin) columnas.push({ id: "acciones", titulo: "Acciones", ancho: "5.25rem",
+        render: (p) => <AccionesFila nombre={p.nombre} editar={() => setEditar(p)}
+            opciones={archivo.opciones(p)} ocupado={archivo.ocupado || proyectos.cargando} /> });
+    const datos = usePaginacion(filas, columnas, JSON.stringify([busqueda, estado, cliente]), "nombre");
 
-    const [mostrarModal, setMostrarModal] = useState(false);
-    const [proyectoEditar, setProyectoEditar] = useState(null);
-
-    const [proyectos, setProyectos] = useState([]);
-    const [clientes, setClientes] = useState([]);
-
-    const [busqueda, setBusqueda] = useState("");
-    const [estadoFiltro, setEstadoFiltro] = useState("TODO");
-    const [clienteFiltro, setClienteFiltro] = useState("TODOS");
-
-    const [cargando, setCargando] = useState(true);
-
-
-    useEffect(() => {
-        cargarTodo();
-    }, []);
-
-
-    const cargarTodo = async () => {
-        try {
-            setCargando(true);
-
-            await Promise.all([
-                cargarProyectos(),
-                cargarClientes()
-            ]);
-        } finally {
-            setCargando(false);
-        }
-    };
-
-
-    const cargarProyectos = async () => {
-        try {
-            const data = await obtenerProyectos({ estado: "todo" });
-
-            console.log("Proyectos backend:", data);
-
-            setProyectos(
-                data.map(p => ({
-                    id: p.id,
-                    nombre: p.nombre,
-                    descripcion: p.descripcion || "",
-                    cliente_id: p.cliente_id,
-                    cliente: p.nombre_cliente || "Sin cliente",
-                    estado: p.estado,
-                    color: p.color || "#10b981",
-                    archivado: p.archivado,
-                    horas_registradas: p.horas_registradas ?? 0,  
-                    segundos_registrados: p.segundos_registrados ?? 0, 
-                    favorito: false
-                }))
-            );
-        } catch (error) {
-            console.error("Error cargando proyectos", error);
-            toast.error("No se pudieron cargar los proyectos");
-        }
-    };
-
-
-    const cargarClientes = async () => {
-        try {
-            const data = await obtenerClientes();
-            setClientes(data);
-        } catch (error) {
-            console.error("Error cargando clientes", error);
-            toast.error("No se pudieron cargar los clientes");
-        }
-    };
-
-
-    const proyectosFiltrados = proyectos.filter((p) => {
-
-        const texto = busqueda.toLowerCase();
-
-        const coincideBusqueda =
-            p.nombre.toLowerCase().includes(texto);
-
-        const coincideEstado =
-            estadoFiltro === "TODO" ||
-            p.estado === estadoFiltro;
-
-        const coincideCliente =
-            clienteFiltro === "TODOS" ||
-            String(p.cliente_id) === String(clienteFiltro);
-
-        return coincideBusqueda && coincideEstado && coincideCliente;
-    });
-
-
-    const archivarProyecto = async (id) => {
-        try {
-            const actualizado = await archivarProyectoAPI(id);
-            setProyectos(prev =>
-                prev.map(p =>
-                    p.id === id
-                        ? { ...p, estado: actualizado.estado, archivado: actualizado.archivado }
-                        : p
-                )
-            );
-            toast.success("Proyecto archivado");
-        } catch (error) {
-            console.error("Error archivando proyecto", error);
-            toast.error(error.response?.data?.detail || "No se pudo archivar");
-        }
-    };
-
-
-    const restaurarProyecto = async (id) => {
-        try {
-            const actualizado = await restaurarProyectoAPI(id);
-            setProyectos(prev =>
-                prev.map(p =>
-                    p.id === id
-                        ? { ...p, estado: actualizado.estado, archivado: actualizado.archivado }
-                        : p
-                )
-            );
-            toast.success("Proyecto restaurado");
-        } catch (error) {
-            console.error("Error restaurando proyecto", error);
-            toast.error(error.response?.data?.detail || "No se pudo restaurar");
-        }
-    };
-
-
-    const eliminarProyecto = async (id) => {
-        if (!window.confirm("¿Eliminar este proyecto permanentemente?")) return;
-
-        try {
-            await eliminarProyectoAPI(id);
-            setProyectos(prev => prev.filter(p => p.id !== id));
-            toast.success("Proyecto eliminado");
-        } catch (error) {
-            console.error("Error eliminando proyecto", error);
-            toast.error(error.response?.data?.detail || "No se pudo eliminar");
-        }
-    };
-
-
-    const editarProyecto = (proyecto) => {
-        setProyectoEditar(proyecto);
-        setMostrarModal(true);
-    };
-
+    async function guardar(datos) {
+        const confirmado = editar.id ? await editarProyectoAPI(editar.id, datos) : await crearProyectoAPI(datos);
+        proyectos.setDatos((prev) => reemplazar(prev, confirmado));
+        toast.success(editar.id ? "Proyecto actualizado" : "Proyecto creado");
+    }
 
     return (
-        <div className="proyectos-container">
-
-           
-            <LoadingOverlay visible={cargando} />
-
-            <div className="proyectos-contenedor">
-
-                <div className="proyectos-header">
-                    <h1>Proyectos</h1>
-
-                    <button
-                        onClick={() => {
-                            setProyectoEditar(null);
-                            setMostrarModal(true);
-                        }}
-                    >
-                        CREAR NUEVO PROYECTO
-                    </button>
-                </div>
-
-                <ProyectoFiltros
-                    busqueda={busqueda}
-                    setBusqueda={setBusqueda}
-                    estadoFiltro={estadoFiltro}
-                    setEstadoFiltro={setEstadoFiltro}
-                    clienteFiltro={clienteFiltro}
-                    setClienteFiltro={setClienteFiltro}
-                    clientes={clientes}
-                />
-
-                <ProyectoTable
-                    proyectos={proyectosFiltrados}
-                    archivarProyecto={archivarProyecto}
-                    restaurarProyecto={restaurarProyecto}
-                    eliminarProyecto={eliminarProyecto}
-                    editarProyecto={editarProyecto}
-                />
-
-            </div>
-
-            {
-                mostrarModal && (
-                    <ModalProyecto
-                        cerrar={() => {
-                            setMostrarModal(false);
-                            setProyectoEditar(null);
-                        }}
-                        proyectoEditar={proyectoEditar}
-                        clientes={clientes}
-                        guardar={async (nuevoProyecto) => {
-                            try {
-                                if (proyectoEditar) {
-                                    const actualizado = await editarProyectoAPI(
-                                        nuevoProyecto.id,
-                                        {
-                                            nombre: nuevoProyecto.nombre,
-                                            descripcion: nuevoProyecto.descripcion,
-                                            cliente_id: nuevoProyecto.cliente_id,
-                                            estado: nuevoProyecto.estado,
-                                            color: nuevoProyecto.color
-                                        }
-                                    );
-
-                                    setProyectos(prev =>
-                                        prev.map(p =>
-                                            p.id === actualizado.id
-                                                ? {
-                                                    ...p,
-                                                    nombre: actualizado.nombre,
-                                                    descripcion: actualizado.descripcion || "",
-                                                    cliente_id: actualizado.cliente_id,
-                                                    cliente: actualizado.nombre_cliente || "Sin cliente",
-                                                    estado: actualizado.estado,
-                                                    color: actualizado.color || "#10b981",
-                                                    archivado: actualizado.archivado,
-                                                    horas_registradas: actualizado.horas_registradas ?? p.horas_registradas ?? 0,
-                                                  }
-                                                : p
-                                        )
-                                    );
-                                    toast.success("Proyecto actualizado");
-                                } else {
-                                    const creado = await crearProyectoAPI({
-                                        nombre: nuevoProyecto.nombre,
-                                        descripcion: nuevoProyecto.descripcion || null,
-                                        cliente_id: nuevoProyecto.cliente_id || null,
-                                        estado: nuevoProyecto.estado,
-                                        color: nuevoProyecto.color
-                                    });
-
-                                    setProyectos(prev => [
-                                        ...prev,
-                                        {
-                                            id: creado.id,
-                                            nombre: creado.nombre,
-                                            descripcion: creado.descripcion || "",
-                                            cliente_id: creado.cliente_id,
-                                            cliente: creado.nombre_cliente || "Sin cliente",
-                                            estado: creado.estado,
-                                            color: creado.color || "#10b981",
-                                            archivado: creado.archivado,
-                                            horas_registradas: creado.horas_registradas ?? 0,  
-                                            favorito: false
-                                        }
-                                    ]);
-                                    toast.success("Proyecto creado");
-                                }
-
-                                setMostrarModal(false);
-                                setProyectoEditar(null);
-                            } catch (error) {
-                                console.error("Error guardando proyecto", error);
-                                toast.error(error.response?.data?.detail || "No se pudo guardar el proyecto");
-                            }
-                        }}
-                    />
-                )
-            }
-        </div>
+        <section className="catalogo">
+            <Encabezado titulo="Proyectos">
+                {admin && <button type="button" className="catalogo-boton catalogo-primario"
+                    disabled={proyectos.cargando || Boolean(proyectos.error)} onClick={() => setEditar({})}>Nuevo proyecto</button>}
+            </Encabezado>
+            <Herramientas busqueda={busqueda} buscar={buscar} placeholder="Buscar proyecto" activo={activo}
+                limpiar={() => { buscar(""); filtrarEstado(""); filtrarCliente(""); }}>
+                <select aria-label="Estado del proyecto" value={estado} onChange={(e) => filtrarEstado(e.target.value)}>
+                    <option value="">Estado</option>
+                    <option value="ACTIVO">Activo</option><option value="PAUSADO">Pausado</option>
+                    <option value="FINALIZADO">Finalizado</option><option value="ARCHIVADO">Archivado</option>
+                </select>
+                <select aria-label="Cliente del proyecto" value={cliente} onChange={(e) => filtrarCliente(e.target.value)}
+                    disabled={clientes.cargando || Boolean(clientes.error)}>
+                    <option value="">Cliente</option>
+                    {clientes.datos.map((c) => <option key={c.id} value={c.id}>{c.nombre}</option>)}
+                </select>
+                {clientes.error && <button className="catalogo-boton" type="button" onClick={clientes.recargar}>Recargar clientes</button>}
+                <OrdenCompacto nombre="Proyectos" datos={datos} columnas={columnas} />
+            </Herramientas>
+            <ListadoRegistros nombre="Proyectos" listado={proyectos} datos={datos}
+                vacio={activo ? "No hay proyectos que coincidan." : "Aún no hay proyectos."}>
+                <FilasCatalogo nombre="Proyectos" datos={datos} columnas={columnas} ordenarPorCabecera />
+            </ListadoRegistros>
+            {admin && editar && <ModalProyecto proyecto={editar} clientes={clientes} proyectos={proyectos.datos}
+                cerrar={() => setEditar(null)} guardar={guardar} />}
+            <ConfirmacionCatalogo confirmar={archivo.confirmar} cerrar={archivo.cerrarConfirmacion} />
+        </section>
     );
 }
-
-export default ProyectosComp;

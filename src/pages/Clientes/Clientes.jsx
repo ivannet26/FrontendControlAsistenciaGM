@@ -1,277 +1,68 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import toast from "react-hot-toast";
-import "../Clientes/Clientes.css";
-import ClientesFiltro from "../../components/ClientesComp/ClientesFiltro";
-import ClientesTable from "../../components/ClientesComp/ClientesTable";
+import { AccionesFila, Encabezado, FilasCatalogo, Herramientas, ListadoRegistros, OrdenCompacto } from "../../components/Catalogo/Catalogo";
+import { coincide, esAdministrador, reemplazar, useListado, usePaginacion } from "../../components/Catalogo/estadoCatalogo";
+import { ConfirmacionCatalogo } from "../../components/Catalogo/DialogoCatalogo";
+import useArchivo from "../../components/Catalogo/useArchivo";
 import ModalCliente from "../../components/ClientesComp/ModalClientes";
+import { exportarClientes } from "./exportarClientes";
+import { useUsuarioActual } from "../../hooks/useUsuarioActual";
+import { obtenerClientes, crearCliente, editarClienteAPI, archivarClienteAPI, restaurarClienteAPI, eliminarClienteAPI }
+    from "../../services/clientesService";
 
-import {
-    obtenerClientes,
-    crearCliente,
-    editarClienteAPI,
-    archivarClienteAPI,
-    restaurarClienteAPI,
-    eliminarClienteAPI
-} from "../../services/clientesService";
+const endpoints = { archivar: archivarClienteAPI, restaurar: restaurarClienteAPI, eliminar: eliminarClienteAPI };
 
-
-function Clientes() {
-
-    const [mostrarModal, setMostrarModal] = useState(false);
-    const [busqueda, setBusqueda] = useState("");
-    const [estadoFiltro, setEstadoFiltro] = useState("Todos");
-    const [clienteEditar, setClienteEditar] = useState(null);
-    const [clientes, setClientes] = useState([]);
-
-
-    useEffect(() => {
-        cargarClientes();
-    }, []);
-
-
-    const cargarClientes = async () => {
-        try {
-            const data = await obtenerClientes();
-
-            console.log("Clientes backend:", data);
-
-            setClientes(
-                data.map(c => ({
-                    id: c.id,
-                    nombre: c.nombre,
-                    email: c.email || "",
-                    destinatarios_cc: c.destinatarios_cc || [],
-                    direccion: c.direccion || "",
-                    nota: c.nota || "",
-                    moneda: c.moneda,
-                    estado: c.archivado ? "Archivado" : "Activo"
-                }))
-            );
-        } catch (error) {
-            console.error("Error cargando clientes", error);
-            toast.error("No se pudieron cargar los clientes");
-        }
-    };
-
-
-    // FILTROS
-
-    const clientesFiltrados = clientes.filter((cliente) => {
-
-        const texto = busqueda.toLowerCase();
-
-        const coincideBusqueda =
-            cliente.nombre.toLowerCase().includes(texto) ||
-            (cliente.direccion || "").toLowerCase().includes(texto);
-
-        const coincideEstado =
-            estadoFiltro === "Todos" ||
-            cliente.estado === estadoFiltro;
-
-        return coincideBusqueda && coincideEstado;
-    });
-
-
-    // ARCHIVAR
-
-    const archivarCliente = async (id) => {
-        try {
-            const actualizado = await archivarClienteAPI(id);
-
-            setClientes(prev =>
-                prev.map(c =>
-                    c.id === id
-                        ? { ...c, estado: actualizado.archivado ? "Archivado" : "Activo" }
-                        : c
-                )
-            );
-
-            toast.success("Cliente archivado");
-
-        } catch (error) {
-            console.error("Error archivando cliente", error);
-            toast.error(error.response?.data?.detail || "No se pudo archivar el cliente");
-        }
-    };
-
-
-    // RESTAURAR
-
-    const restaurarCliente = async (id) => {
-        try {
-            const actualizado = await restaurarClienteAPI(id);
-
-            setClientes(prev =>
-                prev.map(c =>
-                    c.id === id
-                        ? { ...c, estado: actualizado.archivado ? "Archivado" : "Activo" }
-                        : c
-                )
-            );
-
-            toast.success("Cliente restaurado");
-
-        } catch (error) {
-            console.error("Error restaurando cliente", error);
-            toast.error(error.response?.data?.detail || "No se pudo restaurar el cliente");
-        }
-    };
-
-
-    // ELIMINAR
-
-    const eliminarCliente = async (id) => {
-
-        const cliente = clientes.find(c => c.id === id);
-        if (!cliente) return;
-
-        if (cliente.estado !== "Archivado") {
-            toast.error("Primero debes archivar el cliente");
-            return;
-        }
-
-        try {
-            await eliminarClienteAPI(id);
-
-            setClientes(prev => prev.filter(c => c.id !== id));
-
-            toast.success("Cliente eliminado");
-
-        } catch (error) {
-            console.error("Error eliminando cliente", error);
-            toast.error(error.response?.data?.detail || "No se pudo eliminar el cliente");
-        }
-    };
-
-
-    // EDITAR
-
-    const editarCliente = (cliente) => {
-        setClienteEditar(cliente);
-        setMostrarModal(true);
-    };
-
-
-    return (
-        <div className="clientes-container">
-
-            <div className="clientes-top">
-                <h1>Clientes</h1>
-            </div>
-
-            <div className="clientes-contenedor">
-
-                <div className="contenedor-header">
-                    <button
-                        className="crear-cliente"
-                        onClick={() => {
-                            setClienteEditar(null);
-                            setMostrarModal(true);
-                        }}
-                    >
-                        AÑADIR NUEVO CLIENTE
-                    </button>
-                </div>
-
-                <ClientesFiltro
-                    busqueda={busqueda}
-                    setBusqueda={setBusqueda}
-                    estadoFiltro={estadoFiltro}
-                    setEstadoFiltro={setEstadoFiltro}
-                />
-
-                <ClientesTable
-                    clientes={clientesFiltrados}
-                    archivarCliente={archivarCliente}
-                    restaurarCliente={restaurarCliente}
-                    eliminarCliente={eliminarCliente}
-                    editarCliente={editarCliente}
-                />
-            </div>
-
-            {
-                mostrarModal &&
-                <ModalCliente
-                    cerrar={() => {
-                        setMostrarModal(false);
-                        setClienteEditar(null);
-                    }}
-
-                    clienteEditar={clienteEditar}
-
-                    guardar={async (nuevoCliente) => {
-                        try {
-                            if (clienteEditar) {
-                                const actualizado = await editarClienteAPI(
-                                    nuevoCliente.id,
-                                    {
-                                        nombre: nuevoCliente.nombre,
-                                        email: nuevoCliente.email || null,
-                                        destinatarios_cc: nuevoCliente.destinatarios_cc,
-                                        direccion: nuevoCliente.direccion,
-                                        nota: nuevoCliente.nota,
-                                        moneda: nuevoCliente.moneda
-                                    }
-                                );
-
-                                setClientes(prev =>
-                                    prev.map(c =>
-                                        c.id === actualizado.id
-                                            ? {
-                                                ...c,
-                                                nombre: actualizado.nombre,
-                                                email: actualizado.email || "",
-                                                destinatarios_cc: actualizado.destinatarios_cc || [],
-                                                direccion: actualizado.direccion || "",
-                                                nota: actualizado.nota || "",
-                                                moneda: actualizado.moneda,
-                                                estado: actualizado.archivado ? "Archivado" : "Activo"
-                                              }
-                                            : c
-                                    )
-                                );
-
-                                toast.success("Cliente actualizado");
-
-                            } else {
-                                const creado = await crearCliente({
-                                    nombre: nuevoCliente.nombre,
-                                    email: nuevoCliente.email || null,
-                                    destinatarios_cc: nuevoCliente.destinatarios_cc,
-                                    direccion: nuevoCliente.direccion,
-                                    nota: nuevoCliente.nota,
-                                    moneda: nuevoCliente.moneda
-                                });
-
-                                setClientes(prev => [
-                                    ...prev,
-                                    {
-                                        id: creado.id,
-                                        nombre: creado.nombre,
-                                        email: creado.email || "",
-                                        destinatarios_cc: creado.destinatarios_cc || [],
-                                        direccion: creado.direccion || "",
-                                        nota: creado.nota || "",
-                                        moneda: creado.moneda,
-                                        estado: "Activo"
-                                    }
-                                ]);
-
-                                toast.success("Cliente creado");
-                            }
-
-                            setMostrarModal(false);
-                            setClienteEditar(null);
-                        } catch (error) {
-                            console.error("Error guardando cliente", error);
-                            toast.error(error.response?.data?.detail || "No se pudo guardar el cliente");
-                        }
-                    }}
-                />
-            }
-        </div>
+export default function Clientes() {
+    const usuario = useUsuarioActual();
+    const admin = esAdministrador(usuario.rol);
+    const clientes = useListado(obtenerClientes);
+    const archivo = useArchivo(clientes, endpoints);
+    const [editar, setEditar] = useState(null);
+    const [busqueda, buscar] = useState("");
+    const [estado, filtrarEstado] = useState("");
+    const activo = Boolean(busqueda || estado);
+    const filas = clientes.datos.filter((cliente) =>
+        (coincide(cliente.nombre, busqueda) || coincide(cliente.direccion, busqueda)) &&
+        (!estado || cliente.archivado === (estado === "Archivado"))
     );
+    const columnas = [
+        { id: "nombre", titulo: "Cliente", ancho: "minmax(0, 1.5fr)", ordenar: (c) => c.nombre },
+        { id: "direccion", titulo: "Dirección", amplio: true, ordenar: (c) => c.direccion, render: (c) => c.direccion || "—" },
+        { id: "moneda", titulo: "Moneda", ancho: "minmax(5rem, 0.4fr)", ordenar: (c) => c.moneda },
+        { id: "estado", titulo: "Estado", ancho: "minmax(7rem, 0.5fr)", render: (c) => c.archivado ? "Archivado" : "Activo" },
+    ];
+    if (admin) columnas.push({ id: "acciones", titulo: "Acciones", ancho: "5.25rem",
+        render: (c) => <AccionesFila nombre={c.nombre} editar={() => setEditar(c)}
+            opciones={archivo.opciones(c)} ocupado={archivo.ocupado} /> });
+    const datos = usePaginacion(filas, columnas, JSON.stringify([busqueda, estado]), "nombre");
+
+    async function guardar(datos) {
+        const actualizado = editar.id ? await editarClienteAPI(editar.id, datos) : await crearCliente(datos);
+        clientes.setDatos((prev) => reemplazar(prev, actualizado));
+        toast.success(editar.id ? "Cliente actualizado" : "Cliente creado");
+    }
+
+    return <section className="catalogo">
+        <Encabezado titulo="Clientes">
+            {admin && <button type="button" className="catalogo-boton catalogo-primario"
+                disabled={clientes.cargando || Boolean(clientes.error)} onClick={() => setEditar({})}>Nuevo cliente</button>}
+        </Encabezado>
+        <Herramientas busqueda={busqueda} buscar={buscar} placeholder="Buscar cliente" activo={activo}
+            limpiar={() => { buscar(""); filtrarEstado(""); }}>
+            <select aria-label="Estado del cliente" value={estado} onChange={(e) => filtrarEstado(e.target.value)}>
+                <option value="">Estado</option><option value="Activo">Activo</option><option value="Archivado">Archivado</option>
+            </select>
+            <button type="button" className="catalogo-boton"
+                disabled={!filas.length || clientes.cargando || Boolean(clientes.error)}
+                onClick={() => exportarClientes(filas)}>Exportar CSV</button>
+            <OrdenCompacto nombre="Clientes" datos={datos} columnas={columnas} />
+        </Herramientas>
+        <ListadoRegistros nombre="Clientes" listado={clientes} datos={datos}
+            vacio={activo ? "No hay clientes que coincidan." : "Aún no hay clientes."}>
+            <FilasCatalogo nombre="Clientes" datos={datos} columnas={columnas} ordenarPorCabecera />
+        </ListadoRegistros>
+        {admin && editar && <ModalCliente cliente={editar} clientes={clientes.datos}
+            cerrar={() => setEditar(null)} guardar={guardar} />}
+        <ConfirmacionCatalogo confirmar={archivo.confirmar} cerrar={archivo.cerrarConfirmacion} />
+    </section>;
 }
-
-
-export default Clientes;

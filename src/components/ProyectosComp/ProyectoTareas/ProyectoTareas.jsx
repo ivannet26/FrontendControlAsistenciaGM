@@ -1,631 +1,92 @@
-import { useState, useEffect } from "react";
-import toast from "react-hot-toast";
-
-import { MoreVertical } from "lucide-react";
-
+import { useState } from "react";
+import { AccionesFila, FilasCatalogo, Herramientas, ListadoRegistros, OrdenCompacto } from "../../Catalogo/Catalogo";
+import { ConfirmacionCatalogo } from "../../Catalogo/DialogoCatalogo";
+import { coincide, reemplazar, useListado, useOperacion, usePaginacion } from "../../Catalogo/estadoCatalogo";
+import { obtenerMiembros } from "../../../services/equipoService";
+import { obtenerTareasProyecto, crearTarea, eliminarTareaAPI, asignarMiembroTareaAPI, desasignarMiembroTareaAPI }
+    from "../../../services/tareasService";
 import EncargadosPopover from "./EncargadosPopover";
 
-import {
-    obtenerTareasProyecto,
-    crearTarea,
-    eliminarTareaAPI,
-    asignarMiembroTareaAPI,
-    desasignarMiembroTareaAPI
-} from "../../../services/tareasService";
-
-import {
-    obtenerMiembros,
-    obtenerGrupos
-} from "../../../services/equipoService";
-
-import "./ProyectoTareas.css";
-
-
-function ProyectoTareas({ proyectoId }) {
-
-
-    const [tareas, setTareas] = useState([]);
-    const [nuevaTarea, setNuevaTarea] = useState("");
-    const [cargando, setCargando] = useState(true);
-
-    const [miembros, setMiembros] = useState([]);
-    const [grupos, setGrupos] = useState([]);
-
-
-
-    useEffect(() => {
-
-        cargarTodo();
-
-    }, [proyectoId]);
-
-
-
-
-    const cargarTodo = async () => {
-
-        try {
-
-            setCargando(true);
-
-
-            const [
-                tareasData,
-                miembrosData,
-                gruposData
-            ] = await Promise.all([
-
-                obtenerTareasProyecto(proyectoId),
-
-                obtenerMiembros(),
-
-                obtenerGrupos()
-
-            ]);
-
-
-            setTareas(tareasData);
-
-            setMiembros(miembrosData);
-
-            setGrupos(gruposData);
-
-
-        } catch(error){
-
-            console.error(
-                "Error cargando datos",
-                error
-            );
-
-            toast.error("No se pudieron cargar los datos");
-
-        } finally {
-
-            setCargando(false);
-
-        }
-
-    };
-
-
-
-
-
-    const handleCrearTarea = async () => {
-
-
-        if(!nuevaTarea.trim()) return;
-
-
-        try {
-
-
-            const creada = await crearTarea({
-
-                titulo:nuevaTarea.trim(),
-
-                proyecto_id:parseInt(proyectoId),
-
-                estado:"PENDIENTE",
-
-                prioridad:"MEDIA"
-
-            });
-
-
-            setTareas(prev => [
-                ...prev,
-                creada
-            ]);
-
-
-            setNuevaTarea("");
-
-            toast.success("Tarea creada");
-
-
-        }catch(error){
-
-
-            console.error(
-                "Error creando tarea",
-                error
-            );
-
-
-            toast.error(
-                error.response?.data?.detail ||
-                "No se pudo crear la tarea"
-            );
-
-        }
-
-    };
-
-
-
-
-
-    const handleEliminarTarea = async(id)=>{
-
-
-        if(!window.confirm("¿Eliminar esta tarea?"))
-            return;
-
-
-
-        try{
-
-
-            await eliminarTareaAPI(id);
-
-
-            setTareas(prev =>
-                prev.filter(t=>t.id !== id)
-            );
-
-            toast.success("Tarea eliminada");
-
-
-        }catch(error){
-
-
-            console.error(
-                "Error eliminando tarea",
-                error
-            );
-
-            toast.error(
-                error.response?.data?.detail ||
-                "No se pudo eliminar la tarea"
-            );
-
-        }
-
-
-    };
-
-
-
-
-
-
-    const handleAsignarMiembro = async(
-        tareaId,
-        miembroId
-    )=>{
-
-
-        try{
-
-
-            const actualizada =
-                await asignarMiembroTareaAPI(
-                    tareaId,
-                    miembroId
-                );
-
-
-
-            setTareas(prev =>
-
-                prev.map(t =>
-
-                    t.id === tareaId
-
-                    ?
-
-                    {
-                        ...t,
-                        miembros:
-                        actualizada.miembros || []
-                    }
-
-                    :
-
-                    t
-
-                )
-
-            );
-
-
-        }catch(error){
-
-            console.error(
-                "Error asignando miembro",
-                error
-            );
-
-            toast.error(
-                error.response?.data?.detail ||
-                "No se pudo asignar el miembro"
-            );
-
-        }
-
-
-    };
-
-
-
-
-
-
-    const handleDesasignarMiembro = async(
-        tareaId,
-        miembroId
-    )=>{
-
-
-        try{
-
-
-            const actualizada =
-                await desasignarMiembroTareaAPI(
-                    tareaId,
-                    miembroId
-                );
-
-
-
-            setTareas(prev =>
-
-                prev.map(t =>
-
-
-                    t.id === tareaId
-
-                    ?
-
-                    {
-                        ...t,
-                        miembros:
-                        actualizada.miembros || []
-                    }
-
-                    :
-
-                    t
-
-                )
-
-            );
-
-
-
-        }catch(error){
-
-
-            console.error(
-                "Error desasignando miembro",
-                error
-            );
-
-            toast.error(
-                error.response?.data?.detail ||
-                "No se pudo desasignar el miembro"
-            );
-
-
-        }
-
-
-    };
-
-
-
-
-
-
-    return (
-
-
-        <div className="proyecto-tareas-container">
-
-
-
-            <div className="tareas-toolbar">
-
-
-                <select className="filtro-tareas">
-
-                    <option>
-                       Mostrar todo
-                    </option>
-
-                </select>
-
-
-
-                <input
-
-                    className="buscador-tareas"
-
-                    placeholder="Buscar por nombre"
-
-                />
-
-
-
-
-                <div className="tareas-toolbar-der">
-
-
-                    <input
-
-                        className="input-nueva-tarea"
-
-                        placeholder="Añadir nuevo Tarea"
-
-                        value={nuevaTarea}
-
-                        onChange={(e)=>
-                            setNuevaTarea(e.target.value)
-                        }
-
-                        onKeyDown={(e)=>{
-
-                            if(e.key==="Enter")
-                                handleCrearTarea();
-
-                        }}
-
-                    />
-
-
-
-                    <button
-
-                        className="btn-anadir-tarea"
-
-                        onClick={handleCrearTarea}
-
-                    >
-
-                        AÑADIR
-
-                    </button>
-
-
-
-                </div>
-
-
-
-            </div>
-
-
-
-
-
-
-            <div className="tareas-tabla-container">
-
-
-
-                <div className="tabla-header-tareas">
-
-                    <span>
-                        Tareas
-                    </span>
-
-                </div>
-
-
-
-
-
-                <div className="tabla-scroll-tareas">
-
-
-
-                <table>
-
-
-
-                    <thead>
-
-                        <tr>
-
-                            <th>
-                                NOMBRE ⇅
-                            </th>
-
-
-                            <th>
-                                ENCARGADOS
-                            </th>
-
-
-                            <th className="col-acciones-tareas">
-
-                            </th>
-
-
-                        </tr>
-
-
-                    </thead>
-
-
-
-
-                    <tbody>
-
-
-                    {
-                    cargando ? (
-
-                        <tr>
-
-                            <td
-                            colSpan="3"
-                            style={{
-                                textAlign:"center",
-                                padding:30
-                            }}
-                            >
-
-                                Cargando...
-
-                            </td>
-
-
-                        </tr>
-
-
-                    )
-
-                    :
-
-                    tareas.length === 0 ? (
-
-
-                        <tr>
-
-
-                            <td
-                            colSpan="3"
-                            style={{
-                                textAlign:"center",
-                                padding:30
-                            }}
-                            >
-
-                                No hay tareas en este proyecto
-
-                            </td>
-
-
-                        </tr>
-
-
-
-                    )
-
-                    :
-
-                    (
-
-                    tareas.map((tarea)=>(
-
-
-                        <tr key={tarea.id}>
-
-
-                            <td className="td-nombre-tarea">
-
-
-                                {tarea.titulo}
-
-
-                            </td>
-
-
-
-
-                            <td>
-
-
-                                <EncargadosPopover
-
-
-                                    tareaId={tarea.id}
-
-
-                                    miembrosAsignados={
-                                        tarea.miembros || []
-                                    }
-
-
-                                    todosLosMiembros={
-                                        miembros
-                                    }
-
-
-                                    grupos={
-                                        grupos
-                                    }
-
-
-                                    onAsignar={
-                                        handleAsignarMiembro
-                                    }
-
-
-                                    onDesasignar={
-                                        handleDesasignarMiembro
-                                    }
-
-
-                                />
-
-
-                            </td>
-
-
-
-
-                            <td className="col-acciones-tareas">
-
-
-                                <MoreVertical
-
-                                    size={18}
-
-                                    className="menu-icon-tarea"
-
-                                    onClick={()=>
-                                        handleEliminarTarea(
-                                            tarea.id
-                                        )
-                                    }
-
-                                />
-
-
-                            </td>
-
-
-
-                        </tr>
-
-
-                    ))
-
-                    )
-
-
-                    }
-
-
-
-                    </tbody>
-
-
-
-                </table>
-
-
-
-                </div>
-
-
-
-            </div>
-
-
-
-
-        </div>
-
-
-    );
-
+const estados = { PENDIENTE: "Pendiente", EN_PROGRESO: "En progreso", COMPLETADA: "Completada" };
+
+export default function ProyectoTareas({ proyecto }) {
+    const tareas = useListado(obtenerTareasProyecto, proyecto.id);
+    const miembros = useListado(obtenerMiembros);
+    const { ejecutar, ocupado } = useOperacion();
+    const [busqueda, buscar] = useState("");
+    const [estado, filtrarEstado] = useState("");
+    const [titulo, setTitulo] = useState("");
+    const [errorAlta, setErrorAlta] = useState("");
+    const [confirmar, setConfirmar] = useState(null);
+    const activo = Boolean(busqueda || estado);
+    const filas = tareas.datos.filter((t) => coincide(t.titulo, busqueda) && (!estado || t.estado === estado));
+    const columnas = [
+        { id: "titulo", titulo: "Tarea", ancho: "minmax(0, 1.5fr)", ordenar: (t) => t.titulo },
+        { id: "estado", titulo: "Estado", ancho: "minmax(7rem, 0.5fr)", ordenar: (t) => estados[t.estado] || t.estado,
+            render: (t) => estados[t.estado] || t.estado },
+        { id: "miembros", titulo: "Encargados", amplio: true, render: (t) => <EncargadosPopover tareaId={t.id}
+            miembrosAsignados={t.miembros} todosLosMiembros={miembros.datos} ocupado={ocupado}
+            deshabilitado={miembros.cargando || Boolean(miembros.error)}
+            onAsignar={(id, m) => actualizarEncargado(asignarMiembroTareaAPI, id, m)}
+            onDesasignar={(id, m) => actualizarEncargado(desasignarMiembroTareaAPI, id, m)} /> },
+        { id: "acciones", titulo: "Acciones", ancho: "5.25rem", render: (t) =>
+            <AccionesFila nombre={t.titulo} ocupado={ocupado}
+                opciones={[{ texto: "Eliminar", actuar: () => eliminar(t) }]} /> },
+    ];
+    const datos = usePaginacion(filas, columnas, JSON.stringify([busqueda, estado]), "titulo");
+
+    function actualizarEncargado(peticion, id, miembro) {
+        return ejecutar(async () => {
+            const actualizada = await peticion(id, miembro);
+            tareas.setDatos((prev) => reemplazar(prev, actualizada));
+        }, null, "No se pudo actualizar el encargado.");
+    }
+
+    function eliminar(tarea) {
+        setConfirmar({
+            titulo: "Eliminar tarea",
+            mensaje: "¿Eliminar “" + tarea.titulo + "”?",
+            eliminar: () => ejecutar(async () => {
+                await eliminarTareaAPI(tarea.id);
+                tareas.setDatos((prev) => prev.filter((t) => t.id !== tarea.id));
+            }, "Tarea eliminada", "No se pudo eliminar la tarea."),
+        });
+    }
+
+    function agregar(event) {
+        event.preventDefault();
+        const nombre = titulo.trim();
+        setErrorAlta("");
+        if (!nombre) return setErrorAlta("Ingresa un nombre para la tarea.");
+        return ejecutar(async () => {
+            const creada = await crearTarea({ titulo: nombre, proyecto_id: proyecto.id });
+            tareas.setDatos((prev) => reemplazar(prev, creada));
+            setTitulo("");
+        }, "Tarea creada", "No se pudo crear la tarea.", setErrorAlta);
+    }
+
+    return <section className="catalogo-tareas" aria-label="Tareas del proyecto">
+        <h2 className="catalogo-subtitulo">Mis tareas</h2>
+        {!proyecto.archivado && <form className="catalogo-alta-rapida" onSubmit={agregar}>
+            <input aria-label="Nombre de la nueva tarea" placeholder="Nombre de la nueva tarea" value={titulo}
+                onChange={(event) => setTitulo(event.target.value)} required maxLength={200} disabled={ocupado} />
+            <button type="submit" className="catalogo-boton catalogo-primario"
+                disabled={ocupado || tareas.cargando || Boolean(tareas.error)}>Añadir tarea</button>
+        </form>}
+        {errorAlta && <p className="catalogo-error" role="alert">{errorAlta}</p>}
+        {miembros.error && <button type="button" className="catalogo-boton" onClick={miembros.recargar}>Recargar encargados</button>}
+        <Herramientas busqueda={busqueda} buscar={buscar} placeholder="Buscar tarea" activo={activo}
+            limpiar={() => { buscar(""); filtrarEstado(""); }}>
+            <select aria-label="Estado de la tarea" value={estado} onChange={(e) => filtrarEstado(e.target.value)}>
+                <option value="">Estado</option>
+                {Object.entries(estados).map(([valor, nombre]) => <option key={valor} value={valor}>{nombre}</option>)}
+            </select>
+            <OrdenCompacto nombre="Tareas" datos={datos} columnas={columnas} />
+        </Herramientas>
+        <ListadoRegistros nombre="Tareas" listado={tareas} datos={datos}
+            vacio={activo ? "No hay tareas que coincidan." : "Aún no tienes tareas en este proyecto."}>
+            <FilasCatalogo nombre="Tareas" datos={datos} columnas={columnas} ordenarPorCabecera />
+        </ListadoRegistros>
+        <ConfirmacionCatalogo confirmar={confirmar} cerrar={() => setConfirmar(null)} />
+    </section>;
 }
-
-
-
-export default ProyectoTareas;

@@ -1,0 +1,71 @@
+.equipos-accesos {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.equipos-accesos a {
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+}
+
+.equipo-identidad,
+.equipo-total {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.equipo-iniciales {
+    display: grid;
+    flex: 0 0 36px;
+    height: 36px;
+    place-items: center;
+    border: 1px solid #31566b;
+    border-radius: 6px;
+    background: #1a3342;
+    color: #9cd8f8;
+    font-size: 13px;
+    font-weight: 650;
+}
+
+.equipo-enlace {
+    text-decoration: none;
+}
+
+.equipo-enlace::after {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    content: "";
+}
+
+.equipo-enlace:focus-visible::after {
+    outline: 2px solid #10a5f5;
+    outline-offset: -2px;
+}
+
+.equipo-descripcion {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+}
+
+.equipo-total svg { flex-shrink: 0; }
+
+.miembro-identidad {
+    display: grid;
+    gap: 2px;
+}
+
+@media (max-width: 768px), (any-pointer: coarse) {
+    .equipos-accesos a { min-height: 44px; }
+}
+
+@container catalogo (width < 34rem) {
+    .equipos-accesos a { flex: 1 1 auto; justify-content: center; }
+}

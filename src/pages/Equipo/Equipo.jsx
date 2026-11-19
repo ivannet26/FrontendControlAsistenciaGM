@@ -1,431 +1,150 @@
-import { useState, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import toast from "react-hot-toast";
-import EquipoTabs from "../../components/EquipoComp/EquipoTabs";
-import EquipoFiltros from "../../components/EquipoComp/EquipoFiltros";
-import EquipoTable from "../../components/EquipoComp/EquipoTable";
+import { Encabezado, EstadoListado } from "../../components/Catalogo/Catalogo";
+import DialogoCatalogo, { ConfirmacionCatalogo } from "../../components/Catalogo/DialogoCatalogo";
+import { reemplazar, useListado, useOperacion } from "../../components/Catalogo/estadoCatalogo";
 import ModalMiembro from "../../components/EquipoComp/ModalMiembro";
-import GruposTable from "../../components/EquipoComp/GrupoComp/GruposTable";
-import GruposFiltros from "../../components/EquipoComp/GrupoComp/GruposFiltros";
 import ModalGrupo from "../../components/EquipoComp/GrupoComp/ModalGrupo";
-import "../../components/EquipoComp/Equipo.css";
-import LoadingOverlay from "../../components/Loading/LoadingOverlay";
+import { useUsuarioActual } from "../../hooks/useUsuarioActual";
+import { obtenerGrupos, obtenerMiembros, crearGrupoAPI, editarGrupoAPI, eliminarGrupoAPI,
+    crearMiembroAPI, editarMiembroAPI, eliminarMiembroAPI } from "../../services/equipoService";
+import DirectorioMiembros from "./DirectorioMiembros";
+import EquiposCatalogo from "./EquiposCatalogo";
+import "./Equipo.css";
 
+const tiposAdmin = ["ADMINISTRACION", "ADMINISTRADOR", "ADMIN"];
 
+export default function Equipo() {
+    const miembros = useListado(obtenerMiembros);
+    const grupos = useListado(obtenerGrupos);
+    const usuario = useUsuarioActual();
+    const miembroActual = miembros.datos.find((m) => m.usuario_id === usuario.id);
+    const admin = [usuario.rol, miembroActual?.tipo_usuario].some((rol) => tiposAdmin.includes(rol?.toUpperCase()));
+    const [parametros] = useSearchParams();
+    const equipoId = parametros.get("equipo");
+    const vista = parametros.get("vista");
+    const sinEquipo = !equipoId && vista === "sin-equipo";
+    const esCatalogo = !equipoId && !sinEquipo && vista !== "miembros";
+    const equipo = grupos.datos.find((g) => String(g.id) === equipoId);
+    const [dialogo, setDialogo] = useState(null);
+    const [confirmar, setConfirmar] = useState(null);
+    const { ejecutar, ocupado } = useOperacion();
 
-import {
-    obtenerMiembros,
-    obtenerGrupos,
-    crearMiembroAPI,
-    editarMiembroAPI,
-    eliminarMiembroAPI,
-    crearGrupoAPI,
-    editarGrupoAPI,
-    eliminarGrupoAPI
-} from "../../services/equipoService";
-
-
-function Equipo() {
-
-    const [mostrarModal, setMostrarModal] = useState(false);
-    const [mostrarModalGrupo, setMostrarModalGrupo] = useState(false);
-
-    const [busqueda, setBusqueda] = useState("");
-    const [busquedaGrupo, setBusquedaGrupo] = useState("");
-    const [nuevoGrupo, setNuevoGrupo] = useState("");
-
-    const [miembroEditar, setMiembroEditar] = useState(null);
-    const [grupoEditar, setGrupoEditar] = useState(null);
-
-    const [rolFiltro, setRolFiltro] = useState("Todos");
-    const [grupoFiltro, setGrupoFiltro] = useState("Todos");
-    const [estadoFiltro, setEstadoFiltro] = useState("Todos");
-    const [filtroAbierto, setFiltroAbierto] = useState(null);
-
-    const [tabActiva, setTabActiva] = useState("MIEMBROS");
-
-    const [miembros, setMiembros] = useState([]);
-    const [grupos, setGrupos] = useState([]);
-    const [cargando, setCargando] = useState(false);
-
-
-    const cargarMiembros = async () => {
-        try {
-            const data = await obtenerMiembros();
-            setMiembros(
-                data.map(m => ({
-                    id: m.id,
-                    usuario_id: m.usuario_id,
-                    nombre: m.nombre_usuario,
-                    correo: m.email_usuario,
-                    grupo_id: m.grupo_id,
-                    grupo: m.nombre_grupo || "Sin grupo",
-                    rol: m.tipo_usuario,
-                    estado: m.estado,
-                    tiene_clave_temp: m.tiene_clave_temp,
-                    clave_temp_mascara: m.clave_temp_mascara,
-                    etiquetas: m.etiquetas || []
-                }))
-            );
-        } catch (error) {
-            console.error("Error cargando miembros", error);
-            toast.error("No se pudieron cargar los miembros");
-        }
-    };
-
-    const cargarGrupos = async () => {
-        try {
-            const data = await obtenerGrupos();
-            setGrupos(data);
-        } catch (error) {
-            console.error("Error cargando grupos", error);
-            toast.error("No se pudieron cargar los grupos");
-        }
-    };
-
+    const raiz = useRef(null);
+    const tituloRef = useRef(null);
+    const navegacion = equipoId ?? vista ?? "";
     useEffect(() => {
-        const cargarTodo = async () => {
-            setCargando(true);
-            try {
-                await Promise.all([
-                    cargarMiembros(),
-                    cargarGrupos()
-                ]);
-            } catch (error) {
-                console.error("Error en carga inicial:", error);
-            } finally {
-                setCargando(false);
-            }
-        };
+        raiz.current?.scrollIntoView({ block: "start" });
+        tituloRef.current?.focus({ preventScroll: true });
+    }, [navegacion]);
 
-        cargarTodo();
-    }, []);
-
-    // FILTROS DE MIEMBROS
-
-    const miembrosFiltrados = miembros.filter((miembro) => {
-
-        const texto = busqueda.toLowerCase();
-
-        const coincideBusqueda =
-            miembro.nombre.toLowerCase().includes(texto) ||
-            miembro.correo.toLowerCase().includes(texto);
-
-        const coincideRol =
-            rolFiltro === "Todos" || miembro.rol === rolFiltro;
-
-        const coincideGrupo =
-            grupoFiltro === "Todos" || miembro.grupo === grupoFiltro;
-
-        const coincideEstado =
-            estadoFiltro === "Todos" || miembro.estado === estadoFiltro;
-
-        return (
-            coincideBusqueda && coincideRol && coincideGrupo && coincideEstado
-        );
-    });
-
-
-    // FILTROS DE GRUPOS
-
-    const gruposFiltrados = grupos.filter((g) => {
-        const texto = busquedaGrupo.toLowerCase();
-        return g.nombre.toLowerCase().includes(texto);
-    });
-
-
-    // ELIMINAR MIEMBRO
-
-    const eliminarMiembro = async (id) => {
-        if (!window.confirm("¿Eliminar este miembro del equipo?")) return;
-
-        try {
-            await eliminarMiembroAPI(id);
-            setMiembros(prev => prev.filter(m => m.id !== id));
-            toast.success("Miembro eliminado");
-        } catch (error) {
-            console.error("Error eliminando miembro", error);
-            toast.error(error.response?.data?.detail || "No se pudo eliminar el miembro");
+    const miembrosListos = !miembros.cargando && !miembros.error;
+    const gruposListos = !grupos.cargando && !grupos.error;
+    const totalPorEquipo = new Map();
+    for (const miembro of miembros.datos) {
+        if (miembro.grupo_id != null) {
+            const total = totalPorEquipo.get(miembro.grupo_id) ?? 0;
+            totalPorEquipo.set(miembro.grupo_id, total + 1);
         }
-    };
+    }
+    const totalMiembros = (g) => miembrosListos ? totalPorEquipo.get(g.id) ?? 0 : g.miembros_count ?? g.miembros?.length ?? 0;
+    const totalDetalle = equipo ? totalMiembros(equipo) : 0;
+    const asignables = equipo && admin ? miembros.datos.filter((m) => m.grupo_id !== equipo.id)
+        .toSorted((a, b) => a.nombre_usuario.localeCompare(b.nombre_usuario, "es", { sensitivity: "base" })) : [];
+    const titulo = esCatalogo ? "Equipos" : equipoId ? equipo?.nombre ?? "Equipo" : sinEquipo ? "Sin equipo" : "Todos los miembros";
 
+    async function guardarMiembro(datos) {
+        const id = dialogo.miembro.id;
+        const registro = id ? await editarMiembroAPI(id, datos) : await crearMiembroAPI(datos);
+        miembros.setDatos((prev) => reemplazar(prev, registro));
+        toast.success(id ? "Miembro actualizado" : "Miembro añadido");
+    }
 
-    // EDITAR MIEMBRO
+    async function guardarGrupo(datos) {
+        const anterior = dialogo.grupo;
+        const confirmado = anterior.id ? await editarGrupoAPI(anterior.id, datos) : await crearGrupoAPI(datos);
+        const registro = anterior.id
+            ? { ...anterior, nombre: confirmado.nombre, descripcion: confirmado.descripcion }
+            : confirmado;
+        grupos.setDatos((prev) => reemplazar(prev, registro));
+        toast.success(anterior.id ? "Equipo actualizado" : "Equipo creado");
+    }
 
-    const editarMiembro = (miembro) => {
-        setMiembroEditar(miembro);
-        setMostrarModal(true);
-    };
+    async function asignarMiembro(datos) {
+        const registro = await editarMiembroAPI(Number(datos.get("miembro")), { grupo_id: equipo.id });
+        miembros.setDatos((prev) => reemplazar(prev, registro));
+        toast.success("Miembro asignado");
+    }
 
+    function quitarMiembro(miembro) {
+        setConfirmar({
+            titulo: "Eliminar miembro",
+            mensaje: "¿Eliminar a " + miembro.nombre_usuario + " del directorio de miembros?",
+            eliminar: () => ejecutar(async () => {
+                await eliminarMiembroAPI(miembro.id);
+                miembros.setDatos((prev) => prev.filter(({ id }) => id !== miembro.id));
+            }, "Miembro eliminado", "No se pudo eliminar el miembro."),
+        });
+    }
 
-    // CREAR GRUPO RÁPIDO
+    function quitarGrupo(grupo) {
+        setConfirmar({
+            titulo: "Eliminar equipo",
+            mensaje: "¿Eliminar “" + grupo.nombre + "”? Sus integrantes quedarán en «Sin equipo».",
+            eliminar: () => ejecutar(async () => {
+                await eliminarGrupoAPI(grupo.id);
+                grupos.setDatos((prev) => prev.filter(({ id }) => id !== grupo.id));
+                miembros.setDatos((prev) => prev.map((m) => m.grupo_id === grupo.id
+                    ? { ...m, grupo_id: null, nombre_grupo: null }
+                    : m));
+            }, "Equipo eliminado", "No se pudo eliminar el equipo."),
+        });
+    }
 
-    const crearGrupoRapido = async () => {
-        if (!nuevoGrupo.trim()) return;
-
-        try {
-            const creado = await crearGrupoAPI({
-                nombre: nuevoGrupo.trim(),
-                descripcion: null
-            });
-
-            setGrupos(prev => [...prev, creado]);
-            setNuevoGrupo("");
-            toast.success("Grupo creado");
-        } catch (error) {
-            console.error("Error creando grupo", error);
-            toast.error(error.response?.data?.detail || "No se pudo crear el grupo");
-        }
-    };
-
-
-    // EDITAR GRUPO
-
-    const editarGrupo = (grupo) => {
-        setGrupoEditar(grupo);
-        setMostrarModalGrupo(true);
-    };
-
-
-    // ELIMINAR GRUPO
-
-    const eliminarGrupo = async (id) => {
-        if (!window.confirm("¿Eliminar este grupo? Los miembros quedarán sin grupo.")) return;
-
-        try {
-            await eliminarGrupoAPI(id);
-            setGrupos(prev => prev.filter(g => g.id !== id));
-            cargarMiembros();
-            toast.success("Grupo eliminado");
-        } catch (error) {
-            console.error("Error eliminando grupo", error);
-            toast.error(error.response?.data?.detail || "No se pudo eliminar el grupo");
-        }
-    };
-
-
-    return (
-
-        <div className="equipo-container">
-
-            <div className="equipo-top">
-                <h1>Equipo</h1>
-            </div>
-
-            <EquipoTabs
-                tabActiva={tabActiva}
-                setTabActiva={setTabActiva}
-            />
-
-            {/* ================ PESTAÑA MIEMBROS ================ */}
-            {tabActiva === "MIEMBROS" && (
-                <div className="equipo-contenedor">
-
-                    <div className="contenedor-header">
-                        <button
-                            className="crear-miembro"
-                            onClick={() => {
-                                setMiembroEditar(null);
-                                setMostrarModal(true);
-                            }}
-                        >
-                            AÑADIR NUEVO MIEMBRO
-                        </button>
-                    </div>
-
-                    <EquipoFiltros
-                        busqueda={busqueda}
-                        setBusqueda={setBusqueda}
-                        rolFiltro={rolFiltro}
-                        setRolFiltro={setRolFiltro}
-                        grupoFiltro={grupoFiltro}
-                        setGrupoFiltro={setGrupoFiltro}
-                        estadoFiltro={estadoFiltro}
-                        setEstadoFiltro={setEstadoFiltro}
-                        filtroAbierto={filtroAbierto}
-                        setFiltroAbierto={setFiltroAbierto}
-                        grupos={grupos}
-                    />
-
-                    <EquipoTable
-                        miembros={miembrosFiltrados}
-                        eliminarMiembro={eliminarMiembro}
-                        editarMiembro={editarMiembro}
-                    />
-                </div>
+    return <section className="catalogo" ref={raiz}>
+        <Encabezado titulo={titulo} referenciaTitulo={tituloRef}
+            volver={!esCatalogo && { destino: "/app/equipo", texto: "Volver a equipos" }}
+            detalle={equipo && <>
+                {equipo.descripcion && <p>{equipo.descripcion}</p>}
+                <span>{totalDetalle} {totalDetalle === 1 ? "miembro" : "miembros"}</span>
+            </>}>
+            {esCatalogo && <button type="button" className="catalogo-boton catalogo-primario"
+                disabled={!gruposListos || ocupado}
+                onClick={() => setDialogo({ grupo: {} })}>Nuevo equipo</button>}
+            {equipo && <button type="button" className="catalogo-boton" disabled={ocupado}
+                onClick={() => setDialogo({ grupo: equipo })}>Editar equipo</button>}
+            {equipo && admin && <button type="button" className="catalogo-boton" disabled={!asignables.length || ocupado}
+                onClick={() => setDialogo({ asignar: true })}>Asignar miembro</button>}
+            {!esCatalogo && (!equipoId || equipo) && admin && (
+                <button type="button" className="catalogo-boton catalogo-primario" disabled={!miembrosListos || ocupado}
+                    onClick={() => setDialogo({ miembro: { grupo_id: equipo?.id } })}>Nuevo miembro</button>
             )}
-
-            {/* ================ PESTAÑA GRUPOS ================ */}
-            {tabActiva === "GRUPOS" && (
-                <div className="equipo-contenedor">
-
-                    <GruposFiltros
-                        busqueda={busquedaGrupo}
-                        setBusqueda={setBusquedaGrupo}
-                        nuevoGrupo={nuevoGrupo}
-                        setNuevoGrupo={setNuevoGrupo}
-                        onCrear={crearGrupoRapido}
-                    />
-
-                    <GruposTable
-                        grupos={gruposFiltrados}
-                        editarGrupo={editarGrupo}
-                        eliminarGrupo={eliminarGrupo}
-                    />
-                </div>
-            )}
-
-            {/* ================ PESTAÑA RECORDATORIOS ================ */}
-            {tabActiva === "RECORDATORIOS" && (
-                <div className="equipo-contenedor">
-                    <p style={{ color: "#b5c4cc", padding: 20 }}>
-                        Vista de recordatorios (pendiente)
-                    </p>
-                </div>
-            )}
-
-            {/* ================ MODAL MIEMBRO ================ */}
-            {
-                mostrarModal &&
-                <ModalMiembro
-                    cerrar={() => {
-                        setMostrarModal(false);
-                        setMiembroEditar(null);
-                    }}
-                    miembroEditar={miembroEditar}
-                    grupos={grupos}
-                    guardar={async (nuevoMiembro) => {
-                        try {
-                            if (miembroEditar) {
-                                const actualizado = await editarMiembroAPI(
-                                    nuevoMiembro.id,
-                                    {
-                                        grupo_id: nuevoMiembro.grupo_id,
-                                        tipo_usuario: nuevoMiembro.tipo_usuario,
-                                        estado: nuevoMiembro.estado,
-                                        clave_temp: nuevoMiembro.clave_temp || null
-                                    }
-                                );
-
-                                setMiembros(prev =>
-                                    prev.map(m =>
-                                        m.id === actualizado.id
-                                            ? {
-                                                ...m,
-                                                grupo_id: actualizado.grupo_id,
-                                                grupo: actualizado.nombre_grupo || "Sin grupo",
-                                                rol: actualizado.tipo_usuario,
-                                                estado: actualizado.estado,
-                                                tiene_clave_temp: actualizado.tiene_clave_temp,
-                                                clave_temp_mascara: actualizado.clave_temp_mascara
-                                            }
-                                            : m
-                                    )
-                                );
-
-                                toast.success("Miembro actualizado");
-
-                            } else {
-                                const creado = await crearMiembroAPI({
-                                    email: nuevoMiembro.email,
-                                    grupo_id: nuevoMiembro.grupo_id || null,
-                                    tipo_usuario: nuevoMiembro.tipo_usuario,
-                                    estado: nuevoMiembro.estado,
-                                    clave_temp: nuevoMiembro.clave_temp || null
-                                });
-
-                                setMiembros(prev => [
-                                    ...prev,
-                                    {
-                                        id: creado.id,
-                                        usuario_id: creado.usuario_id,
-                                        nombre: creado.nombre_usuario,
-                                        correo: creado.email_usuario,
-                                        grupo_id: creado.grupo_id,
-                                        grupo: creado.nombre_grupo || "Sin grupo",
-                                        rol: creado.tipo_usuario,
-                                        estado: creado.estado,
-                                        tiene_clave_temp: creado.tiene_clave_temp,
-                                        clave_temp_mascara: creado.clave_temp_mascara,
-                                        etiquetas: creado.etiquetas || []
-                                    }
-                                ]);
-
-                                toast.success("Miembro agregado");
-                            }
-
-                            setMostrarModal(false);
-                            setMiembroEditar(null);
-                        } catch (error) {
-                            console.error("Error guardando miembro", error);
-
-                            const detail = error.response?.data?.detail;
-                            let mensaje = "No se pudo guardar el miembro";
-
-                            if (typeof detail === "string") {
-                                mensaje = detail;
-                            } else if (Array.isArray(detail) && detail.length > 0) {
-                                mensaje = detail[0].msg || mensaje;
-                            }
-
-                            toast.error(mensaje);
-                        }
-                    }}
-                />
-            }
-
-            {/* ================ MODAL GRUPO ================ */}
-            {
-
-                mostrarModalGrupo &&
-                <ModalGrupo
-                    cerrar={() => {
-                        setMostrarModalGrupo(false);
-                        setGrupoEditar(null);
-                    }}
-                    grupoEditar={grupoEditar}
-                    guardar={async (nuevoGrupo) => {
-                        try {
-                            if (grupoEditar) {
-                                const actualizado = await editarGrupoAPI(
-                                    nuevoGrupo.id,
-                                    {
-                                        nombre: nuevoGrupo.nombre,
-                                        descripcion: nuevoGrupo.descripcion
-                                    }
-                                );
-
-                                setGrupos(prev =>
-                                    prev.map(g =>
-                                        g.id === actualizado.id
-                                            ? { ...g, nombre: actualizado.nombre, descripcion: actualizado.descripcion }
-                                            : g
-                                    )
-                                );
-
-                                toast.success("Grupo actualizado");
-                            } else {
-                                const creado = await crearGrupoAPI({
-                                    nombre: nuevoGrupo.nombre,
-                                    descripcion: nuevoGrupo.descripcion
-                                });
-
-                                setGrupos(prev => [...prev, creado]);
-                                toast.success("Grupo creado");
-                            }
-
-                            setMostrarModalGrupo(false);
-                            setGrupoEditar(null);
-                        } catch (error) {
-                            console.error("Error guardando grupo", error);
-                            toast.error(error.response?.data?.detail || "No se pudo guardar el grupo");
-                        }
-                    }}
-                />
-            }
-            <LoadingOverlay visible={cargando} />
-
-        </div>
-    );
+        </Encabezado>
+        {esCatalogo && <EquiposCatalogo grupos={grupos} totalMiembros={totalMiembros}
+            editar={(grupo) => setDialogo({ grupo })} eliminar={quitarGrupo} ocupado={ocupado} />}
+        {equipoId && !equipo && <EstadoListado {...grupos} vacio="No se encontró este equipo." />}
+        {!esCatalogo && (!equipoId || equipo) && <>
+            <DirectorioMiembros key={navegacion} miembros={miembros} grupos={grupos} equipo={equipo} sinEquipo={sinEquipo}
+                admin={admin} editar={(miembro) => setDialogo({ miembro })} eliminar={quitarMiembro} ocupado={ocupado} />
+        </>}
+        {dialogo?.miembro && admin && <ModalMiembro miembro={dialogo.miembro} miembros={miembros.datos} grupos={grupos}
+            cerrar={() => setDialogo(null)} guardar={guardarMiembro} />}
+        {dialogo?.grupo && <ModalGrupo grupo={dialogo.grupo} grupos={grupos.datos}
+            cerrar={() => setDialogo(null)} guardar={guardarGrupo} />}
+        {dialogo?.asignar && equipo && admin && (
+            <DialogoCatalogo titulo="Asignar miembro" cerrar={() => setDialogo(null)} guardar={asignarMiembro}>
+                <label>Miembro
+                    <select name="miembro" aria-label="Miembro a asignar" required defaultValue="">
+                        <option value="" disabled>Elige un miembro</option>
+                        {asignables.map((m) => <option key={m.id} value={m.id}>
+                            {m.nombre_usuario} · {m.email_usuario} · {grupos.datos.find((grupo) => grupo.id === m.grupo_id)?.nombre ?? "Sin equipo"}
+                        </option>)}
+                    </select>
+                </label>
+                <p>La asignación cambia el equipo del miembro seleccionado.</p>
+            </DialogoCatalogo>
+        )}
+        <ConfirmacionCatalogo confirmar={confirmar} cerrar={() => setConfirmar(null)} />
+    </section>;
 }
-
-export default Equipo;
